@@ -256,6 +256,7 @@ def test_diff():
     # diff(json1, json2)
     pass
 
+
 if __name__ == "__main__":
     main()
     optional()
