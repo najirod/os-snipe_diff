@@ -39,8 +39,8 @@ all_assets = snipeit.Assets()
 acc_name = []
 acc_os_list = []
 snipe_os_list = os_number
-
 ###############################
+
 
 # append list of all assets from snipe to "merged_data"(!!! MAX - 1998 !!!)
 def merged_raw_data_from_snipe():
@@ -188,7 +188,7 @@ def write_to_excel(save_name="result", start_column="A", os_from="snipe or acc",
     print(cell_n)
 
 
-# get matching and create xlsx
+# get matching in snipe and os & create xlsx
 def get_matcing():
     aseet_names_from_snipe_that_match = []
     asset_names_from_os_that_match = []
@@ -218,7 +218,7 @@ def get_matcing():
     write_to_excel(save_name=filename, start_column="C", os_from="asset_tag", lst1=asset_tags_match)
 
 
-# get non matching and create xlsx
+# get non-matching from os in snipe & create xlsx
 def get_non_matching():
     asset_names_from_os_that_dont_match = []
     filename = ("not in snipe "+ date.today().strftime("%d.%m.%Y"))
