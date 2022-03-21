@@ -59,9 +59,9 @@ def merged_raw_data_from_snipe():
     total = json_object_snipe["total"]
     l1_l2 = (json_object_snipe['rows'] + json_object_snipe_2['rows'] + json_object_snipe_3['rows'] +
              json_object_snipe_4['rows'])
-    with open('json.json', 'w') as outfile:
+    with open(export_results_path + 'raw_data.json', 'w') as outfile:
         json.dump(l1_l2, outfile)
-    with open('json.json') as j_full:
+    with open(export_results_path + 'raw_data.json') as j_full:
         merged_data = json.load(j_full)
     return merged_data
 
@@ -116,7 +116,7 @@ def create_dict_from_snipe_data():
         dict_from_snipe_data[key]["serial"] = serial[key_index]
         dict_from_snipe_data[key]["supplier"] = supplier[key_index]
         dict_from_snipe_data[key]["os_number"] = os_number[key_index]
-    with open('dict_from_snipe_data.json','w') as write_file:
+    with open(export_results_path + 'dict_from_snipe_data.json','w') as write_file:
         json.dump(dict_from_snipe_data,write_file)
 
 # učitava podatke iz tablice u početne liste
