@@ -7,7 +7,7 @@ import os
 from openpyxl import load_workbook
 from openpyxl import Workbook
 from datetime import date
-from jsondiff import diff
+from deepdiff import DeepDiff
 ###############################
 reload(snipeit)
 load_dotenv()
@@ -66,7 +66,7 @@ def merged_raw_data_from_snipe():
     return merged_data
 
 
-# appends list of all: asset_tags, serials, suppliers, os_numbers - if None = ""
+# appends list of all: asset_tags, serials, suppliers, os_numbers - if None = None
 def get_all_data_from_snipe():
     global asset_tags
     global serial
@@ -83,7 +83,6 @@ def get_all_data_from_snipe():
             supplier.append(None)
         else:
             supplier.append(merged_data[i]['supplier']['name'])
-
         if merged_data[i]['custom_fields']['Broj osnovnog sredstva']['value'] is None:
             os_number.append(None)
         else:
@@ -164,7 +163,7 @@ def is_os_in_snipeit():
 def write_to_excel(save_name="result", start_column="A", os_from="snipe or acc", lst1=None, lst2=None):
     sheet_ranges_result = wb_result.active
     cell_n = 2
-    print(cell_n)
+    # print(cell_n)
     if lst2 is None:
         for acc_os in lst1:
             if acc_os is None:
@@ -185,7 +184,7 @@ def write_to_excel(save_name="result", start_column="A", os_from="snipe or acc",
                 sheet_ranges_result[chr(ord(start_column)+1)+str(cell_n)] = lst2[cell_n]
                 cell_n += 1
                 wb_result.save(export_results_path + save_name + ".xlsx")
-    print(cell_n)
+    # print(cell_n)
 
 
 # get matching in snipe and os & create xlsx
@@ -236,6 +235,20 @@ def get_non_matching():
     write_to_excel(save_name=filename, start_column="B",os_from="nam_in_os",lst1=asset_names_from_os_that_dont_match)
 
 
+def test_diff():
+    with open("test_files/test1.json","r") as json1:
+        js1 = json.load(json1)
+
+    with open("test_files/test2.json", "r") as json2:
+        js2 = json.load(json2)
+
+    differences = dict(DeepDiff(js1, js2))
+    len_differences = len(differences["values_changed"])
+    print(differences)
+    # print(len_differences)
+    # print(differences["values_changed"])
+
+
 def main():
     global matching
     merged_raw_data_from_snipe()
@@ -248,13 +261,9 @@ def main():
 def optional():
     #get_matcing()
     get_non_matching()
-    #test
+    # test_diff()
 
 
-def test_diff():
-
-    # diff(json1, json2)
-    pass
 
 
 if __name__ == "__main__":
