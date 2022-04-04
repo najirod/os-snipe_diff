@@ -29,6 +29,7 @@ dict_from_snipe_data = {}   # dict wih needed data from snipe-it
 matching = []   # list of matching os numbers in snipe-it & accounting tables
 non_matching = []   # list of non-existing os number in snipe-it from accounting tables
 
+
 export_results_path = os.getenv("export_results_path")
 
 wb = load_workbook(filename=os.getenv("excel_filename"))
@@ -169,7 +170,7 @@ def write_to_excel(save_name="result", start_column="A", os_from="snipe or acc",
             if acc_os is None:
                 pass
             else:
-                sheet_ranges_result[start_column + "1"] = "os_from " + os_from
+                sheet_ranges_result[start_column + "1"] = "- " + os_from
                 sheet_ranges_result[start_column + str(cell_n)] = acc_os
                 cell_n += 1
                 wb_result.save(export_results_path + save_name+ ".xlsx")
@@ -235,6 +236,25 @@ def get_non_matching():
     write_to_excel(save_name=filename, start_column="B",os_from="nam_in_os",lst1=asset_names_from_os_that_dont_match)
 
 
+def get_rest_from_snipe():
+    l_tags = []
+    l_names = []
+    filename = ("snipe_no_os " + date.today().strftime("%d.%m.%Y"))
+    for asset_tag in dict_from_snipe_data:
+        if dict_from_snipe_data[asset_tag]['os_number'] is None:
+            l_tags.append(asset_tag)
+            l_names.append(dict_from_snipe_data[asset_tag]['asset_name'])
+
+    write_to_excel(save_name=filename, start_column="A",os_from="asset_tags", lst1=l_tags)
+    write_to_excel(save_name=filename, start_column="B", os_from="name", lst1=l_names)
+
+
+    # print("li", li)
+    # print(len(li))
+
+
+
+
 def test_diff():
     with open("test_files/test1.json","r") as json1:
         js1 = json.load(json1)
@@ -259,10 +279,10 @@ def main():
 
 
 def optional():
-    #get_matcing()
-    get_non_matching()
+    # get_matcing()
+    # get_non_matching()
     # test_diff()
-
+    get_rest_from_snipe()
 
 
 
