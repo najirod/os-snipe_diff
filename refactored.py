@@ -42,6 +42,9 @@ acc_os_list = []
 snipe_os_list = os_number
 ###############################
 
+class Snipe:
+    def __init__(self):
+        pass
 
 # append list of all assets from snipe to "merged_data"(!!! MAX - 1998 !!!)
 def merged_raw_data_from_snipe():
