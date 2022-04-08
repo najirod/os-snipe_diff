@@ -46,6 +46,7 @@ class Snipe:
     def __init__(self):
         pass
 
+
 # append list of all assets from snipe to "merged_data"(!!! MAX - 1998 !!!)
 def merged_raw_data_from_snipe():
     global total
