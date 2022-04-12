@@ -8,262 +8,253 @@ from openpyxl import load_workbook
 from openpyxl import Workbook
 from datetime import date
 from deepdiff import DeepDiff
+import diff
 ###############################
 reload(snipeit)
-load_dotenv()
+# load_dotenv()
 ###############################
-server = os.getenv("server")  # snipe-it server IP
-token = os.getenv("token")  # personal token for snipe API
-limit = os.getenv("limit")  # limit for snipe API GET {int} -- None = All -- MAX je 500!!!
-offset = os.getenv("offset")  # offset {int} -- default: {0}
-total = ""      # number of items assets in snipe {str}
-merged_data = []    # list of dicts with all data in snipe-it
-asset_tags = []   # list of all asset tags in snipe-it in order
-serial = []     # list of all serial/IMEI in snipe-it in order
-supplier = []   # list of suppliers for assets in order
-os_number = []  # list of os numbers for assets in order
-person = []     # list of people names or usernames for assets in order - if Ready to Deploy then "rtd"
-asset_name = []     # list of asset names from snipe-it in order
-dict_from_snipe_data = {}   # dict wih needed data from snipe-it
+# server = os.getenv("server")  # snipe-it server IP
+# token = os.getenv("token")  # personal token for snipe API
+# limit = os.getenv("limit")  # limit for snipe API GET {int} -- None = All -- MAX je 500!!!
+# offset = os.getenv("offset")  # offset {int} -- default: {0}
+# total = ""      # number of items assets in snipe {str}
+# merged_data = []    # list of dicts with all data in snipe-it
+# asset_tags = []   # list of all asset tags in snipe-it in order
+# serial = []     # list of all serial/IMEI in snipe-it in order
+# supplier = []   # list of suppliers for assets in order
+# os_number = []  # list of os numbers for assets in order
+# person = []     # list of people names or usernames for assets in order - if Ready to Deploy then "rtd"
+# asset_name = []     # list of asset names from snipe-it in order
+# dict_from_snipe_data = {}   # dict wih needed data from snipe-it
 
-matching = []   # list of matching os numbers in snipe-it & accounting tables
-non_matching = []   # list of non-existing os number in snipe-it from accounting tables
+# matching = []   # list of matching os numbers in snipe-it & accounting tables
+# non_matching = []   # list of non-existing os number in snipe-it from accounting tables
 
 
-export_results_path = os.getenv("export_results_path")
+# export_results_path = os.getenv("export_results_path")
 
+"""
 wb = load_workbook(filename=os.getenv("excel_filename"))
 sheet_ranges = wb["1"]
 wb_result = Workbook()
-all_assets = snipeit.Assets()
+"""
+# all_assets = snipeit.Assets()
 
-acc_name = []
-acc_os_list = []
-snipe_os_list = os_number
+# acc_name = []
+# acc_os_list = []
+# # snipe_os_list = os_number
 ###############################
+
 
 class Snipe:
     def __init__(self):
-        pass
+        load_dotenv()
+        self.all_assets = snipeit.Assets()
+        self.server = os.getenv("server")  # snipe-it server IP
+        self.token = os.getenv("token")  # personal token for snipe API
+        self.limit = os.getenv("limit")  # limit for snipe API GET {int} -- None = All -- MAX je 500!!!
+        self.offset = os.getenv("offset")  # offset {int} -- default: {0}
+        self.total = ""  # number of items assets in snipe {str}
 
+        self.asset_tags = []  # list of all asset tags in snipe-it in order
+        self.serial = []  # list of all serial/IMEI in snipe-it in order
+        self.supplier = []  # list of suppliers for assets in order
+        self.os_number = []  # list of os numbers for assets in order
+        self.person = []  # list of people names or usernames for assets in order - if Ready to Deploy then "rtd"
+        self.asset_name = []  # list of asset names from snipe-it in order
 
-# append list of all assets from snipe to "merged_data"(!!! MAX - 1998 !!!)
-def merged_raw_data_from_snipe():
-    global total
-    global merged_data
-    merged_data = []
-    raw_data_from_snipe = all_assets.get(server=server, token=token, limit=limit, offset=offset)
-    raw_data_from_snipe_2 = all_assets.get(server=server, token=token, limit=500, offset=500)
-    raw_data_from_snipe_3 = all_assets.get(server=server, token=token, limit=499, offset=1000)
-    raw_data_from_snipe_4 = all_assets.get(server=server, token=token, limit=499, offset=1499)
-    json_object_snipe = json.loads(raw_data_from_snipe)
-    json_object_snipe_2 = json.loads(raw_data_from_snipe_2)
-    json_object_snipe_3 = json.loads(raw_data_from_snipe_3)
-    json_object_snipe_4 = json.loads(raw_data_from_snipe_4)
+        self.merged_data = []
 
-    total = json_object_snipe["total"]
-    l1_l2 = (json_object_snipe['rows'] + json_object_snipe_2['rows'] + json_object_snipe_3['rows'] +
-             json_object_snipe_4['rows'])
-    with open(export_results_path + 'raw_data.json', 'w') as outfile:
-        json.dump(l1_l2, outfile)
-    with open(export_results_path + 'raw_data.json') as j_full:
-        merged_data = json.load(j_full)
-    return merged_data
+        self.export_results_path = os.getenv("export_results_path_test")
+        self.dict_from_snipe_data = {}  # dict wih needed data from snipe-it
 
+    # append list of all assets from snipe to "merged_data"(!!! MAX - 1998 !!!)
+    def get_merged_raw_data_from_snipe(self):
+        raw_data_from_snipe = self.all_assets.get(server=self.server, token=self.token, limit=self.limit, offset=self.offset)
+        raw_data_from_snipe_2 = self.all_assets.get(server=self.server, token=self.token, limit=500, offset=500)
+        raw_data_from_snipe_3 = self.all_assets.get(server=self.server, token=self.token, limit=499, offset=1000)
+        raw_data_from_snipe_4 = self.all_assets.get(server=self.server, token=self.token, limit=499, offset=1499)
+        json_object_snipe = json.loads(raw_data_from_snipe)
+        json_object_snipe_2 = json.loads(raw_data_from_snipe_2)
+        json_object_snipe_3 = json.loads(raw_data_from_snipe_3)
+        json_object_snipe_4 = json.loads(raw_data_from_snipe_4)
 
-# appends list of all: asset_tags, serials, suppliers, os_numbers - if None = None
-def get_all_data_from_snipe():
-    global asset_tags
-    global serial
-    global supplier
-    global os_number
-    global person
-    global asset_name
+        self.total = json_object_snipe["total"]
+        l1_l2 = (json_object_snipe['rows'] + json_object_snipe_2['rows'] + json_object_snipe_3['rows'] +
+                 json_object_snipe_4['rows'])
+        with open(self.export_results_path + 'raw_data.json', 'w') as outfile:
+            json.dump(l1_l2, outfile)
+        with open(self.export_results_path + 'raw_data.json') as j_full:
+            self.merged_data = json.load(j_full)
+        # return merged_data
 
-    for i in range(int(total)):
-        asset_tags.append(merged_data[i]['asset_tag'])
-        serial.append(merged_data[i]['serial'])
+    # appends list of all: asset_tags, serials, suppliers, os_numbers - if None = None
+    def get_all_data_from_snipe(self):
 
-        if merged_data[i]['supplier'] is None:
-            supplier.append(None)
-        else:
-            supplier.append(merged_data[i]['supplier']['name'])
-        if list(merged_data[i]['custom_fields'].keys())[0] == 'ZOPU':
-            if merged_data[i]['custom_fields']['Broj osnovnog sredstva']['value'] is None:
-                os_number.append(None)
+        for i in range(int(self.total)):
+            self.asset_tags.append(self.merged_data[i]['asset_tag'])
+            self.serial.append(self.merged_data[i]['serial'])
+
+            if self.merged_data[i]['supplier'] is None:
+                self.supplier.append(None)
             else:
-                os_number.append(merged_data[i]['custom_fields']['Broj osnovnog sredstva']['value'])
-        elif list(merged_data[i]['custom_fields'].keys())[0] == 'Broj kartice':
-            print("kartica")
-            os_number.append(None)
-        if merged_data[i]["assigned_to"] is None:
-            person.append("rtd")
-        else:
-            if merged_data[i]["assigned_to"]["name"] is None:
-                person.append(merged_data[i]["assigned_to"]["username"])
+                self.supplier.append(self.merged_data[i]['supplier']['name'])
+            if list(self.merged_data[i]['custom_fields'].keys())[0] == 'ZOPU':
+                if self.merged_data[i]['custom_fields']['Broj osnovnog sredstva']['value'] is None:
+                    self.os_number.append(None)
+                else:
+                    self.os_number.append(self.merged_data[i]['custom_fields']['Broj osnovnog sredstva']['value'])
+            elif list(self.merged_data[i]['custom_fields'].keys())[0] == 'Broj kartice':
+                # print("kartica")
+                self.os_number.append(None)
+            if self.merged_data[i]["assigned_to"] is None:
+                self.person.append("rtd")
             else:
-                person.append(merged_data[i]["assigned_to"]["name"])
+                if self.merged_data[i]["assigned_to"]["name"] is None:
+                    self.person.append(self.merged_data[i]["assigned_to"]["username"])
+                else:
+                    self.person.append(self.merged_data[i]["assigned_to"]["name"])
 
-        if merged_data[i]['model']['name'] is None:
-            asset_name.append("no name")
+            if self.merged_data[i]['model']['name'] is None:
+                self.asset_name.append("no name")
 
-        else:
-            asset_name.append(merged_data[i]["model"]["name"])
+            else:
+                self.asset_name.append(self.merged_data[i]["model"]["name"])
 
-
-# creates dict of needed data from snipe
-def create_dict_from_snipe_data():
-    keys_for_l2_dict = ["person","asset_name","serial","supplier","os_number"]
-    global dict_from_snipe_data
-    dict_from_snipe_data = dict.fromkeys(asset_tags)
-    for key in dict_from_snipe_data:
-        key_index = asset_tags.index(key)
-        dict_from_snipe_data[key]=dict.fromkeys(keys_for_l2_dict)
-        dict_from_snipe_data[key]["person"] = person[key_index]
-        dict_from_snipe_data[key]["asset_name"] = asset_name[key_index]
-        dict_from_snipe_data[key]["serial"] = serial[key_index]
-        dict_from_snipe_data[key]["supplier"] = supplier[key_index]
-        dict_from_snipe_data[key]["os_number"] = os_number[key_index]
-    with open(export_results_path + 'dict_from_snipe_data.json','w') as write_file:
-        json.dump(dict_from_snipe_data,write_file)
-
-
-# učitava podatke iz tablice u početne liste
-def append_lists_from_excel():
-    """
-    for cell_a in sheet_ranges["A"]:
-        cell_a_value = isinstance(cell_a.value, int)
-        if cell_a_value:
-            if cell_a.value not in acc_os_list:
-                acc_os_list.append(str(cell_a.value))
-    """
-    for cell_a in sheet_ranges["A"]:
-        cell_a_value = cell_a.value
-        if cell_a_value == "Inv. broj":
-            pass
-        else:
-            acc_os_list.append(str(cell_a_value))
-
-    for cell_b in sheet_ranges["B"]:
-        cell_b_value = cell_b.value
-        if cell_b_value == "Naziv":
-            pass
-        else:
-            acc_name.append(str(cell_b_value))
-    """"
-    for cell_c in sheet_ranges["C"]:
-        cell_c_value = isinstance(cell_c.value, int)
-        if cell_c_value:
-            if cell_c.value not in snipe_os_list:
-                snipe_os_list.append(cell_c.value)
-    """
+    # creates dict of needed data from snipe
+    def create_dict_from_snipe_data(self):
+        keys_for_l2_dict = ["person", "asset_name", "serial", "supplier", "os_number"]
+        self.dict_from_snipe_data = dict.fromkeys(self.asset_tags)
+        for key in self.dict_from_snipe_data:
+            key_index = self.asset_tags.index(key)
+            self.dict_from_snipe_data[key] = dict.fromkeys(keys_for_l2_dict)
+            self.dict_from_snipe_data[key]["person"] = self.person[key_index]
+            self.dict_from_snipe_data[key]["asset_name"] = self.asset_name[key_index]
+            self.dict_from_snipe_data[key]["serial"] = self.serial[key_index]
+            self.dict_from_snipe_data[key]["supplier"] = self.supplier[key_index]
+            self.dict_from_snipe_data[key]["os_number"] = self.os_number[key_index]
+        with open(self.export_results_path + 'dict_from_snipe_data.json', 'w') as write_file:
+            json.dump(self.dict_from_snipe_data, write_file)
 
 
-# provjera i return: lista(matching) sa brojevima os koji se nalaze u snipe
-def is_os_in_snipeit():
-    global matching
-    os_in_snipe_list = []
-    for acc_os_num in acc_os_list:
-        if acc_os_num in snipe_os_list:
-            # print("ima ga", acc_os_num)
-            matching.append(acc_os_num)
+class AccOsData:
+    def __init__(self, snipe):
+        self.wb = load_workbook(filename=os.getenv("excel_filename"))
+        self.sheet_ranges = self.wb["1"]
+        self.wb_result = Workbook()
+        self.acc_name = []
+        self.acc_os_list = []
+        # self.snipe_os_list = snipe.os_number
 
-
-# upis podataka u excel
-def write_to_excel(save_name="result", start_column="A", os_from="snipe or acc", lst1=None, lst2=None):
-    sheet_ranges_result = wb_result.active
-    cell_n = 2
-    # print(cell_n)
-    if lst2 is None:
-        for acc_os in lst1:
-            if acc_os is None:
+    # učitava podatke iz tablice u početne liste
+    def append_lists_from_excel(self):
+        for cell_a in self.sheet_ranges["A"]:
+            cell_a_value = cell_a.value
+            if cell_a_value == "Inv. broj":
                 pass
             else:
-                sheet_ranges_result[start_column + "1"] = "- " + os_from
-                sheet_ranges_result[start_column + str(cell_n)] = acc_os
-                cell_n += 1
-                wb_result.save(export_results_path + save_name+ ".xlsx")
-    else:
-        for acc_os in lst1:
-            if acc_os is None:
+                self.acc_os_list.append(str(cell_a_value))
+
+        for cell_b in self.sheet_ranges["B"]:
+            cell_b_value = cell_b.value
+            if cell_b_value == "Naziv":
                 pass
             else:
-                sheet_ranges_result[start_column+"1"] = "os_from " + os_from
-                sheet_ranges_result[start_column + str(cell_n)] = acc_os
-                sheet_ranges_result[chr(ord(start_column) + 1) + "1"] = "name"
-                sheet_ranges_result[chr(ord(start_column)+1)+str(cell_n)] = lst2[cell_n]
+                self.acc_name.append(str(cell_b_value))
+
+class Check:
+    def __init__(self, snipe_data, acc_os_data):
+        self.snipe_data = snipe_data
+        self.acc_os_data = acc_os_data
+        self.matching = []
+
+        self.aseet_names_from_snipe_that_match = []
+        self.asset_names_from_os_that_match = []
+        self.asset_tags_match = []
+
+        self.asset_names_from_os_that_dont_match = []
+        self.non_matching = []
+
+        self.rest_tags = []
+        self.rest_names = []
+
+    # provjera i return: lista(matching) sa brojevima os koji se nalaze u snipe
+    def is_os_in_snipeit(self):
+        os_in_snipe_list = []
+        for acc_os_num in self.acc_os_data.acc_os_list:
+            if acc_os_num in self.snipe_data.os_number:
+                # print("ima ga", acc_os_num)
+                self.matching.append(acc_os_num)
+
+    # get matching in snipe and os
+    def get_matcing(self):
+        filename = ("usporedba_match_" + date.today().strftime("%d.%m.%Y"))
+
+        for match in self.matching:
+            self.aseet_names_from_snipe_that_match.append(self.snipe_data.asset_name[int(self.snipe_data.os_number.index(match))])
+
+            self.asset_names_from_os_that_match.append(self.acc_os_data.acc_name[int(self.acc_os_data.acc_os_list.index(match))])
+
+            self.asset_tags_match.append(self.snipe_data.asset_tags[int(self.snipe_data.os_number.index(match))])
+
+
+    # get non-matching from os in snipe
+    def get_non_matching(self):
+        for non_match in self.acc_os_data.acc_os_list:
+            if non_match in self.matching:
+                pass
+            else:
+                # print(non_match)
+                self.non_matching.append(non_match)
+        for os_n in self.non_matching:
+            self.asset_names_from_os_that_dont_match.append(self.acc_os_data.acc_name[int(self.acc_os_data.acc_os_list.index(os_n))])
+
+
+    def get_rest_from_snipe(self):
+
+        for asset_tag in self.snipe_data.dict_from_snipe_data:
+            if self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] is None:
+                self.rest_tags.append(asset_tag)
+                self.rest_names.append(self.snipe_data.dict_from_snipe_data[asset_tag]['asset_name'])
+
+
+class ExcelReport:
+    def __init__(self):
+        self.wb_result = Workbook()
+        self.export_results_path = os.getenv("export_results_path_test")
+
+    # upis podataka u excel
+    def write_list_to_excel(self, save_name="result", start_column="A", col_name="snipe or acc", lst1=None):
+        sheet_ranges_result = self.wb_result.active
+        cell_n = 2
+        for item in lst1:
+            if item is None:
+                pass
+            else:
+                sheet_ranges_result[start_column + "1"] = col_name
+                sheet_ranges_result[start_column + str(cell_n)] = item
                 cell_n += 1
-                wb_result.save(export_results_path + save_name + ".xlsx")
-    # print(cell_n)
+                self.wb_result.save(self.export_results_path + save_name +" " + date.today().strftime("%d.%m.%Y") + ".xlsx")
+
+    def generate_matching_xlsx(self, check):
+        print("g started")
+        self.write_list_to_excel(save_name="matching",start_column="A",col_name="os_num",lst1=check.matching)
+        self.write_list_to_excel(save_name="matching", start_column="B", col_name="snipe_name", lst1=check.aseet_names_from_snipe_that_match)
+        self.write_list_to_excel(save_name="matching",start_column="C",col_name="acc_name", lst1=check.asset_names_from_os_that_match)
+        self.write_list_to_excel(save_name="matching",start_column="D",col_name="Asset_number",lst1=check.asset_tags_match)
+
+    def generate_non_matching_xlsx(self,check):
+        print("pocelo je")
+        self.write_list_to_excel(save_name="non_matching",start_column="A",col_name="os_num",lst1=check.non_matching)
+        self.write_list_to_excel(save_name="non_matching", start_column="B",col_name="os_name",lst1=check.asset_names_from_os_that_dont_match)
 
 
-# get matching in snipe and os & create xlsx
-def get_matcing():
-    aseet_names_from_snipe_that_match = []
-    asset_names_from_os_that_match = []
-    asset_tags_match = []
-    filename = ("usporedba_match_" + date.today().strftime("%d.%m.%Y"))
-    for match in matching:
-        #print(match)
-        # print(matching.index(match))
-
-        # print(snipe_os_list.index(match))
-       # print(snipe_os_list[snipe_os_list.index(match)])
-
-        aseet_names_from_snipe_that_match.append(asset_name[int(snipe_os_list.index(match))])
-        # print(asset_name[int(snipe_os_list.index(match))])
-
-        asset_names_from_os_that_match.append(acc_name[int(acc_os_list.index(match))])
-        # print(acc_name[int(acc_os_list.index(match))])
-        # print(matching)
-
-        asset_tags_match.append(asset_tags[int(snipe_os_list.index(match))])
-    print(len(aseet_names_from_snipe_that_match))
-    print(len(asset_names_from_os_that_match))
-    print(len(asset_tags_match))
-    write_to_excel(save_name=filename, start_column="A", os_from="nums", lst1=matching)
-    write_to_excel(save_name=filename, start_column="B", os_from="name_snipe", lst1=aseet_names_from_snipe_that_match)
-    write_to_excel(save_name=filename, start_column="D", os_from="name_acc", lst1=asset_names_from_os_that_match)
-    write_to_excel(save_name=filename, start_column="C", os_from="asset_tag", lst1=asset_tags_match)
+    def generate_rest_xlsx(self,check):
+        self.write_list_to_excel(save_name="rest", start_column="A", col_name="asset_tages", lst1=check.rest_tags)
+        self.write_list_to_excel(save_name="rest", start_column="B", col_name="name_from_snipe", lst1=check.rest_names)
 
 
-# get non-matching from os in snipe & create xlsx
-def get_non_matching():
-    asset_names_from_os_that_dont_match = []
-    filename = ("not in snipe "+ date.today().strftime("%d.%m.%Y"))
-    global non_matching
-    for non_match in acc_os_list:
-        if non_match in matching:
-            pass
-        else:
-            #print(non_match)
-            non_matching.append(non_match)
-    for os_n in non_matching:
-        asset_names_from_os_that_dont_match.append(acc_name[int(acc_os_list.index(os_n))])
-
-    write_to_excel(save_name=filename, start_column="A",os_from="acc",lst1=non_matching)
-    write_to_excel(save_name=filename, start_column="B",os_from="nam_in_os",lst1=asset_names_from_os_that_dont_match)
-
-
-def get_rest_from_snipe():
-    l_tags = []
-    l_names = []
-    filename = ("snipe_no_os " + date.today().strftime("%d.%m.%Y"))
-    for asset_tag in dict_from_snipe_data:
-        if dict_from_snipe_data[asset_tag]['os_number'] is None:
-            l_tags.append(asset_tag)
-            l_names.append(dict_from_snipe_data[asset_tag]['asset_name'])
-
-    write_to_excel(save_name=filename, start_column="A",os_from="asset_tags", lst1=l_tags)
-    write_to_excel(save_name=filename, start_column="B", os_from="name", lst1=l_names)
-
-
-    # print("li", li)
-    # print(len(li))
-
-
-
-
+"""
 def test_diff():
     with open("test_files/test1.json","r") as json1:
         js1 = json.load(json1)
@@ -292,10 +283,33 @@ def optional():
     # get_non_matching()
     # test_diff()
     # get_rest_from_snipe()
-    """test"""
+    
+"""
 
+def main():
+    my_snipe = Snipe()
+    my_snipe.get_merged_raw_data_from_snipe()
+    my_snipe.get_all_data_from_snipe()
+    my_snipe.create_dict_from_snipe_data()
+
+    my_acc = AccOsData(my_snipe)
+    my_acc.append_lists_from_excel()
+
+    my_check = Check(snipe_data=my_snipe,acc_os_data=my_acc)
+    my_check.is_os_in_snipeit()
+    my_check.get_matcing()
+    my_check.get_non_matching()
+    my_check.get_rest_from_snipe()
+
+    my_report = ExcelReport()
+    # my_report.generate_matching_xlsx(my_check)
+    # my_report.generate_non_matching_xlsx(my_check)
+    my_report.generate_rest_xlsx(my_check)
+    print("kraj")
+
+def my_diff():
+    diff.Diff("test1", "test2").get_diff()
 
 if __name__ == "__main__":
-    main()
-    optional()
+    my_diff()
 
