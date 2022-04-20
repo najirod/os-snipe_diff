@@ -13,6 +13,7 @@ class Diff:
         self.path = os.getenv("diff_path")
         self.export_results_path = os.getenv("export_results_path_test")
         self.differences = {}
+        self.num_of_changes = 0
 
     def get_diff(self):
         with open(self.path + self.file1 + ".json", "r") as json1:
@@ -21,10 +22,18 @@ class Diff:
             js2 = json.load(json2)
 
         self.differences = dict(DeepDiff(js1, js2))
+        self.num_of_changes = len(self.differences["values_changed"])
         print(self.differences)
 
+    def create_json(self):
+        self.get_diff()
         with open(self.export_results_path + 'diffs.json', 'w') as write_file:
             json.dump(self.differences, write_file)
+
+    def pretty_diffs_xlsx(self):
+        self.get_diff()
+        print(self.differences["values_changed"])
+        print(list(self.differences["values_changed"].keys())[0])
 
 
 if __name__ == "__main__":

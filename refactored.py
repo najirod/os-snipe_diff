@@ -305,11 +305,12 @@ def main():
     # my_report.generate_matching_xlsx(my_check)
     # my_report.generate_non_matching_xlsx(my_check)
     my_report.generate_rest_xlsx(my_check)
-    print("kraj")
+
 
 def my_diff():
     diff.Diff("test1", "test2").get_diff()
 
-if __name__ == "__main__":
-    my_diff()
 
+if __name__ == "__main__":
+    # my_diff()
+    main()
