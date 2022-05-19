@@ -136,6 +136,8 @@ class Snipe:
         with open(self.export_results_path + 'dict_from_snipe_data.json', 'w') as write_file:
             json.dump(self.dict_from_snipe_data, write_file)
 
+class write_to():
+    """TODO: write to Snipe"""
 
 class AccOsData:
     def __init__(self, snipe):
