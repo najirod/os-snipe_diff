@@ -223,37 +223,6 @@ class ExcelReport:
         self.write_list_to_excel(save_name="rest", start_column="B", col_name="name_from_snipe", lst1=check.rest_names)
 
 
-"""
-def test_diff():
-    with open("test_files/test1.json","r") as json1:
-        js1 = json.load(json1)
-
-    with open("test_files/test2.json", "r") as json2:
-        js2 = json.load(json2)
-
-    differences = dict(DeepDiff(js1, js2))
-    len_differences = len(differences["values_changed"])
-    print(differences)
-    # print(len_differences)
-    # print(differences["values_changed"])
-
-
-def main():
-    global matching
-    merged_raw_data_from_snipe()
-    get_all_data_from_snipe()
-    append_lists_from_excel()
-    is_os_in_snipeit()
-    create_dict_from_snipe_data()
-
-
-def optional():
-    # get_matcing()
-    # get_non_matching()
-    # test_diff()
-    # get_rest_from_snipe()
-    
-"""
 
 
 def test():
