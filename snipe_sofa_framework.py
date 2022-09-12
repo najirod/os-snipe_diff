@@ -52,8 +52,10 @@ class Snipe:
         self.all_assets = snipeit.Assets()
         self.server = os.getenv("server")  # snipe-it server IP
         self.token = os.getenv("token")  # personal token for snipe API
-        self.limit = os.getenv("limit")  # limit for snipe API GET {int} -- None = All -- MAX je 500!!!
-        self.offset = os.getenv("offset")  # offset {int} -- default: {0}
+        self.limit1 = os.getenv("limit1")  # limit for snipe API GET {int} -- None = All
+        self.offset1 = os.getenv("offset1")  # offset {int} -- default: {0}
+        self.limit2 = os.getenv("limit2")  # limit for snipe API GET {int} -- None = All
+        self.offset2 = os.getenv("offset2")  # offset {int} -- default: {0}
         self.total = ""  # number of items assets in snipe {str}
 
         self.asset_tags = []  # list of all asset tags in snipe-it in order
@@ -70,21 +72,18 @@ class Snipe:
 
     # append list of all assets from snipe to "merged_data"(!!! MAX - 1998 !!!)
     def get_merged_raw_data_from_snipe(self):
-        raw_data_from_snipe = self.all_assets.get(server=self.server, token=self.token, limit=self.limit, offset=self.offset)
-        raw_data_from_snipe_2 = self.all_assets.get(server=self.server, token=self.token, limit=500, offset=500)
-        raw_data_from_snipe_3 = self.all_assets.get(server=self.server, token=self.token, limit=499, offset=1000)
-        raw_data_from_snipe_4 = self.all_assets.get(server=self.server, token=self.token, limit=499, offset=1499)
+        raw_data_from_snipe = self.all_assets.get(server=self.server, token=self.token, limit=self.limit1, offset=self.offset1)
+        raw_data_from_snipe_2 = self.all_assets.get(server=self.server, token=self.token, limit=self.limit2, offset=self.offset2)
         json_object_snipe = json.loads(raw_data_from_snipe)
         json_object_snipe_2 = json.loads(raw_data_from_snipe_2)
-        json_object_snipe_3 = json.loads(raw_data_from_snipe_3)
-        json_object_snipe_4 = json.loads(raw_data_from_snipe_4)
 
         self.total = json_object_snipe["total"]
-        l1_l2 = (json_object_snipe['rows'] + json_object_snipe_2['rows'] + json_object_snipe_3['rows'] +
-                 json_object_snipe_4['rows'])
-        with open(self.export_results_path + 'raw_data.json', 'w') as outfile:
+        l1_l2 = (json_object_snipe['rows'] + json_object_snipe_2['rows'])
+        with open(self.export_results_path + '.raw_data.json', 'w') as outfile:
             json.dump(l1_l2, outfile)
-        with open(self.export_results_path + 'raw_data.json') as j_full:
+        with open(self.export_results_path + 'raw_data ' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as outfile:
+            json.dump(l1_l2, outfile)
+        with open(self.export_results_path + '.raw_data.json') as j_full:
             self.merged_data = json.load(j_full)
         # return merged_data
 
@@ -133,7 +132,7 @@ class Snipe:
             self.dict_from_snipe_data[key]["serial"] = self.serial[key_index]
             self.dict_from_snipe_data[key]["supplier"] = self.supplier[key_index]
             self.dict_from_snipe_data[key]["os_number"] = self.os_number[key_index]
-        with open(self.export_results_path + 'dict_from_snipe_data.json', 'w') as write_file:
+        with open(self.export_results_path + 'dict_from_snipe_data ' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as write_file:
             json.dump(self.dict_from_snipe_data, write_file)
 
 class write_to():
@@ -288,6 +287,17 @@ def optional():
     
 """
 
+
+def test():
+    test_snipe = Snipe()
+    test_snipe.get_merged_raw_data_from_snipe()
+    test_snipe.get_all_data_from_snipe()
+    test_snipe.create_dict_from_snipe_data()
+    print("len: ",len(test_snipe.dict_from_snipe_data))
+    print(test_snipe.total)
+
+
+
 def main():
     my_snipe = Snipe()
     my_snipe.get_merged_raw_data_from_snipe()
@@ -310,9 +320,10 @@ def main():
 
 
 def my_diff():
-    diff.Diff("test1", "test2").get_diff()
+    diff.Diff("dict_from_snipe_data 11.09.2022", "dict_from_snipe_data 12.09.2022").get_diff()
 
 
 if __name__ == "__main__":
-    # my_diff()
-    main()
+    my_diff()
+    # main()
+    # test()
