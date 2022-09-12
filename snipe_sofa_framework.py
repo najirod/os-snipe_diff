@@ -11,39 +11,7 @@ from deepdiff import DeepDiff
 import diff
 ###############################
 reload(snipeit)
-# load_dotenv()
-###############################
-# server = os.getenv("server")  # snipe-it server IP
-# token = os.getenv("token")  # personal token for snipe API
-# limit = os.getenv("limit")  # limit for snipe API GET {int} -- None = All -- MAX je 500!!!
-# offset = os.getenv("offset")  # offset {int} -- default: {0}
-# total = ""      # number of items assets in snipe {str}
-# merged_data = []    # list of dicts with all data in snipe-it
-# asset_tags = []   # list of all asset tags in snipe-it in order
-# serial = []     # list of all serial/IMEI in snipe-it in order
-# supplier = []   # list of suppliers for assets in order
-# os_number = []  # list of os numbers for assets in order
-# person = []     # list of people names or usernames for assets in order - if Ready to Deploy then "rtd"
-# asset_name = []     # list of asset names from snipe-it in order
-# dict_from_snipe_data = {}   # dict wih needed data from snipe-it
 
-# matching = []   # list of matching os numbers in snipe-it & accounting tables
-# non_matching = []   # list of non-existing os number in snipe-it from accounting tables
-
-
-# export_results_path = os.getenv("export_results_path")
-
-"""
-wb = load_workbook(filename=os.getenv("excel_filename"))
-sheet_ranges = wb["1"]
-wb_result = Workbook()
-"""
-# all_assets = snipeit.Assets()
-
-# acc_name = []
-# acc_os_list = []
-# # snipe_os_list = os_number
-###############################
 
 
 class Snipe:
