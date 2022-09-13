@@ -1,5 +1,5 @@
-import snipeit
-from snipeit import Assets
+import snipeitpyapi as snipeit
+from snipeitpyapi import Assets
 import json
 from importlib import reload
 from dotenv import load_dotenv
@@ -261,6 +261,6 @@ def my_diff():
 
 
 if __name__ == "__main__":
-    my_diff()
+    # my_diff()
     # main()
-    # test()
+    test()
