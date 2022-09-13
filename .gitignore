@@ -1,10 +1,10 @@
 .env
 all_acc_os_31.12.2021.xlsx
-results/
+#results/
 ~$*
 .DS_Store
-test_files/*
-results_test/
+#test_files/*
+#results_test/
 
 
 
