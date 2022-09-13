@@ -1,5 +1,6 @@
 import snipeitpyapi as snipeit
 from snipeitpyapi import Assets
+import requests
 import json
 from importlib import reload
 from dotenv import load_dotenv
@@ -11,6 +12,7 @@ from deepdiff import DeepDiff
 import diff
 ###############################
 reload(snipeit)
+
 
 
 
@@ -37,6 +39,11 @@ class Snipe:
 
         self.export_results_path = os.getenv("export_results_path_test")
         self.dict_from_snipe_data = {}  # dict wih needed data from snipe-it
+
+        headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
+        response = requests.get(self.server+"/api/v1/hardware", headers=headers)
+        print(response)
+
 
     # append list of all assets from snipe to "merged_data"(!!! MAX - 1998 !!!)
     def get_merged_raw_data_from_snipe(self):
