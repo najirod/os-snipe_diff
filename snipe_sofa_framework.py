@@ -10,6 +10,7 @@ from openpyxl import Workbook
 from datetime import date
 from deepdiff import DeepDiff
 import diff
+import ExcelReport
 ###############################
 reload(snipeit)
 
@@ -193,7 +194,7 @@ class Check:
                 self.rest_tags.append(asset_tag)
                 self.rest_names.append(self.snipe_data.dict_from_snipe_data[asset_tag]['asset_name'])
 
-
+"""
 class ExcelReport:
     def __init__(self):
         self.wb_result = Workbook()
@@ -229,7 +230,7 @@ class ExcelReport:
         self.write_list_to_excel(save_name="rest", start_column="A", col_name="asset_tages", lst1=check.rest_tags)
         self.write_list_to_excel(save_name="rest", start_column="B", col_name="name_from_snipe", lst1=check.rest_names)
 
-
+"""
 
 
 def test():
@@ -237,8 +238,11 @@ def test():
     test_snipe.get_merged_raw_data_from_snipe()
     test_snipe.get_all_data_from_snipe()
     test_snipe.create_dict_from_snipe_data()
-    print("len: ",len(test_snipe.dict_from_snipe_data))
+    print("len: ", len(test_snipe.dict_from_snipe_data))
     print(test_snipe.total)
+
+
+    ExcelReport.Report().write_list_to_excel(save_name="tst", col_name="name", lst1=test_snipe.person)
 
 
 
