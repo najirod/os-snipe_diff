@@ -99,7 +99,7 @@ class Snipe:
             if self.merged_data[i]['last_audit_date'] is None:
                 self.last_audit_date.append(None)
             else:
-                self.last_audit_date.append(self.merged_data[i]['last_audit_date'])
+                self.last_audit_date.append(self.merged_data[i]['last_audit_date']["formatted"])
 
             if self.merged_data[i]['next_audit_date'] is None:
                 self.next_audit_date.append(None)
