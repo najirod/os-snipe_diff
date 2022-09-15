@@ -33,6 +33,8 @@ class Snipe:
         self.os_number = []  # list of os numbers for assets in order
         self.person = []  # list of people names or usernames for assets in order - if Ready to Deploy then "rtd"
         self.asset_name = []  # list of asset names from snipe-it in order
+        self.last_audit_date = []  # list of last audit dates
+        self.next_audit_date = []  # list of next audit dates
 
         self.merged_data = []
 
@@ -44,7 +46,7 @@ class Snipe:
         print(response)
 
 
-    # append list of all assets from snipe to "merged_data"(!!! MAX - 1998 !!!)
+    # append list of all assets from snipe to "merged_data"(!!! MAX - 3000 !!!)
     def get_merged_raw_data_from_snipe(self):
         raw_data_from_snipe = self.all_assets.get(server=self.server, token=self.token, limit=self.limit1, offset=self.offset1)
         raw_data_from_snipe_2 = self.all_assets.get(server=self.server, token=self.token, limit=self.limit2, offset=self.offset2)
@@ -94,9 +96,19 @@ class Snipe:
             else:
                 self.asset_name.append(self.merged_data[i]["model"]["name"])
 
+            if self.merged_data[i]['last_audit_date'] is None:
+                self.last_audit_date.append(None)
+            else:
+                self.last_audit_date.append(self.merged_data[i]['last_audit_date'])
+
+            if self.merged_data[i]['next_audit_date'] is None:
+                self.next_audit_date.append(None)
+            else:
+                self.next_audit_date.append(self.merged_data[i]['next_audit_date'])
+
     # creates dict of needed data from snipe
     def create_dict_from_snipe_data(self):
-        keys_for_l2_dict = ["person", "asset_name", "serial", "supplier", "os_number"]
+        keys_for_l2_dict = ["person", "asset_name", "serial", "supplier", "os_number", "last_audit_date", "next_audit_date"]
         self.dict_from_snipe_data = dict.fromkeys(self.asset_tags)
         for key in self.dict_from_snipe_data:
             key_index = self.asset_tags.index(key)
@@ -106,11 +118,14 @@ class Snipe:
             self.dict_from_snipe_data[key]["serial"] = self.serial[key_index]
             self.dict_from_snipe_data[key]["supplier"] = self.supplier[key_index]
             self.dict_from_snipe_data[key]["os_number"] = self.os_number[key_index]
+            self.dict_from_snipe_data[key]["last_audit_date"] = self.last_audit_date[key_index]
+            self.dict_from_snipe_data[key]["next_audit_date"] = self.next_audit_date[key_index]
         with open(self.export_results_path + 'dict_from_snipe_data ' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as write_file:
             json.dump(self.dict_from_snipe_data, write_file)
 
 class write_to():
     """TODO: write to Snipe"""
+
 
 class AccOsData:
     def __init__(self, snipe):
@@ -241,7 +256,7 @@ def test():
     print(test_snipe.total)
 
 
-    ExcelReport.Report().write_list_to_excel(save_name="tst", col_name="name", lst1=test_snipe.person)
+    # ExcelReport.Report().write_list_to_excel(save_name="tst", col_name="name", lst1=test_snipe.person)
 
 
 
