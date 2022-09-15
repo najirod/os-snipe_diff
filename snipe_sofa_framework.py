@@ -15,8 +15,6 @@ import ExcelReport
 reload(snipeit)
 
 
-
-
 class Snipe:
     def __init__(self):
         load_dotenv()
@@ -139,13 +137,14 @@ class AccOsData:
             else:
                 self.acc_name.append(str(cell_b_value))
 
+
 class Check:
     def __init__(self, snipe_data, acc_os_data):
         self.snipe_data = snipe_data
         self.acc_os_data = acc_os_data
         self.matching = []
 
-        self.aseet_names_from_snipe_that_match = []
+        self.asset_names_from_snipe_that_match = []
         self.asset_names_from_os_that_match = []
         self.asset_tags_match = []
 
@@ -168,7 +167,7 @@ class Check:
         filename = ("usporedba_match_" + date.today().strftime("%d.%m.%Y"))
 
         for match in self.matching:
-            self.aseet_names_from_snipe_that_match.append(self.snipe_data.asset_name[int(self.snipe_data.os_number.index(match))])
+            self.asset_names_from_snipe_that_match.append(self.snipe_data.asset_name[int(self.snipe_data.os_number.index(match))])
 
             self.asset_names_from_os_that_match.append(self.acc_os_data.acc_name[int(self.acc_os_data.acc_os_list.index(match))])
 
