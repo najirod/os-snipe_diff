@@ -104,7 +104,7 @@ class Snipe:
             if self.merged_data[i]['next_audit_date'] is None:
                 self.next_audit_date.append(None)
             else:
-                self.next_audit_date.append(self.merged_data[i]['next_audit_date'])
+                self.next_audit_date.append(self.merged_data[i]['next_audit_date']['formatted'])
 
     # creates dict of needed data from snipe
     def create_dict_from_snipe_data(self):
