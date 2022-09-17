@@ -256,6 +256,10 @@ def test():
     print(test_snipe.total)
 
 
+    my_acc = AccOsData(test_snipe)
+    my_acc.append_lists_from_excel()
+    print(my_acc.acc_name)
+    print(my_acc.acc_os_list)
     # ExcelReport.Report().write_list_to_excel(save_name="tst", col_name="name", lst1=test_snipe.person)
 
 
