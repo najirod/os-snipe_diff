@@ -130,10 +130,12 @@ class write_to():
 class AccOsData:
     def __init__(self, snipe):
         self.wb = load_workbook(filename=os.getenv("excel_filename"))
-        self.sheet_ranges = self.wb["1"]
+        self.sheet_ranges = self.wb.active
         self.wb_result = Workbook()
         self.acc_name = []
         self.acc_os_list = []
+        self.dict_from_acc_data = {}
+        self.export_results_path = os.getenv("export_results_path_test")
         # self.snipe_os_list = snipe.os_number
 
     # učitava podatke iz tablice u početne liste
@@ -151,6 +153,18 @@ class AccOsData:
                 pass
             else:
                 self.acc_name.append(str(cell_b_value))
+
+    def create_dict_from_acc_data(self):
+        keys_for_dict = ["asset_name", "os_number"]
+        self.dict_from_acc_data = dict.fromkeys(self.acc_os_list)
+        for key in self.dict_from_acc_data:
+            key_index = self.acc_os_list.index(key)
+            self.dict_from_acc_data[key] = dict.fromkeys(keys_for_dict)
+            self.dict_from_acc_data[key]["asset_name"] = self.acc_name[key_index]
+            self.dict_from_acc_data[key]["os_number"] = self.acc_os_list[key_index]
+        with open(self.export_results_path + 'dict_from_acc_data ' + date.today().strftime("%d.%m.%Y") + '.json',
+                  'w') as write_file:
+            json.dump(self.dict_from_acc_data, write_file)
 
 
 class Check:
@@ -258,6 +272,7 @@ def test():
 
     my_acc = AccOsData(test_snipe)
     my_acc.append_lists_from_excel()
+    my_acc.create_dict_from_acc_data()
     print(my_acc.acc_name)
     print(my_acc.acc_os_list)
     # ExcelReport.Report().write_list_to_excel(save_name="tst", col_name="name", lst1=test_snipe.person)
