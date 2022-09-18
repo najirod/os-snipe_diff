@@ -134,6 +134,7 @@ class AccOsData:
         self.wb_result = Workbook()
         self.acc_name = []
         self.acc_os_list = []
+        self.asset_tags = []
         self.dict_from_acc_data = {}
         self.export_results_path = os.getenv("export_results_path_test")
         # self.snipe_os_list = snipe.os_number
@@ -154,18 +155,37 @@ class AccOsData:
             else:
                 self.acc_name.append(str(cell_b_value))
 
+    def get_tags_from_name(self):
+        for name in self.acc_name:
+            if name.find("Asset") != -1:
+                tag = (name.split("Asset ", 2)[1])
+                if tag[-1] == ".":
+                    tag = (tag[:-1])
+                else:
+                    pass
+                if len(tag) == 4:
+                    tag = "0" + tag
+                self.asset_tags.append(tag)
+            else:
+                self.asset_tags.append(None)
+
     def create_dict_from_acc_data(self):
-        keys_for_dict = ["asset_name", "os_number"]
+        keys_for_dict = ["asset_name", "os_number", "asset_tag"]
         self.dict_from_acc_data = dict.fromkeys(self.acc_os_list)
         for key in self.dict_from_acc_data:
             key_index = self.acc_os_list.index(key)
             self.dict_from_acc_data[key] = dict.fromkeys(keys_for_dict)
             self.dict_from_acc_data[key]["asset_name"] = self.acc_name[key_index]
             self.dict_from_acc_data[key]["os_number"] = self.acc_os_list[key_index]
+            self.dict_from_acc_data[key]["asset_tag"] = self.asset_tags[key_index]
         with open(self.export_results_path + 'dict_from_acc_data ' + date.today().strftime("%d.%m.%Y") + '.json',
                   'w') as write_file:
             json.dump(self.dict_from_acc_data, write_file)
 
+    def get(self):
+        self.append_lists_from_excel()
+        self.get_tags_from_name()
+        self.create_dict_from_acc_data()
 
 class Check:
     def __init__(self, snipe_data, acc_os_data):
@@ -262,6 +282,7 @@ class ExcelReport:
 
 
 def test():
+
     test_snipe = Snipe()
     test_snipe.get_merged_raw_data_from_snipe()
     test_snipe.get_all_data_from_snipe()
@@ -269,12 +290,13 @@ def test():
     print("len: ", len(test_snipe.dict_from_snipe_data))
     print(test_snipe.total)
 
-
     my_acc = AccOsData(test_snipe)
-    my_acc.append_lists_from_excel()
-    my_acc.create_dict_from_acc_data()
-    print(my_acc.acc_name)
-    print(my_acc.acc_os_list)
+    my_acc.get()
+   # my_acc.append_lists_from_excel()
+   # my_acc.create_dict_from_acc_data()
+   # print(my_acc.acc_name)
+   # print(my_acc.acc_os_list)
+    print(my_acc.dict_from_acc_data)
     # ExcelReport.Report().write_list_to_excel(save_name="tst", col_name="name", lst1=test_snipe.person)
 
 
