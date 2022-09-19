@@ -2,8 +2,8 @@
 all_acc_os_31.12.2021.xlsx
 ~$*
 .DS_Store
+
 !results/*
 !results_cron*
 !results_test*
-
 

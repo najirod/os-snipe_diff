@@ -2,6 +2,6 @@
 *
 # Except this file
 !.gitignore
-!acc*
-!raw*
+!acc
+!raw/*
 !pretty*
