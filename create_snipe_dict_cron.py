@@ -15,6 +15,7 @@ import ExcelReport
 reload(snipeit)
 
 
+
 class Snipe:
     def __init__(self):
         load_dotenv()
