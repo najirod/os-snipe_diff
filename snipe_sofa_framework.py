@@ -38,7 +38,8 @@ class Snipe:
 
         self.merged_data = []
 
-        self.export_results_path = os.getenv("export_results_path_test")
+        self.export_raw_results_path = os.getenv("export_raw_results_path")
+        self.export_pretty_results_path = os.getenv("export_pretty_results_path")
         self.dict_from_snipe_data = {}  # dict wih needed data from snipe-it
 
         headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
@@ -55,11 +56,11 @@ class Snipe:
 
         self.total = json_object_snipe["total"]
         l1_l2 = (json_object_snipe['rows'] + json_object_snipe_2['rows'])
-        with open(self.export_results_path + '.raw_data.json', 'w') as outfile:
+        with open(self.export_raw_results_path + '.raw_data.json', 'w') as outfile:
             json.dump(l1_l2, outfile)
-        with open(self.export_results_path + 'raw_data ' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as outfile:
+        with open(self.export_raw_results_path + 'raw_data ' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as outfile:
             json.dump(l1_l2, outfile)
-        with open(self.export_results_path + '.raw_data.json') as j_full:
+        with open(self.export_raw_results_path + '.raw_data.json') as j_full:
             self.merged_data = json.load(j_full)
         # return merged_data
 
@@ -120,8 +121,14 @@ class Snipe:
             self.dict_from_snipe_data[key]["os_number"] = self.os_number[key_index]
             self.dict_from_snipe_data[key]["last_audit_date"] = self.last_audit_date[key_index]
             self.dict_from_snipe_data[key]["next_audit_date"] = self.next_audit_date[key_index]
-        with open(self.export_results_path + 'dict_from_snipe_data ' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as write_file:
+        with open(self.export_pretty_results_path + 'dict_from_snipe_data ' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as write_file:
             json.dump(self.dict_from_snipe_data, write_file)
+
+    def get(self):
+        self.get_merged_raw_data_from_snipe()
+        self.get_all_data_from_snipe()
+        self.create_dict_from_snipe_data()
+
 
 class write_to():
     """TODO: write to Snipe"""
@@ -136,7 +143,7 @@ class AccOsData:
         self.acc_os_list = []
         self.asset_tags = []
         self.dict_from_acc_data = {}
-        self.export_results_path = os.getenv("export_results_path_test")
+        self.export_results_path = os.getenv("export_results_path_acc")
         # self.snipe_os_list = snipe.os_number
 
     # učitava podatke iz tablice u početne liste
@@ -157,7 +164,9 @@ class AccOsData:
 
     def get_tags_from_name(self):
         for name in self.acc_name:
-            if name.find("Asset") != -1:
+            # print(self.acc_name)
+            # print(name)
+            if name.find("Asset ") != -1:
                 tag = (name.split("Asset ", 2)[1])
                 if tag[-1] == ".":
                     tag = (tag[:-1])
@@ -284,11 +293,10 @@ class ExcelReport:
 def test():
 
     test_snipe = Snipe()
-    test_snipe.get_merged_raw_data_from_snipe()
-    test_snipe.get_all_data_from_snipe()
-    test_snipe.create_dict_from_snipe_data()
-    print("len: ", len(test_snipe.dict_from_snipe_data))
-    print(test_snipe.total)
+    test_snipe.get()
+
+    # print("len: ", len(test_snipe.dict_from_snipe_data))
+    # print(test_snipe.total)
 
     my_acc = AccOsData(test_snipe)
     my_acc.get()
@@ -296,7 +304,7 @@ def test():
    # my_acc.create_dict_from_acc_data()
    # print(my_acc.acc_name)
    # print(my_acc.acc_os_list)
-    print(my_acc.dict_from_acc_data)
+   #  print(my_acc.dict_from_acc_data)
     # ExcelReport.Report().write_list_to_excel(save_name="tst", col_name="name", lst1=test_snipe.person)
 
 
