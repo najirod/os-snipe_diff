@@ -196,6 +196,7 @@ class AccOsData:
         self.get_tags_from_name()
         self.create_dict_from_acc_data()
 
+
 class Check:
     def __init__(self, snipe_data, acc_os_data):
         self.snipe_data = snipe_data
@@ -231,7 +232,6 @@ class Check:
 
             self.asset_tags_match.append(self.snipe_data.asset_tags[int(self.snipe_data.os_number.index(match))])
 
-
     # get non-matching from os in snipe
     def get_non_matching(self):
         for non_match in self.acc_os_data.acc_os_list:
@@ -243,51 +243,12 @@ class Check:
         for os_n in self.non_matching:
             self.asset_names_from_os_that_dont_match.append(self.acc_os_data.acc_name[int(self.acc_os_data.acc_os_list.index(os_n))])
 
-
     def get_rest_from_snipe(self):
 
         for asset_tag in self.snipe_data.dict_from_snipe_data:
             if self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] is None:
                 self.rest_tags.append(asset_tag)
                 self.rest_names.append(self.snipe_data.dict_from_snipe_data[asset_tag]['asset_name'])
-
-"""
-class ExcelReport:
-    def __init__(self):
-        self.wb_result = Workbook()
-        self.export_results_path = os.getenv("export_results_path_test")
-
-    # upis podataka u excel
-    def write_list_to_excel(self, save_name="result", start_column="A", col_name="snipe or acc", lst1=None):
-        sheet_ranges_result = self.wb_result.active
-        cell_n = 2
-        for item in lst1:
-            if item is None:
-                pass
-            else:
-                sheet_ranges_result[start_column + "1"] = col_name
-                sheet_ranges_result[start_column + str(cell_n)] = item
-                cell_n += 1
-                self.wb_result.save(self.export_results_path + save_name +" " + date.today().strftime("%d.%m.%Y") + ".xlsx")
-
-    def generate_matching_xlsx(self, check):
-        print("g started")
-        self.write_list_to_excel(save_name="matching",start_column="A",col_name="os_num",lst1=check.matching)
-        self.write_list_to_excel(save_name="matching", start_column="B", col_name="snipe_name", lst1=check.aseet_names_from_snipe_that_match)
-        self.write_list_to_excel(save_name="matching",start_column="C",col_name="acc_name", lst1=check.asset_names_from_os_that_match)
-        self.write_list_to_excel(save_name="matching",start_column="D",col_name="Asset_number",lst1=check.asset_tags_match)
-
-    def generate_non_matching_xlsx(self,check):
-        print("pocelo je")
-        self.write_list_to_excel(save_name="non_matching",start_column="A",col_name="os_num",lst1=check.non_matching)
-        self.write_list_to_excel(save_name="non_matching", start_column="B",col_name="os_name",lst1=check.asset_names_from_os_that_dont_match)
-
-
-    def generate_rest_xlsx(self,check):
-        self.write_list_to_excel(save_name="rest", start_column="A", col_name="asset_tages", lst1=check.rest_tags)
-        self.write_list_to_excel(save_name="rest", start_column="B", col_name="name_from_snipe", lst1=check.rest_names)
-
-"""
 
 
 def test():
@@ -298,15 +259,14 @@ def test():
     # print("len: ", len(test_snipe.dict_from_snipe_data))
     # print(test_snipe.total)
 
-    my_acc = AccOsData(test_snipe)
-    my_acc.get()
+    # my_acc = AccOsData(test_snipe)
+    # my_acc.get()
    # my_acc.append_lists_from_excel()
    # my_acc.create_dict_from_acc_data()
    # print(my_acc.acc_name)
    # print(my_acc.acc_os_list)
    #  print(my_acc.dict_from_acc_data)
     # ExcelReport.Report().write_list_to_excel(save_name="tst", col_name="name", lst1=test_snipe.person)
-
 
 
 def main():
@@ -335,6 +295,6 @@ def my_diff():
 
 
 if __name__ == "__main__":
-    # my_diff()
+     my_diff()
     # main()
-    test()
+    #test()

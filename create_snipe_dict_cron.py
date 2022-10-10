@@ -132,4 +132,3 @@ class Snipe:
 if __name__ == "__main__":
     snipe = Snipe()
     snipe.get()
-    print("done")
