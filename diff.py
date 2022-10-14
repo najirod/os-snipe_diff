@@ -34,7 +34,7 @@ class Diff:
 
         self.differences = dict(DeepDiff(js1, js2))
         self.num_of_changes = len(self.differences["values_changed"])
-        #print(self.differences)
+        print(self.differences)
 
     def create_json(self):
         self.get_diff()
