@@ -291,10 +291,10 @@ def main():
 
 
 def my_diff():
-    diff.Diff("dict_from_snipe_data 11.09.2022", "dict_from_snipe_data 12.09.2022").get_diff()
-
+    # diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data 11.10.2022", save_name="t", save_path="").pretty_diffs_xlsx()
+    diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data 11.10.2022", save_name="g", save_path="results_cron/diff/").pretty_diffs_xlsx()
 
 if __name__ == "__main__":
-     my_diff()
+    my_diff()
     # main()
     #test()

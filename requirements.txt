@@ -4,3 +4,4 @@ openpyxl~=3.0.9
 deepdiff~=5.7.0
 snipeitpyapi~=1.6
 requests~=2.27.1
+Flask~=2.2.2

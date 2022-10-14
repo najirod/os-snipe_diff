@@ -58,7 +58,7 @@ class Snipe:
         l1_l2 = (json_object_snipe['rows'] + json_object_snipe_2['rows'])
         with open(self.export_raw_results_path + '.raw_data.json', 'w') as outfile:
             json.dump(l1_l2, outfile)
-        with open(self.export_raw_results_path + 'raw_data ' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as outfile:
+        with open(self.export_raw_results_path + 'raw_data_' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as outfile:
             json.dump(l1_l2, outfile)
         with open(self.export_raw_results_path + '.raw_data.json') as j_full:
             self.merged_data = json.load(j_full)
@@ -121,7 +121,7 @@ class Snipe:
             self.dict_from_snipe_data[key]["os_number"] = self.os_number[key_index]
             self.dict_from_snipe_data[key]["last_audit_date"] = self.last_audit_date[key_index]
             self.dict_from_snipe_data[key]["next_audit_date"] = self.next_audit_date[key_index]
-        with open(self.export_pretty_results_path + 'dict_from_snipe_data ' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as write_file:
+        with open(self.export_pretty_results_path + 'dict_from_snipe_data_' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as write_file:
             json.dump(self.dict_from_snipe_data, write_file)
 
     def get(self):

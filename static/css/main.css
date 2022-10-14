@@ -1,34 +1,4 @@
-#topnav {
-   width: 100%;
-
-   position: fixed;
-   top: 0;
-   left: 0;
-
-   background-color: RoyalBlue;
-
-   font-family: Arial, sans-serif;
-   font-size: 15px;
+body{
+	margin: 0;
+	
 }
-
-.nav-link {
-   display: inline-block;
-   width: 100px;
-   height: 55px;
-
-   color: Red;
-
-   text-align: center;
-   line-height: 55px;
-
-   text-decoration: none;
-}
-
-#logo {
-   width: 120px;
-
-   background-color: RoyalBlue;
-
-   font-weight: bold;
-}
-
