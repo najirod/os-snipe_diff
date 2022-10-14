@@ -2,7 +2,5 @@
 *
 # Except this file
 !.gitignore
-!acc*
-!raw*
-!pretty*
-!diff*
+!excel*
+
