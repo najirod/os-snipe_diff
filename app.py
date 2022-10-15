@@ -17,7 +17,7 @@ def snipe_changes():
     file_name1 = ""
     file_name2 = ""
     save_file_name = "file"
-    path = "results_cron/pretty"
+    path = (os.path.abspath("results_cron/pretty")+"/")
     dirs = os.listdir(path)
     temp = []
 

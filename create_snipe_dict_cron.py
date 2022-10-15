@@ -11,13 +11,17 @@ from datetime import date
 from deepdiff import DeepDiff
 import diff
 import ExcelReport
+import sys
+import logging
 ###############################
 reload(snipeit)
 
 
 class Snipe:
     def __init__(self):
-        load_dotenv()
+        dotenv_path = os.path.abspath(".env")
+        print(dotenv_path)
+        load_dotenv(dotenv_path=dotenv_path)
         self.all_assets = snipeit.Assets()
         self.server = os.getenv("server")  # snipe-it server IP
         self.token = os.getenv("token")  # personal token for snipe API

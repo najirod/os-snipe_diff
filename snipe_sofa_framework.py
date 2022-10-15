@@ -17,9 +17,12 @@ reload(snipeit)
 
 class Snipe:
     def __init__(self):
-        load_dotenv()
+        dotenv_path = os.path.abspath(".env")
+        print(dotenv_path)
+        load_dotenv(dotenv_path=dotenv_path)
         self.all_assets = snipeit.Assets()
         self.server = os.getenv("server")  # snipe-it server IP
+        print(self.server)
         self.token = os.getenv("token")  # personal token for snipe API
         self.limit1 = os.getenv("limit1")  # limit for snipe API GET {int} -- None = All
         self.offset1 = os.getenv("offset1")  # offset {int} -- default: {0}
@@ -38,8 +41,8 @@ class Snipe:
 
         self.merged_data = []
 
-        self.export_raw_results_path = os.getenv("export_raw_results_path")
-        self.export_pretty_results_path = os.getenv("export_pretty_results_path")
+        self.export_raw_results_path = (os.path.abspath(os.getenv("export_raw_results_path"))+"/")
+        self.export_pretty_results_path = (os.path.abspath(os.getenv("export_pretty_results_path"))+"")
         self.dict_from_snipe_data = {}  # dict wih needed data from snipe-it
 
         headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
@@ -143,7 +146,7 @@ class AccOsData:
         self.acc_os_list = []
         self.asset_tags = []
         self.dict_from_acc_data = {}
-        self.export_results_path = os.getenv("export_results_path_acc")
+        self.export_results_path = (os.path.abspath(os.getenv("export_results_path_acc"))+"/")
         # self.snipe_os_list = snipe.os_number
 
     # učitava podatke iz tablice u početne liste
@@ -295,6 +298,6 @@ def my_diff():
     diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data 11.10.2022", save_name="g", save_path="results_cron/diff/").get_diff()
 
 if __name__ == "__main__":
-    my_diff()
+    # my_diff()
     # main()
-    #test()
+    test()
