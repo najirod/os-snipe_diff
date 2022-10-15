@@ -55,7 +55,7 @@ def test():
 
 @app.route('/download/<filename>')
 def download(filename):
-    path = ('results_cron/diff/excel/' + filename)
+    path = ((os.path.abspath(('results_cron/diff/excel/'))+"/") + filename)
     return send_file(path, as_attachment=True)
 
 if __name__ == "__main__":

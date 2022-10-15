@@ -18,7 +18,7 @@ class Diff:
         self.file1 = filename1
         self.file2 = filename2
         self.filename = save_name
-        self.save_path = save_path
+        self.save_path = ((os.path.abspath(save_path))+"/")
         self.path = (os.path.abspath(os.getenv("diff_path"))+"/")
         # print(os.path.abspath(os.getenv("diff_path")))
         self.export_results_path_diff = (os.path.abspath(os.getenv("export_results_path_diff"))+"/")
