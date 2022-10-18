@@ -64,15 +64,15 @@ def snipe_changes():
 def reports():
     if request.method == "POST":
         if request.form['submit_button'] == 'proba':
-            #snipe_sofa_framework.Reports().matching_snipe_and_os_report()
+            snipe_sofa_framework.Reports().matching_snipe_and_os_report()
             return redirect(url_for("download", filename=("matching_snipe_and_os_report"+".xlsx")))
 
         elif request.form['submit_button'] == 'proba2':
-            #snipe_sofa_framework.Reports().matching_snipe_and_os_report()
+            snipe_sofa_framework.Reports().non_matching_snipe_and_os_report()
             return redirect(url_for("download", filename=("non_matching_snipe_and_os_report"+".xlsx")))
 
         elif request.form['submit_button'] == 'proba3':
-            #snipe_sofa_framework.Reports().matching_snipe_and_os_report()
+            snipe_sofa_framework.Reports().rest_in_snipe_report()
             return redirect(url_for("download", filename=("rest_in_snipe_report"+".xlsx")))
 
 
