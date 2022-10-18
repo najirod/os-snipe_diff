@@ -88,14 +88,15 @@ def test():
 
 @app.route('/download/<filename>')
 def download(filename):
+    root_path = (sys.path[1] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
     if filename == "file.xlsx":
-        path = ((os.path.abspath(('results_cron/diff/excel/'))+"/") + filename)
+        path = ((root_path + ('results_cron/diff/excel/')) + filename)
     elif filename == "matching_snipe_and_os_report.xlsx":
-        path = ((os.path.abspath(('results/matching/')) + "/") + filename)
+        path = ((root_path + ('results/matching/')) + filename)
     elif filename == "non_matching_snipe_and_os_report.xlsx":
-        path = ((os.path.abspath(('results/non_matching/')) + "/") + filename)
+        path = ((root_path + ('results/non_matching/')) + filename)
     elif filename == "rest_in_snipe_report.xlsx":
-        path = ((os.path.abspath(('results/rest/')) + "/") + filename)
+        path = ((root_path + ('results/rest/')) + filename)
     return send_file(path, as_attachment=True)
 
 @app.route('/snipeit')
