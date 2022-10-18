@@ -10,14 +10,16 @@ from openpyxl import Workbook
 from datetime import date
 from deepdiff import DeepDiff
 import diff
-import ExcelReport
+from ExcelReport import Report
+import sys
 ###############################
 reload(snipeit)
 
 
 class Snipe:
     def __init__(self):
-        dotenv_path = os.path.abspath(".env")
+        root_path = (sys.path[1] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
+        dotenv_path = (root_path + ".env")
         print(dotenv_path)
         load_dotenv(dotenv_path=dotenv_path)
         self.all_assets = snipeit.Assets()
@@ -41,8 +43,8 @@ class Snipe:
 
         self.merged_data = []
 
-        self.export_raw_results_path = (os.path.abspath(os.getenv("export_raw_results_path"))+"/")
-        self.export_pretty_results_path = (os.path.abspath(os.getenv("export_pretty_results_path"))+"")
+        self.export_raw_results_path = (root_path + os.getenv("export_raw_results_path"))
+        self.export_pretty_results_path = (root_path + os.getenv("export_pretty_results_path"))
         self.dict_from_snipe_data = {}  # dict wih needed data from snipe-it
 
         headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
@@ -139,14 +141,15 @@ class write_to():
 
 class AccOsData:
     def __init__(self, snipe):
-        self.wb = load_workbook(filename=os.getenv("excel_filename"))
+        root_path = (sys.path[1] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
+        self.wb = load_workbook(filename=(root_path + (os.getenv("excel_filename"))))
         self.sheet_ranges = self.wb.active
         self.wb_result = Workbook()
         self.acc_name = []
         self.acc_os_list = []
         self.asset_tags = []
         self.dict_from_acc_data = {}
-        self.export_results_path = (os.path.abspath(os.getenv("export_results_path_acc"))+"/")
+        self.export_results_path = (root_path + os.getenv("export_results_path_acc"))
         # self.snipe_os_list = snipe.os_number
 
     # učitava podatke iz tablice u početne liste
@@ -254,10 +257,70 @@ class Check:
                 self.rest_names.append(self.snipe_data.dict_from_snipe_data[asset_tag]['asset_name'])
 
 
-def test():
+class Reports:
+    def __init__(self):
+        root_path = (sys.path[1] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
+        dotenv_path = (root_path + ".env")
+        print(dotenv_path)
+        load_dotenv(dotenv_path=dotenv_path)
+        self.save_path_matching = (os.getenv("export_report_path_matching"))
+        self.save_path_non_matching = (os.getenv("export_report_path_non_matching"))
+        self.save_path_rest = (os.getenv("export_report_path_rest"))
+        self.my_snipe = Snipe()
+        self.my_snipe.get()
 
-    test_snipe = Snipe()
-    test_snipe.get()
+        my_acc = AccOsData(self.my_snipe)
+        my_acc.get()
+
+        self.my_check = Check(snipe_data=self.my_snipe, acc_os_data=my_acc)
+        self.my_check.is_os_in_snipeit()
+        self.my_check.get_matcing()
+        self.my_check.get_non_matching()
+        self.my_check.get_rest_from_snipe()
+
+
+    def matching_snipe_and_os_report(self):
+        report = Report(save_path=self.save_path_matching)
+        print("starting excel report")
+        report.write_list_to_excel(save_name="matching_snipe_and_os_report", start_column="A", col_name="snipeit name", lst1=self.my_check.asset_names_from_snipe_that_match)
+        report.write_list_to_excel(save_name="matching_snipe_and_os_report", start_column="B", col_name="acc name", lst1=self.my_check.asset_names_from_os_that_match)
+        report.write_list_to_excel(save_name="matching_snipe_and_os_report", start_column="C", col_name="asset tags", lst1=self.my_check.asset_tags_match)
+        report.write_list_to_excel(save_name="matching_snipe_and_os_report", start_column="D", col_name="broj os", lst1=self.my_check.matching)
+        print("ending excel report")
+
+    def non_matching_snipe_and_os_report(self):
+        report = Report(save_path=self.save_path_non_matching)
+        print("starting excel report")
+        report.write_list_to_excel(save_name="non_matching_snipe_and_os_report", start_column="A", col_name="os broj", lst1=self.my_check.non_matching)
+        report.write_list_to_excel(save_name="non_matching_snipe_and_os_report", start_column="B", col_name="acc name", lst1=self.my_check.asset_names_from_os_that_dont_match)
+        print("ending excel report")
+
+    def rest_in_snipe_report(self):
+        report = Report(save_path=self.save_path_rest)
+        print("starting excel report")
+        report.write_list_to_excel(save_name="rest_in_snipe_report", start_column="A", col_name="Asset Tag", lst1=self.my_check.rest_tags)
+        report.write_list_to_excel(save_name="rest_in_snipe_report", start_column="B", col_name="Snipeit name", lst1=self.my_check.rest_names)
+        print("ending excel report")
+
+
+def test():
+    my_snipe = Snipe()
+    my_snipe.get()
+
+    my_acc = AccOsData(my_snipe)
+    my_acc.get()
+
+    my_check = Check(snipe_data=my_snipe, acc_os_data=my_acc)
+    my_check.is_os_in_snipeit()
+    # my_check.get_matcing()
+    # my_check.get_non_matching()
+    my_check.get_rest_from_snipe()
+
+
+
+
+    # test_snipe = Snipe()
+    # test_snipe.get()
 
     # print("len: ", len(test_snipe.dict_from_snipe_data))
     # print(test_snipe.total)
@@ -274,23 +337,24 @@ def test():
 
 def main():
     my_snipe = Snipe()
-    my_snipe.get_merged_raw_data_from_snipe()
-    my_snipe.get_all_data_from_snipe()
-    my_snipe.create_dict_from_snipe_data()
+    # my_snipe.get_merged_raw_data_from_snipe()
+    # my_snipe.get_all_data_from_snipe()
+    # my_snipe.create_dict_from_snipe_data()
+    my_snipe.get()
 
     my_acc = AccOsData(my_snipe)
-    my_acc.append_lists_from_excel()
+    my_acc.get()
 
-    my_check = Check(snipe_data=my_snipe,acc_os_data=my_acc)
-    my_check.is_os_in_snipeit()
-    my_check.get_matcing()
-    my_check.get_non_matching()
-    my_check.get_rest_from_snipe()
+    # my_check = Check(snipe_data=my_snipe,acc_os_data=my_acc)
+    # my_check.is_os_in_snipeit()
+    # my_check.get_matcing()
+    # my_check.get_non_matching()
+    # my_check.get_rest_from_snipe()
 
-    my_report = ExcelReport()
+    # my_report = ExcelReport()
     # my_report.generate_matching_xlsx(my_check)
     # my_report.generate_non_matching_xlsx(my_check)
-    my_report.generate_rest_xlsx(my_check)
+    # my_report.generate_rest_xlsx(my_check)
 
 
 def my_diff():
@@ -300,4 +364,7 @@ def my_diff():
 if __name__ == "__main__":
     # my_diff()
     # main()
-    test()
+    # test()
+    # Reports().matching_snipe_and_os_report()
+    # Reports().non_matching_snipe_and_os_report()
+    Reports().rest_in_snipe_report()

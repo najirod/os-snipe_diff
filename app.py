@@ -2,6 +2,11 @@ from flask import Flask, render_template, url_for, request, send_file, redirect,
 import os
 from operator import itemgetter
 import diff
+from pathlib import  Path
+import sys
+import os
+from dotenv import load_dotenv
+import snipe_sofa_framework
 
 app = Flask(__name__)
 app.secret_key = 'kljuc'
@@ -14,10 +19,15 @@ def index():
 
 @app.route("/snipe_changes", methods=["POST", "GET"])
 def snipe_changes():
+    root_path = (sys.path[1] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
+    dotenv_path = (root_path + ".env")
+    print(dotenv_path)
+    load_dotenv(dotenv_path=dotenv_path)
     file_name1 = ""
     file_name2 = ""
     save_file_name = "file"
-    path = (os.path.abspath("results_cron/pretty")+"/")
+    path = (root_path + ("results_cron/pretty/"))
+    print(path)
     dirs = os.listdir(path)
     temp = []
 
@@ -37,13 +47,36 @@ def snipe_changes():
         else:
             diff.Diff(file_name1, file_name2, save_name=save_file_name,
                       save_path="results_cron/diff/excel/").pretty_diffs_xlsx()
-
-            print(file_name1, file_name2)
-            return redirect(url_for("download", filename=save_file_name+".xlsx"))
+            print(diff.Diff(file_name1, file_name2, save_name=save_file_name,
+                      save_path="results_cron/diff/excel/"))
+            if diff.Diff(file_name1, file_name2, save_name=save_file_name,
+                      save_path="results_cron/diff/excel/").check_if_changed() == "0":
+                flash("Nema Promjena između zadanih datuma!")
+            else:
+                print(file_name1, file_name2)
+                return redirect(url_for("download", filename=save_file_name+".xlsx"))
 
 
     return render_template('snipe_changes.html', data=temp)
 
+
+@app.route("/reports", methods=["POST", "GET"])
+def reports():
+    if request.method == "POST":
+        if request.form['submit_button'] == 'proba':
+            #snipe_sofa_framework.Reports().matching_snipe_and_os_report()
+            return redirect(url_for("download", filename=("matching_snipe_and_os_report"+".xlsx")))
+
+        elif request.form['submit_button'] == 'proba2':
+            #snipe_sofa_framework.Reports().matching_snipe_and_os_report()
+            return redirect(url_for("download", filename=("non_matching_snipe_and_os_report"+".xlsx")))
+
+        elif request.form['submit_button'] == 'proba3':
+            #snipe_sofa_framework.Reports().matching_snipe_and_os_report()
+            return redirect(url_for("download", filename=("rest_in_snipe_report"+".xlsx")))
+
+
+    return render_template("reports.html")
 
 @app.route("/test", methods=["POST", "GET"])
 def test():
@@ -55,8 +88,19 @@ def test():
 
 @app.route('/download/<filename>')
 def download(filename):
-    path = ((os.path.abspath(('results_cron/diff/excel/'))+"/") + filename)
+    if filename == "file.xlsx":
+        path = ((os.path.abspath(('results_cron/diff/excel/'))+"/") + filename)
+    elif filename == "matching_snipe_and_os_report.xlsx":
+        path = ((os.path.abspath(('results/matching/')) + "/") + filename)
+    elif filename == "non_matching_snipe_and_os_report.xlsx":
+        path = ((os.path.abspath(('results/non_matching/')) + "/") + filename)
+    elif filename == "rest_in_snipe_report.xlsx":
+        path = ((os.path.abspath(('results/rest/')) + "/") + filename)
     return send_file(path, as_attachment=True)
+
+@app.route('/snipeit')
+def snipeit():
+    return redirect("http://10.10.1.54/")
 
 if __name__ == "__main__":
     app.run(debug=True)

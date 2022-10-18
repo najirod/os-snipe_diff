@@ -19,7 +19,8 @@ reload(snipeit)
 
 class Snipe:
     def __init__(self):
-        dotenv_path = os.path.abspath(".env")
+        root_path = (sys.path[1] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
+        dotenv_path = (root_path + ".env")
         print(dotenv_path)
         load_dotenv(dotenv_path=dotenv_path)
         self.all_assets = snipeit.Assets()
@@ -42,8 +43,8 @@ class Snipe:
 
         self.merged_data = []
 
-        self.export_raw_results_path = os.getenv("export_raw_results_path_cron")
-        self.export_pretty_results_path = os.getenv("export_pretty_results_path_cron")
+        self.export_raw_results_path = (root_path + os.getenv("export_raw_results_path_cron"))
+        self.export_pretty_results_path = (root_path + os.getenv("export_pretty_results_path_cron"))
         self.dict_from_snipe_data = {}  # dict wih needed data from snipe-it
 
         headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
