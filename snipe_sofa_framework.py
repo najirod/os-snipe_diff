@@ -21,7 +21,7 @@ logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter('%(asctime)s:%(pathname)s:%(funcName)s:%(name)s:%(process)d:%(message)s')
 
-file_handler = logging.FileHandler(((sys.path[0])+"/")+'logs/log_py.log')
+file_handler = logging.FileHandler(((sys.path[1])+"/")+'logs/log_py.log')
 file_handler.setFormatter(formatter)
 
 stream_handler = logging.StreamHandler()
