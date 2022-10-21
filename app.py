@@ -2,7 +2,7 @@ from flask import Flask, render_template, url_for, request, send_file, redirect,
 import os
 from operator import itemgetter
 import diff
-from pathlib import  Path
+from pathlib import Path
 import sys
 import os
 from dotenv import load_dotenv

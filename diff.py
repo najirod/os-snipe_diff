@@ -2,14 +2,24 @@ from deepdiff import DeepDiff
 import json
 import os
 import re
-
 import sys
-
-#from setuptools.sandbox import save_path
-
 from ExcelReport import Report
-
 from dotenv import load_dotenv
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s:%(pathname)s:%(funcName)s:%(name)s:%(process)d:%(message)s')
+
+file_handler = logging.FileHandler(((sys.path[0])+"/")+'logs/log_py.log')
+file_handler.setFormatter(formatter)
+
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(stream_handler)
 
 
 class Diff:
@@ -42,7 +52,8 @@ class Diff:
         self.differences = dict(DeepDiff(js1, js2))
         # print(self.differences)
         if self.differences == {}:
-            print("diff, check_if_changed", "0")
+            #print("diff, check_if_changed", "0")
+            logger.info("no changes")
             return "0"
 
     def get_diff(self):
@@ -60,39 +71,38 @@ class Diff:
         # print(self.differences)
 
     def create_json(self):
-        self.get_diff()
-        with open(self.export_results_path_diff + 'diffs.json', 'w') as write_file:
-            json.dump(self.differences, write_file)
+        if self.check_if_changed() == None:
+            self.get_diff()
+            logger.info("Start to create Json Report")
+            with open(self.export_results_path_diff + 'diffs.json', 'w') as write_file:
+                json.dump(self.differences, write_file)
+            logger.info("Ended creating Json Report")
+        else:
+            logger.info("Cannot create json")
 
     def pretty_diffs_xlsx(self):
-        self.get_diff()
+        if self.check_if_changed() == None:
+            self.get_diff()
 
-        for change in range(self.num_of_changes):
-            self.asset_tag.append((re.findall(r"\d+", (list(self.differences["values_changed"].keys())[change])))[0])
-            # print((re.findall(r"\d+", (list(self.differences["values_changed"].keys())[change])))[0])
-            self.old_value.append(list(self.differences["values_changed"].values())[change]["old_value"])
-            # print(list(self.differences["values_changed"].values())[change]["old_value"])
-            self.new_value.append(list(self.differences["values_changed"].values())[change]["new_value"])
-            # print(list(self.differences["values_changed"].values())[change]["new_value"])
+            for change in range(self.num_of_changes):
+                self.asset_tag.append((re.findall(r"\d+", (list(self.differences["values_changed"].keys())[change])))[0])
+                # print((re.findall(r"\d+", (list(self.differences["values_changed"].keys())[change])))[0])
+                self.old_value.append(list(self.differences["values_changed"].values())[change]["old_value"])
+                # print(list(self.differences["values_changed"].values())[change]["old_value"])
+                self.new_value.append(list(self.differences["values_changed"].values())[change]["new_value"])
+                # print(list(self.differences["values_changed"].values())[change]["new_value"])
 
-        report = Report(save_path=self.save_path)
-        report.write_list_to_excel(save_name=self.filename, start_column="A", col_name="Asset Tag", lst1=self.asset_tag)
-        report.write_list_to_excel(save_name=self.filename, start_column="B", col_name="Odgovorna osoba na pocetni datum", lst1=self.old_value)
-        report.write_list_to_excel(save_name=self.filename, start_column="C", col_name="Odgovorna osoba na krajnji datum", lst1=self.new_value)
-
-
-        # print(self.asset_tag)
-        # print(self.old_value)
-        # print(self.new_value)
-        # print(self.num_of_changes)
-        # print("1" , self.differences["values_changed"])
-        # print("2", type(list(self.differences["values_changed"].keys())[0]))
-
-
-        # print(list(self.differences["values_changed"].values())[0]["new_value"])
-
+            logger.info("Start to create Excel Report")
+            report = Report(save_path=self.save_path)
+            report.write_list_to_excel(save_name=self.filename, start_column="A", col_name="Asset Tag", lst1=self.asset_tag)
+            report.write_list_to_excel(save_name=self.filename, start_column="B", col_name="Odgovorna osoba na pocetni datum", lst1=self.old_value)
+            report.write_list_to_excel(save_name=self.filename, start_column="C", col_name="Odgovorna osoba na krajnji datum", lst1=self.new_value)
+            logger.info("Ended creating Excel Report")
+        else:
+            logger.info("Cannot create Excel Report")
 
 
 if __name__ == "__main__":
-    my_diff = Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data_11.10.2022", save_name="g", save_path="results_cron/diff/").pretty_diffs_xlsx()
+    # my_diff = Diff("dict_from_snipe_data_15.10.2022", "dict_from_snipe_data_25.10.2022", save_name="g", save_path="results_cron/diff/").pretty_diffs_xlsx()
+    my_diff = Diff("dict_from_snipe_data_11.10.2022", "dict_from_snipe_data_10.10.2022", save_name="g", save_path="results_cron/diff/").pretty_diffs_xlsx()
     #my_diff =print( "test",Diff("dict_from_snipe_data_11.10.2022", "dict_from_snipe_data_25.10.2022", save_name="g", save_path="results_cron/diff/").check_if_changed())

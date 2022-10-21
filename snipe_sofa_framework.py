@@ -12,8 +12,24 @@ from deepdiff import DeepDiff
 import diff
 from ExcelReport import Report
 import sys
+import logging
 ###############################
 reload(snipeit)
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s:%(pathname)s:%(funcName)s:%(name)s:%(process)d:%(message)s')
+
+file_handler = logging.FileHandler(((sys.path[0])+"/")+'logs/log_py.log')
+file_handler.setFormatter(formatter)
+
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(stream_handler)
+
 
 
 class Snipe:
@@ -49,11 +65,13 @@ class Snipe:
 
         headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
         response = requests.get(self.server+"/api/v1/hardware", headers=headers)
-        print(response)
+        # print(response)
+        logger.info(response)
 
 
     # append list of all assets from snipe to "merged_data"(!!! MAX - 3000 !!!)
     def get_merged_raw_data_from_snipe(self):
+        logger.info("Starting to fetch data from snipeit")
         raw_data_from_snipe = self.all_assets.get(server=self.server, token=self.token, limit=self.limit1, offset=self.offset1)
         raw_data_from_snipe_2 = self.all_assets.get(server=self.server, token=self.token, limit=self.limit2, offset=self.offset2)
         json_object_snipe = json.loads(raw_data_from_snipe)
@@ -68,10 +86,12 @@ class Snipe:
         with open(self.export_raw_results_path + '.raw_data.json') as j_full:
             self.merged_data = json.load(j_full)
         # return merged_data
+        logger.info("Fetched raw data")
+
 
     # appends list of all: asset_tags, serials, suppliers, os_numbers - if None = None
     def get_all_data_from_snipe(self):
-
+        logger.info("Starting to process data")
         for i in range(int(self.total)):
             self.asset_tags.append(self.merged_data[i]['asset_tag'])
             self.serial.append(self.merged_data[i]['serial'])
@@ -111,9 +131,11 @@ class Snipe:
                 self.next_audit_date.append(None)
             else:
                 self.next_audit_date.append(self.merged_data[i]['next_audit_date']['formatted'])
+        logger.info("Data processing is done")
 
     # creates dict of needed data from snipe
     def create_dict_from_snipe_data(self):
+        logger.info("Starting to create pretty Json")
         keys_for_l2_dict = ["person", "asset_name", "serial", "supplier", "os_number", "last_audit_date", "next_audit_date"]
         self.dict_from_snipe_data = dict.fromkeys(self.asset_tags)
         for key in self.dict_from_snipe_data:
@@ -128,6 +150,7 @@ class Snipe:
             self.dict_from_snipe_data[key]["next_audit_date"] = self.next_audit_date[key_index]
         with open(self.export_pretty_results_path + 'dict_from_snipe_data ' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as write_file:
             json.dump(self.dict_from_snipe_data, write_file)
+        logger.info("Created pretty Json :)")
 
     def get(self):
         self.get_merged_raw_data_from_snipe()
@@ -282,25 +305,31 @@ class Reports:
     def matching_snipe_and_os_report(self):
         report = Report(save_path=self.save_path_matching)
         print("starting excel report")
+        logger.info("Starting to generate matching snipe and os Excel report")
         report.write_list_to_excel(save_name="matching_snipe_and_os_report", start_column="A", col_name="snipeit name", lst1=self.my_check.asset_names_from_snipe_that_match)
         report.write_list_to_excel(save_name="matching_snipe_and_os_report", start_column="B", col_name="acc name", lst1=self.my_check.asset_names_from_os_that_match)
         report.write_list_to_excel(save_name="matching_snipe_and_os_report", start_column="C", col_name="asset tags", lst1=self.my_check.asset_tags_match)
         report.write_list_to_excel(save_name="matching_snipe_and_os_report", start_column="D", col_name="broj os", lst1=self.my_check.matching)
         print("ending excel report")
+        logger.info("Generated matching snipe and os Excel report")
 
     def non_matching_snipe_and_os_report(self):
         report = Report(save_path=self.save_path_non_matching)
         print("starting excel report")
+        logger.info("Starting to generate non-matching snipe and os Excel report")
         report.write_list_to_excel(save_name="non_matching_snipe_and_os_report", start_column="A", col_name="os broj", lst1=self.my_check.non_matching)
         report.write_list_to_excel(save_name="non_matching_snipe_and_os_report", start_column="B", col_name="acc name", lst1=self.my_check.asset_names_from_os_that_dont_match)
         print("ending excel report")
+        logger.info("Generated non-matching snipe and os Excel report")
 
     def rest_in_snipe_report(self):
         report = Report(save_path=self.save_path_rest)
         print("starting excel report")
+        logger.info("Starting to generate rest in snipe Excel report")
         report.write_list_to_excel(save_name="rest_in_snipe_report", start_column="A", col_name="Asset Tag", lst1=self.my_check.rest_tags)
         report.write_list_to_excel(save_name="rest_in_snipe_report", start_column="B", col_name="Snipeit name", lst1=self.my_check.rest_names)
         print("ending excel report")
+        logger.info("Generated rest in snipe Excel report")
 
 
 def test():
@@ -316,9 +345,6 @@ def test():
     # my_check.get_non_matching()
     my_check.get_rest_from_snipe()
 
-
-
-
     # test_snipe = Snipe()
     # test_snipe.get()
 
@@ -327,11 +353,11 @@ def test():
 
     # my_acc = AccOsData(test_snipe)
     # my_acc.get()
-   # my_acc.append_lists_from_excel()
-   # my_acc.create_dict_from_acc_data()
-   # print(my_acc.acc_name)
-   # print(my_acc.acc_os_list)
-   #  print(my_acc.dict_from_acc_data)
+    # my_acc.append_lists_from_excel()
+    # my_acc.create_dict_from_acc_data()
+    # print(my_acc.acc_name)
+    # print(my_acc.acc_os_list)
+    #  print(my_acc.dict_from_acc_data)
     # ExcelReport.Report().write_list_to_excel(save_name="tst", col_name="name", lst1=test_snipe.person)
 
 
@@ -342,8 +368,8 @@ def main():
     # my_snipe.create_dict_from_snipe_data()
     my_snipe.get()
 
-    my_acc = AccOsData(my_snipe)
-    my_acc.get()
+    #my_acc = AccOsData(my_snipe)
+    #my_acc.get()
 
     # my_check = Check(snipe_data=my_snipe,acc_os_data=my_acc)
     # my_check.is_os_in_snipeit()
@@ -359,12 +385,12 @@ def main():
 
 def my_diff():
     # diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data 11.10.2022", save_name="t", save_path="").pretty_diffs_xlsx()
-    diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data 11.10.2022", save_name="g", save_path="results_cron/diff/").get_diff()
+    diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data_11.10.2022", save_name="g", save_path="results_cron/diff/").pretty_diffs_xlsx()
 
 if __name__ == "__main__":
     # my_diff()
-    # main()
+    main()
     # test()
     # Reports().matching_snipe_and_os_report()
     # Reports().non_matching_snipe_and_os_report()
-    Reports().rest_in_snipe_report()
+    # Reports().rest_in_snipe_report()

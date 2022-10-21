@@ -17,11 +17,27 @@ import logging
 reload(snipeit)
 
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s:%(pathname)s:%(funcName)s:%(name)s:%(process)d:%(message)s')
+
+file_handler = logging.FileHandler(((sys.path[0])+"/")+'logs/cron_py.log')
+file_handler.setFormatter(formatter)
+
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(stream_handler)
+
+
+
 class Snipe:
     def __init__(self):
-        root_path = (sys.path[1] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
+        root_path = (sys.path[0] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
         dotenv_path = (root_path + ".env")
-        print(dotenv_path)
+        # print(dotenv_path)
         load_dotenv(dotenv_path=dotenv_path)
         self.all_assets = snipeit.Assets()
         self.server = os.getenv("server")  # snipe-it server IP
@@ -49,11 +65,13 @@ class Snipe:
 
         headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
         response = requests.get(self.server+"/api/v1/hardware", headers=headers)
-        print(response)
+        # print(response)
+        logger.info(response)
 
 
     # append list of all assets from snipe to "merged_data"(!!! MAX - 3000 !!!)
     def get_merged_raw_data_from_snipe(self):
+        logger.info("Starting to fetch data from snipeit")
         raw_data_from_snipe = self.all_assets.get(server=self.server, token=self.token, limit=self.limit1, offset=self.offset1)
         raw_data_from_snipe_2 = self.all_assets.get(server=self.server, token=self.token, limit=self.limit2, offset=self.offset2)
         json_object_snipe = json.loads(raw_data_from_snipe)
@@ -68,10 +86,11 @@ class Snipe:
         with open(self.export_raw_results_path + '.raw_data.json') as j_full:
             self.merged_data = json.load(j_full)
         # return merged_data
+        logger.info("Fetched raw data")
 
     # appends list of all: asset_tags, serials, suppliers, os_numbers - if None = None
     def get_all_data_from_snipe(self):
-
+        logger.info("Starting to process data")
         for i in range(int(self.total)):
             self.asset_tags.append(self.merged_data[i]['asset_tag'])
             self.serial.append(self.merged_data[i]['serial'])
@@ -111,9 +130,10 @@ class Snipe:
                 self.next_audit_date.append(None)
             else:
                 self.next_audit_date.append(self.merged_data[i]['next_audit_date']['formatted'])
-
+        logger.info("Data processing is done")
     # creates dict of needed data from snipe
     def create_dict_from_snipe_data(self):
+        logger.info("Starting to create pretty Json")
         keys_for_l2_dict = ["person", "asset_name", "serial", "supplier", "os_number", "last_audit_date", "next_audit_date"]
         self.dict_from_snipe_data = dict.fromkeys(self.asset_tags)
         for key in self.dict_from_snipe_data:
@@ -128,6 +148,8 @@ class Snipe:
             self.dict_from_snipe_data[key]["next_audit_date"] = self.next_audit_date[key_index]
         with open(self.export_pretty_results_path + 'dict_from_snipe_data_' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as write_file:
             json.dump(self.dict_from_snipe_data, write_file)
+        logger.info("Created pretty Json :)")
+
 
     def get(self):
         self.get_merged_raw_data_from_snipe()
