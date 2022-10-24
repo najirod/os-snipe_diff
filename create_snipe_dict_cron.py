@@ -16,13 +16,17 @@ import logging
 ###############################
 reload(snipeit)
 
+if "venv" in sys.path[0]:
+    root_path = (sys.path[1] + "/")
+else:
+    root_path = (sys.path[0] + "/")
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter('%(asctime)s:%(pathname)s:%(funcName)s:%(name)s:%(process)d:%(message)s')
 
-file_handler = logging.FileHandler(((sys.path[1])+"/")+'logs/cron_py.log')
+file_handler = logging.FileHandler(root_path + 'logs/cron_py.log')
 file_handler.setFormatter(formatter)
 
 stream_handler = logging.StreamHandler()
@@ -35,7 +39,7 @@ logger.addHandler(stream_handler)
 
 class Snipe:
     def __init__(self):
-        root_path = (sys.path[1] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
+        # root_path = (sys.path[1] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
         dotenv_path = (root_path + ".env")
         # print(dotenv_path)
         load_dotenv(dotenv_path=dotenv_path)

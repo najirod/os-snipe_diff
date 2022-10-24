@@ -8,6 +8,11 @@ import os
 from dotenv import load_dotenv
 import snipe_sofa_framework
 
+if "venv" in sys.path[0]:
+    root_path = (sys.path[1] + "/")
+else:
+    root_path = (sys.path[0] + "/")
+
 app = Flask(__name__)
 app.secret_key = 'kljuc'
 
@@ -19,7 +24,7 @@ def index():
 
 @app.route("/snipe_changes", methods=["POST", "GET"])
 def snipe_changes():
-    root_path = (sys.path[1] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
+    # root_path = (sys.path[0] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
     dotenv_path = (root_path + ".env")
     print(dotenv_path)
     load_dotenv(dotenv_path=dotenv_path)
@@ -88,7 +93,7 @@ def test():
 
 @app.route('/download/<filename>')
 def download(filename):
-    root_path = (sys.path[1] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
+    # root_path = (sys.path[0] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
     if filename == "file.xlsx":
         path = ((root_path + ('results_cron/diff/excel/')) + filename)
     elif filename == "matching_snipe_and_os_report.xlsx":

@@ -4,10 +4,16 @@ from openpyxl import Workbook
 from datetime import date
 import sys
 
+if "venv" in sys.path[0]:
+    root_path = (sys.path[1] + "/")
+else:
+    root_path = (sys.path[0] + "/")
+
+
 class Report:
     def __init__(self, save_path=None):
         self.wb_result = Workbook()
-        root_path = (sys.path[1] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
+        # root_path = (sys.path[0] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
         # print(root_path,"root")
         self.default_path = (root_path + (os.getenv("export_results_path_test")))
         self.save_path = save_path
@@ -31,22 +37,3 @@ class Report:
 
                 self.wb_result.save(self.export_results_path + save_name + ".xlsx")
 
-"""
-    def generate_matching_xlsx(self, check):
-        print("g started")
-        self.write_list_to_excel(save_name="matching",start_column="A",col_name="os_num",lst1=check.matching)
-        self.write_list_to_excel(save_name="matching", start_column="B", col_name="snipe_name", lst1=check.aseet_names_from_snipe_that_match)
-        self.write_list_to_excel(save_name="matching",start_column="C",col_name="acc_name", lst1=check.asset_names_from_os_that_match)
-        self.write_list_to_excel(save_name="matching",start_column="D",col_name="Asset_number",lst1=check.asset_tags_match)
-
-    def generate_non_matching_xlsx(self,check):
-        print("pocelo je")
-        self.write_list_to_excel(save_name="non_matching",start_column="A",col_name="os_num",lst1=check.non_matching)
-        self.write_list_to_excel(save_name="non_matching", start_column="B",col_name="os_name",lst1=check.asset_names_from_os_that_dont_match)
-
-
-    def generate_rest_xlsx(self,check):
-        self.write_list_to_excel(save_name="rest", start_column="A", col_name="asset_tages", lst1=check.rest_tags)
-        self.write_list_to_excel(save_name="rest", start_column="B", col_name="name_from_snipe", lst1=check.rest_names)
-
-"""
