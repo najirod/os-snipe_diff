@@ -2,23 +2,26 @@
   <div class="container-fluid">
     <!-- <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" width="30" height="30"> -->
     <a class="navbar-brand " href="{{ url_for('index') }}">SnipeIT-Framework</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+
     <div class="collapse navbar-collapse " id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <ul class="navbar-nav justify-content-end me-auto mb-2 mb-lg-0">
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('snipe_changes') }}">SnipeIT Changes</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('reports') }}">Reports</a>
         </li>
-        <li class="nav-item "  >
+      </ul>
+    </div>
+    <div>
+      <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+        <li class="nav-item">
           <a class="nav-link" href="{{ url_for('snipeit') }}" target="_blank">SnipeIT</a>
         </li>
-        
+        <li class="nav-item">
+          <a class="nav-link" href="#" target="_blank">Docs</a>
+        </li>
       </ul>
-
     </div>
   </div>
 </nav>
