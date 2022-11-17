@@ -50,6 +50,7 @@ def snipe_changes():
         if file_name1 == file_name2:
             flash("Nije moguće izabrati dva ista datuma!")
         else:
+            print(os.getpid())
             diff.Diff(file_name1, file_name2, save_name=save_file_name,
                       save_path="results_cron/diff/excel/").pretty_diffs_xlsx()
             print(diff.Diff(file_name1, file_name2, save_name=save_file_name,
@@ -95,6 +96,7 @@ def test():
 def download(filename):
     # root_path = (sys.path[0] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
     if filename == "file.xlsx":
+        print(os.getpid())
         path = ((root_path + ('results_cron/diff/excel/')) + filename)
     elif filename == "matching_snipe_and_os_report.xlsx":
         path = ((root_path + ('results/matching/')) + filename)
@@ -107,6 +109,10 @@ def download(filename):
 @app.route('/snipeit')
 def snipeit():
     return redirect("http://10.10.1.54/")
+
+@app.route('/docs')
+def docs():
+    return redirect("https://snipeit-framework.gitbook.io/snipeit-framework/")
 
 if __name__ == "__main__":
     app.run(debug=True)
