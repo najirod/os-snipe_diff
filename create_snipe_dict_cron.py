@@ -39,6 +39,7 @@ logger.addHandler(stream_handler)
 
 class Snipe:
     def __init__(self):
+
         # root_path = (sys.path[1] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
         dotenv_path = (root_path + ".env")
         # print(dotenv_path)

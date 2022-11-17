@@ -21,11 +21,11 @@ class Report:
             self.export_results_path = self.default_path
         else:
             self.export_results_path = (root_path + self.save_path)
-        #print(self.export_results_path)
+        self.sheet = self.wb_result.active
 
     # upis podataka u excel
     def write_list_to_excel(self, save_name="result", start_column="A", col_name="...",  lst1=None):
-        sheet_ranges_result = self.wb_result.active
+        sheet_ranges_result = self.sheet
         cell_n = 2
         for item in lst1:
             if item is None:
@@ -37,3 +37,21 @@ class Report:
 
                 self.wb_result.save(self.export_results_path + save_name + ".xlsx")
 
+    def write_list_to_excel_with_sheets(self, save_name="result", start_column="A", col_name="...", sheet_name="Sheet", lst1=None):
+        if sheet_name not in self.wb_result.sheetnames:
+            self.wb_result.create_sheet(sheet_name)
+            # print(self.wb_result.sheetnames)
+            if "Sheet" in self.wb_result.sheetnames:
+                self.wb_result.remove(self.wb_result.worksheets[0])
+
+        sheet_ranges_result = self.wb_result[sheet_name]
+        cell_n = 2
+        for item in lst1:
+            if item is None:
+                pass
+            else:
+                sheet_ranges_result[start_column + "1"] = col_name
+                sheet_ranges_result[start_column + str(cell_n)] = item
+                cell_n += 1
+
+                self.wb_result.save(self.export_results_path + save_name + ".xlsx")
