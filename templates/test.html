@@ -2,33 +2,41 @@
 
 {% block head %}
 
-
 {% endblock %}
+
 
 {% block body %}
 
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                    ...
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            <script>
-              $("#exampleModal").modal('show');
-            </script>
+<div class="containera">
+
+    <div class="row">
+         <div class="col-md-auto">
+            <div class="containertest">
+                <br>
+                <div class="sidebar"  role="tabpanel">
+                    
+                    <div class="list-group text-center " id="myList" role="tablist">
+                        <a class="list-group-item list-group-item-action"  href="#_Toc117496559" >SnipeIT-Framework</a>
+                        <a class="list-group-item list-group-item-action"  href="#_Toc117496560" >SnipeIT Changes</a>
+                        <a class="list-group-item list-group-item-action"  href="#_Toc117496561" >Reports</a>
+                        <a class="list-group-item list-group-item-action"  href="#_Toc117496562" >SnipeIT</a>
+                        <a class="list-group-item list-group-item-action"  href="#_Toc117496563" >Docs</a>
+
+
+                    </div>
+                </div>
+
+            </div> 
+        </div> 
+        
+        <div class="col" >
+                {% include 'test_extend.html' %}
+
+        </div>
+    </div>
+
+</div>
+
 
 {% endblock %}
-
-

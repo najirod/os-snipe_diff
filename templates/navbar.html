@@ -1,28 +1,26 @@
 <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #005ca7;">
-  <div class="container-fluid">
-    <!-- <img src="{{ url_for('static', filename='img/snipeit-framework2.png') }}" alt="Logo" width="30" height="30"> -->
-     
-    <a class="navbar-brand " href="{{ url_for('index') }}"> SnipeIT-Framework</a>
-
-    <div class="collapse navbar-collapse " id="navbarSupportedContent">
-      <ul class="navbar-nav justify-content-end me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('snipe_changes') }}">SnipeIT Changes</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('reports') }}">Reports</a>
-        </li>
-      </ul>
+    <div class="container-fluid">
+        <!-- <img src="{{ url_for('static', filename='img/snipeit-framework2.png') }}" alt="Logo" width="30" height="30"> -->
+        <a class="navbar-brand " href="{{ url_for('index') }}"> SnipeIT-Framework</a>
+        <div class="collapse navbar-collapse " id="navbarSupportedContent">
+            <ul class="navbar-nav justify-content-end me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('snipe_changes') }}">SnipeIT Changes</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('reports') }}">Reports</a>
+                </li>
+            </ul>
+        </div>
+        <div>
+            <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('snipeit') }}" target="_blank">SnipeIT</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('docs') }}" target="_blank">Docs</a>
+                </li>
+            </ul>
+        </div>
     </div>
-    <div>
-      <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url_for('snipeit') }}" target="_blank">SnipeIT</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#" target="_blank">Docs</a>
-        </li>
-      </ul>
-    </div>
-  </div>
 </nav>
