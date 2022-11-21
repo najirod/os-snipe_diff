@@ -8,7 +8,7 @@
     <div class="form-group">
         <form name="date" id="date_id" method="POST">
             <label for="date1">Izaberi pocetni datum:</label>
-            <select class="form-select" id="floatingSelect" aria-label="Floating label select example" name="date1" id="date1">
+            <select class="form-select"  id="floatingSelect" aria-label="Floating label select example" name="date1" id="date1">
                 {% for o in data %}
                 <option name="date1" value="{{ o.name }}">{{ o.date }}</option>
                 {% endfor %}

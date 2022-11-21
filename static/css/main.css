@@ -4,6 +4,10 @@ body{
   
 }
 
+.form-select {
+  width:200px;
+  }
+
 .line-vertical {
   width: 1px;
   height: 6px;
