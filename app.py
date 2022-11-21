@@ -7,6 +7,7 @@ import sys
 import os
 from dotenv import load_dotenv
 import snipe_sofa_framework
+from datetime import datetime
 
 if "venv" in sys.path[0]:
     root_path = (sys.path[1] + "/")
@@ -41,7 +42,8 @@ def snipe_changes():
             file_date = file[:-5]
             file_date = file_date[-10:]
             temp.append({'date': file_date, 'name': file})
-    temp = sorted(temp, key=itemgetter('date'), reverse=True)
+    # temp = sorted(temp, key=itemgetter('date'), reverse=True) # OLD sort
+    temp.sort(key = lambda x: datetime.strptime(x['date'], '%d.%m.%Y')) # NEW sort
 
     if request.method == "POST":
         file_name1 = (request.form.get("date1"))[:-5]
