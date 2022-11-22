@@ -43,7 +43,7 @@ def snipe_changes():
             file_date = file_date[-10:]
             temp.append({'date': file_date, 'name': file})
     # temp = sorted(temp, key=itemgetter('date'), reverse=True) # OLD sort
-    temp.sort(key = lambda x: datetime.strptime(x['date'], '%d.%m.%Y')) # NEW sort
+    temp.sort(key=lambda x: datetime.strptime(x['date'], '%d.%m.%Y'), reverse=True)  # NEW sort
 
     if request.method == "POST":
         file_name1 = (request.form.get("date1"))[:-5]

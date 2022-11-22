@@ -37,7 +37,6 @@ logger.addHandler(file_handler)
 logger.addHandler(stream_handler)
 
 
-
 class Snipe:
     def __init__(self):
         dotenv_path = (root_path + ".env")
@@ -73,7 +72,6 @@ class Snipe:
         # print(response)
         logger.info(response)
 
-
     # append list of all assets from snipe to "merged_data"(!!! MAX - 3000 !!!)
     def get_merged_raw_data_from_snipe(self):
         logger.info("Starting to fetch data from snipeit")
@@ -92,7 +90,6 @@ class Snipe:
             self.merged_data = json.load(j_full)
         # return merged_data
         logger.info("Fetched raw data")
-
 
     # appends list of all: asset_tags, serials, suppliers, os_numbers - if None = None
     def get_all_data_from_snipe(self):
@@ -163,7 +160,7 @@ class Snipe:
         self.create_dict_from_snipe_data()
 
 
-class write_to():
+class WriteTo:
     """TODO: write to Snipe"""
 
 
@@ -305,7 +302,6 @@ class Reports:
         self.my_check.get_matcing()
         self.my_check.get_non_matching()
         self.my_check.get_rest_from_snipe()
-
 
     def matching_snipe_and_os_report(self):
         report = Report(save_path=self.save_path_matching)
