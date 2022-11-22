@@ -278,9 +278,9 @@ class Check:
             self.asset_names_from_os_that_dont_match.append(self.acc_os_data.acc_name[int(self.acc_os_data.acc_os_list.index(os_n))])
 
     def get_rest_from_snipe(self):
-
+        # print(self.snipe_data.dict_from_snipe_data, "dict")
         for asset_tag in self.snipe_data.dict_from_snipe_data:
-            if self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] is None:
+            if (self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] is None) or (self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] == ""):
                 self.rest_tags.append(asset_tag)
                 self.rest_names.append(self.snipe_data.dict_from_snipe_data[asset_tag]['asset_name'])
 
