@@ -64,7 +64,6 @@ def snipe_changes():
                 print(file_name1, file_name2)
                 return redirect(url_for("download", filename=save_file_name+".xlsx"))
 
-
     return render_template('snipe_changes.html', data=temp)
 
 
@@ -83,8 +82,8 @@ def reports():
             snipe_sofa_framework.Reports().rest_in_snipe_report()
             return redirect(url_for("download", filename=("rest_in_snipe_report"+".xlsx")))
 
-
     return render_template("reports.html")
+
 
 @app.route("/test", methods=["POST", "GET"])
 def test():
@@ -108,13 +107,20 @@ def download(filename):
         path = ((root_path + ('results/rest/')) + filename)
     return send_file(path, as_attachment=True)
 
+
 @app.route('/snipeit')
 def snipeit():
     return redirect("http://10.10.1.54/")
 
+
 @app.route('/docs')
 def docs():
     return redirect("https://snipeit-framework.gitbook.io/snipeit-framework/")
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html"), 404
 
 if __name__ == "__main__":
     app.run(debug=True)
