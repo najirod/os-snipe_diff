@@ -331,7 +331,7 @@ class Reports:
         report = Report(save_path=self.save_path_rest)
         print("starting excel report")
         logger.info("Starting to generate rest in snipe Excel report")
-        report.write_list_to_excel(save_name="rest_in_snipe_report", start_column="A", col_name="Asset Tag", lst1=self.my_check.rest_tags)
+        report.write_list_to_excel_prefix(save_name="rest_in_snipe_report", start_column="A", col_name="Asset Tag", prefix_for_tag=True, lst1=self.my_check.rest_tags)
         report.write_list_to_excel(save_name="rest_in_snipe_report", start_column="B", col_name="Snipeit name", lst1=self.my_check.rest_names)
         print("ending excel report")
         logger.info("Generated rest in snipe Excel report")
