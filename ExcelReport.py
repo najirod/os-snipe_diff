@@ -37,6 +37,28 @@ class Report:
 
                 self.wb_result.save(self.export_results_path + save_name + ".xlsx")
 
+    def write_list_to_excel_prefix(self, save_name="result", start_column="A", col_name="...", prefix_for_tag=False, lst1=None):
+        sheet_ranges_result = self.sheet
+        cell_n = 2
+        for item in lst1:
+            if item is None:
+                pass
+            else:
+                if prefix_for_tag is True:
+                    item_temp = "http://10.10.1.54/hardware/bytag?assetTag=" + item
+                    full_item = '=HYPERLINK("{}", "{}")'.format(item_temp, item)
+                    sheet_ranges_result[start_column + "1"] = col_name
+                    sheet_ranges_result[start_column + str(cell_n)] = full_item
+                    cell_n += 1
+
+                    self.wb_result.save(self.export_results_path + save_name + ".xlsx")
+                else:
+                    sheet_ranges_result[start_column + "1"] = col_name
+                    sheet_ranges_result[start_column + str(cell_n)] = item
+                    cell_n += 1
+
+                    self.wb_result.save(self.export_results_path + save_name + ".xlsx")
+
     def write_list_to_excel_with_sheets(self, save_name="result", start_column="A", col_name="...", sheet_name="Sheet", lst1=None):
         if sheet_name not in self.wb_result.sheetnames:
             self.wb_result.create_sheet(sheet_name)
