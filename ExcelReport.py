@@ -75,5 +75,4 @@ class Report:
                 sheet_ranges_result[start_column + "1"] = col_name
                 sheet_ranges_result[start_column + str(cell_n)] = item
                 cell_n += 1
-
                 self.wb_result.save(self.export_results_path + save_name + ".xlsx")
