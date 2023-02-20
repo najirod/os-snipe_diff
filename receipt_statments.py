@@ -14,19 +14,21 @@ today_date = date.today().strftime("%d.%m.%Y")
 #items = [{'item': "fdscdtfd"},{'item': "fdscdtfd"},{'item': "fdscdtfd"},]
 
 
-class PdfStatment:
-    def __init__(self):
+class PdfStatement:
+    def __init__(self, user="Ime i Prezime", date="danas", items=[{'item': "fdscdtfd"}]):
         dotenv_path = (root_path + ".env")
         load_dotenv(dotenv_path=dotenv_path)
-        self.save_location = os.getenv("statment_save_location")
+        self.save_location = os.getenv("statement_save_location")
+        self.user = user
         self.full_name = ""
-        self.date = ""
-        self.items = []
+        self.date = today_date
+        self.items = items
         self.context = {}
         self.price = ""
         self.budget = ""
         self.payment = ""
         self.pdv = bool
+        self.full_save_name = ""
         self.options = {
             'dpi': 365,
             'page-size': 'A4',
@@ -44,44 +46,28 @@ class PdfStatment:
         template_loader = jinja2.FileSystemLoader(root_path + 'templates/')
         self.template_env = jinja2.Environment(loader=template_loader)
 
-    def zaduzenje(self, user="Ime i Prezime", date=today_date, items="Zaduženja"):
-        self.full_name = user
-        self.date = date
-        self.items = [{'item': "fdscdtfd"}, {'item': "fdscdtfd"}, {'item': "fdscdtfd"}, ]
-
+    def zaduzenje(self):
+        self.full_name = self.user
+        # self.items = [{'item': "fdscdtfd"}, {'item': "fdscdtfd"}, {'item': "fdscdtfd"}, ]
         self.context = {'full_name': self.full_name, 'date': self.date, 'items': self.items}
-
         html_template = 'izjava_zaduzenje.html'
-
         template = self.template_env.get_template(html_template)
         output_text = template.render(self.context)
-        """
-        config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
-        output_pdf = 'pdf_generated.pdf'
-        pdfkit.from_string(output_text, output_pdf, configuration=config, css=root_path+'static/css/statments.css')
-        """
+        self.full_save_name = ("Izjava o zaduženju " + self.full_name + " " + self.date + ".pdf")
+        pdfkit.from_string(output_text, self.save_location + self.full_save_name, css=root_path + 'static/css/statements.css', options=self.options)
+        return self.full_save_name
 
-        pdfkit.from_string(output_text, self.save_location + "Izjava o zaduženju "+self.full_name+" "+self.date+".pdf", css=root_path+'static/css/statments.css', options=self.options)
-
-    def razduzenje(self, user="Ime i Prezime", date=today_date, items="Zaduženja"):
-        self.full_name = user
-        self.date = date
-        self.items = [{'item': "fdscdtfd"}, {'item': "fdscdtfd"}, {'item': "fdscdtfd"}, ]
-
+    def razduzenje(self):
+        self.full_name = self.user
+        # self.items = [{'item': "fdscdtfd"}, {'item': "fdscdtfd"}, {'item': "fdscdtfd"}, ]
+        self.items = self.items
         self.context = {'full_name': self.full_name, 'date': self.date, 'items': self.items}
-
         html_template = 'izjava_razduzenje.html'
-
         template = self.template_env.get_template(html_template)
         output_text = template.render(self.context)
-        """
-        config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
-        output_pdf = 'pdf_generated.pdf'
-        pdfkit.from_string(output_text, output_pdf, configuration=config, css=root_path+'static/css/statments.css')
-        """
-
-        pdfkit.from_string(output_text, self.save_location + "Izjava o razduženju "+self.full_name+" "+self.date+".pdf", css=root_path+'static/css/statments.css', options=self.options)
-
+        self.full_save_name = ("Izjava o razduženju "+self.full_name+" "+self.date+".pdf")
+        pdfkit.from_string(output_text, self.save_location + self.full_save_name, css=root_path+'static/css/statements.css', options=self.options)
+        return self.full_save_name
 
     def mobitel(self, user="Ime i Prezime", date=today_date, items="Zaduženja", budget="600", price="500", pdv=True):
         self.full_name = user
@@ -107,17 +93,27 @@ class PdfStatment:
         """
         config = pdfkit.configuration(wkhtmltopdf='/usr/local/bin/wkhtmltopdf')
         output_pdf = 'pdf_generated.pdf'
-        pdfkit.from_string(output_text, output_pdf, configuration=config, css=root_path+'static/css/statments.css')
+        pdfkit.from_string(output_text, output_pdf, configuration=config, css=root_path+'static/css/statements.css')
         """
 
-        pdfkit.from_string(output_text, self.save_location + "Izjava o zaduženju mobitela "+self.full_name+" "+self.date+".pdf", css=root_path+'static/css/statments.css', options=self.options)
+        pdfkit.from_string(output_text, self.save_location + "Izjava-o-zaduženju mobitela"+self.full_name+self.date+".pdf", css=root_path+'static/css/statements.css', options=self.options)
 
+
+class Create:
+    def zaduzenje(self, user="Ime i Prezime", date=today_date, items=[{'item': "fdscdtfd"}]):
+        statement = PdfStatement(user=user, date=date, items=items)
+        statement.zaduzenje()
+        return statement.full_save_name
+
+    def razduzenje(self, user="Ime i Prezime", date=today_date, items=[{'item': "fdscdtfd"}]):
+        statement = PdfStatement(user=user, date=date, items=items)
+        statement.razduzenje()
+        return statement.full_save_name
 
 
 def test():
-    izjava = PdfStatment().mobitel(pdv=True)
-    #izjava.zaduzenje()
-    #izjava.razduzenje()
+    izjava = Create().zaduzenje(user="zdenko")
+    print(izjava)
 
 
 if __name__ == "__main__":

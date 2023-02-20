@@ -1,7 +1,6 @@
 body{
 	margin: 0;
 	background-color: #dcdbdc;
-  
 }
 
 .form-select {
@@ -16,9 +15,29 @@ body{
   margin: 0px;
 }
 
+.login_h1 {
+    margin-top: 150px;
+}
+.login_h2 {
+    
+    text-align:center;
+}
 .container-fluid {
    margin-left: 0px;
+
    
+}
+
+
+.containerstatments {
+    margin-left: 15%;
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.containerstatments select {
+    width: 500px;
 }
 
 .containerchanges {
@@ -26,6 +45,7 @@ body{
    max-width: 70% !important;
    
 }
+
 
 .containerreports {
 
@@ -44,6 +64,16 @@ body{
 
 }
 
+.logincont{
+    
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    width: 20%;
+
+}
 .sidebar{
   margin-top: 10%;
   position: fixed; /* Fixed Sidebar (stay in place on scroll) */

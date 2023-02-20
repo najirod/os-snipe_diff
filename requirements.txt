@@ -7,3 +7,6 @@ requests~=2.27.1
 Flask~=2.2.2
 Jinja2~=3.1.2
 pdfkit~=1.0.0
+WTForms~=3.0.1
+alembic~=1.9.2
+SQLAlchemy~=2.0.1
