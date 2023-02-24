@@ -17,6 +17,7 @@ today_date = date.today().strftime("%d.%m.%Y")
 class PdfStatement:
     def __init__(self, user="Ime i Prezime", date="danas", items=[{'item': "fdscdtfd"}]):
         dotenv_path = (root_path + ".env")
+        print(dotenv_path)
         load_dotenv(dotenv_path=dotenv_path)
         self.save_location = os.getenv("statement_save_location")
         self.user = user
