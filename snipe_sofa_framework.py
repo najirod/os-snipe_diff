@@ -75,6 +75,7 @@ class Snipe:
         self.list_of_assets_count = []
         self.user_dict = {}
 
+        self.list_of_asset_tags = []
         self.list_of_asset_categories = []
         self.list_of_asset_models = []
         self.list_of_asset_serials = []
@@ -204,6 +205,7 @@ class Snipe:
         # print(response.text)
         json_object = json.loads(response.text)
         for i in range(len(json_object["rows"])):
+            self.list_of_asset_tags.append(json_object["rows"][i]["asset_tag"])
             self.list_of_asset_ids.append(json_object["rows"][i]["id"])
             self.list_of_asset_categories.append((json_object["rows"][i]["category"]["name"]))
             self.list_of_asset_models.append(json_object["rows"][i]["model"]["name"])
@@ -213,16 +215,17 @@ class Snipe:
             else:
                 self.list_of_card_numbers.append('')
 
-        keys_for_asset_dict = ["category", "model", "serial", "card_number"]
+        keys_for_asset_dict = ["asset_tag", "category", "model", "serial", "card_number"]
         self.asset_dict = dict.fromkeys(self.list_of_asset_ids)
         for key in self.asset_dict:
             key_index = self.list_of_asset_ids.index(key)
             self.asset_dict[key] = dict.fromkeys(keys_for_asset_dict)
+            self.asset_dict[key]["asset_tag"] = self.list_of_asset_tags[key_index]
             self.asset_dict[key]["category"] = self.list_of_asset_categories[key_index]
             self.asset_dict[key]["model"] = self.list_of_asset_models[key_index]
             self.asset_dict[key]["serial"] = self.list_of_asset_serials[key_index]
             self.asset_dict[key]["card_number"] = self.list_of_card_numbers[key_index]
-        # print(self.asset_dict)
+        #print(self.asset_dict)
         return self.asset_dict
 
     def get(self):

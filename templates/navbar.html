@@ -17,21 +17,26 @@
         </div>
         <div>
             <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-                {% if current_user.is_authenticated and current_user.user_level >4 %}
+                {% if current_user.is_authenticated and current_user.user_level > 4 %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('register')}}">Register</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('admin.index')}}"target="_blank">Admin</a>
+                    <a class="nav-link" href="{{ url_for('admin.index')}}" target="_blank">Admin</a>
                 </li>
                 {% endif %}
                 {% if current_user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('logout')}}">Logout</a>
+                    <a class="nav-link" href="{{ url_for('logout')}}">Logout ({{current_user.username}})</a>
                 </li>
                 {% else %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('login')}}">Login</a>
+                </li>
+                {% endif %}
+                {% if current_user.username == "dpustahija" %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('test')}}">Test</a>
                 </li>
                 {% endif %}
                 <li class="nav-item">

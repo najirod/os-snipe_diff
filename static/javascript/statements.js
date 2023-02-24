@@ -12,6 +12,9 @@ function submitSelection(event) {
             var asset_list = document.getElementById("floatingSelect1")
             asset_list.innerHTML = response;
             $('#floatingSelect').prop('disabled', 'disabled');
+            $('#user-search').prop('disabled', 'disabled');
+            $('#floatingSelect').css('color', 'green');
+
         }
     });
 }
@@ -50,3 +53,25 @@ function createDocument(event) {
         }
     });
 }
+
+$(document).ready(function() {
+    var $select = $('select#floatingSelect');
+    var $options = $select.children();
+    var $defaultOption = $options.first();
+
+    $('#user-search').on('input', function() {
+        var query = $(this).val().toLowerCase();
+        var matchingOptions = $options.filter(function() {
+            return $(this).text().toLowerCase().indexOf(query) !== -1;
+        });
+
+        $options.hide();
+        matchingOptions.show();
+
+        if (matchingOptions.length > 0) {
+            $select.val(matchingOptions.first().val());
+        } else {
+            $select.val('');
+        }
+    });
+});
