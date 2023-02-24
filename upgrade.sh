@@ -5,6 +5,8 @@ source /var/www/os-snipe_diff/venv/bin/activate
 
 # Pull from Git
 cd /var/www/os-snipe_diff/
+git fetch
+git stash
 git pull
 
 # Install requirements
