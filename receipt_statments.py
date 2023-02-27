@@ -53,7 +53,7 @@ class PdfStatement:
         html_template = 'izjava_zaduzenje.html'
         template = self.template_env.get_template(html_template)
         output_text = template.render(self.context)
-        self.full_save_name = ("Izjava o zaduženju " + self.full_name + " " + self.date + ".pdf")
+        self.full_save_name = f"Izjava o zaduzenju {self.full_name} {self.date}.pdf"
         pdfkit.from_string(output_text, self.save_location + self.full_save_name, css=root_path + 'static/css/statements.css', options=self.options)
         return self.full_save_name
 
@@ -65,7 +65,7 @@ class PdfStatement:
         html_template = 'izjava_razduzenje.html'
         template = self.template_env.get_template(html_template)
         output_text = template.render(self.context)
-        self.full_save_name = ("Izjava o razduženju "+self.full_name+" "+self.date+".pdf")
+        self.full_save_name = f"Izjava o razduženju {self.full_name} {self.date}.pdf"
         pdfkit.from_string(output_text, self.save_location + self.full_save_name, css=root_path+'static/css/statements.css', options=self.options)
         return self.full_save_name
 
