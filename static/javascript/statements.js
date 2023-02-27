@@ -1,6 +1,7 @@
 function submitSelection(event) {
     event.preventDefault();
     var selected_user = document.getElementById("floatingSelect").value;
+    $('#loading-spinner').show();
 
     $.ajax({
         url: "/submit-user",
@@ -14,7 +15,7 @@ function submitSelection(event) {
             $('#floatingSelect').prop('disabled', 'disabled');
             $('#user-search').prop('disabled', 'disabled');
             $('#floatingSelect').css('color', 'green');
-
+            $('#loading-spinner').hide();
         }
     });
 }
@@ -25,6 +26,7 @@ function createDocument(event) {
     var selected_assets = $('#floatingSelect1').val();
     var statement_type_option = document.getElementById("floatingSelect2").value;
     console.log(selected_assets)
+    $('#loading-spinner').show();
 
     $.ajax({
         url: "/create-document",
@@ -47,6 +49,7 @@ function createDocument(event) {
 
             // Remove the link from the document
             document.body.removeChild(link);
+            $('#loading-spinner').hide();
         },
         xhrFields: {
             responseType: 'blob'

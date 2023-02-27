@@ -2,29 +2,24 @@
 {% block head %}
 {% endblock %}
 {% block body %}
-
-
-
 <h1 class="login_h1">Welcome</h1>
 <h2 class="login_h2"> Register</h2>
 <div class="logincont">
-
     <form method="POST" action="">
-    {{ form.hidden_tag() }}
-  <div class="form-group">
-    {{ form.username(class_="form-control", size=32) }}<label for="exampleInputPassword1"></label>
-  </div>
-  <div class="form-group">
-    {{ form.email(class_="form-control", size=32) }}<label for="exampleInputPassword1"></label>
-  </div>
-  <div class="form-group">
-    {{ form.password(class_="form-control", size=22) }}<label for="exampleInputPassword1"></label>
-  </div>
-  <div class="form-group form-check">
-    <!--  <label class="form-check-label" for="exampleCheck1">Check me out</label> -->
-  </div>
-  {{ form.submit(class_="form-control") }}
-</form>
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.username(class_="form-control", size=32) }}<label for="exampleInputPassword1"></label>
+        </div>
+        <div class="form-group">
+            {{ form.email(class_="form-control", size=32) }}<label for="exampleInputPassword1"></label>
+        </div>
+        <div class="form-group">
+            {{ form.password(class_="form-control", size=22) }}<label for="exampleInputPassword1"></label>
+        </div>
+        <div class="form-group form-check">
+            <!--  <label class="form-check-label" for="exampleCheck1">Check me out</label> -->
+        </div>
+        {{ form.submit(class_="form-control") }}
+    </form>
 </div>
-
 {% endblock %}
