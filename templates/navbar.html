@@ -4,17 +4,20 @@
         <a class="navbar-brand " href="{{ url_for('index') }}"> SnipeIT-Framework</a>
         <div class="collapse navbar-collapse " id="navbarSupportedContent">
             <ul class="navbar-nav justify-content-end me-auto mb-2 mb-lg-0">
-                {% if current_user.is_authenticated and current_user.user_level > 3 %}
+                {% if current_user.is_authenticated and current_user.user_level > 1 %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('snipe_changes') }}">SnipeIT Changes</a>
                 </li>
-                {% endif %}
+                
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('reports') }}">Reports</a>
                 </li>
+                {% endif %}
+                {% if current_user.is_authenticated and current_user.user_level > 2 %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('statements') }}">Statements</a>
                 </li>
+                {% endif %}
             </ul>
         </div>
         <div>
@@ -39,7 +42,7 @@
                     <a class="nav-link" href="{{ url_for('login')}}">Login</a>
                 </li>
                 {% endif %}
-                {% if current_user.username == "dpustahija" %}
+                {% if current_user.is_authenticated and current_user.user_level > 4 %}
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('test')}}">Test</a>
                 </li>
