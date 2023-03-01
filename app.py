@@ -76,8 +76,9 @@ class RegisterForm(FlaskForm):
     def validate_username(self, username):
         existing_user_username = User.query.filter_by(username=username.data).first()
         if existing_user_username:
-            flash("user postokj")
-            raise ValidationError("user postoji")
+            # flash("User Already Exists", "warning")
+            pass
+            #raise ValidationError("user postoji")
 
 
 class LoginForm(FlaskForm):
@@ -250,9 +251,10 @@ def register():
                 db.session.commit()
                 flash("User added successfully", "success")
             else:
-                flash("User Already Exists", "warning")
+                flash(f"User {new_user.username} Already Exists", "warning")
+                return redirect(url_for("register"))
         else:
-            flash("ecdws","warning")
+            flash("ecdws", "warning")
         return redirect(url_for("login"))
 
     return render_template("register.html", form=form)
