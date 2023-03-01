@@ -27,7 +27,7 @@ logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter('%(asctime)s:%(pathname)s:%(funcName)s:%(name)s:%(process)d:%(message)s')
 
-file_handler = logging.FileHandler(root_path +'logs/log_py.log')
+file_handler = logging.FileHandler(root_path + 'logs/log_py.log')
 file_handler.setFormatter(formatter)
 
 stream_handler = logging.StreamHandler()
@@ -44,7 +44,8 @@ class Snipe:
         load_dotenv(dotenv_path=dotenv_path)
         self.all_assets = snipeit.Assets()
         self.server = os.getenv("server")  # snipe-it server IP
-        print(self.server)
+        self.headers = {"accept": "application/json", "Authorization": "Bearer " + os.getenv("token")}
+        # print(self.server)
         self.token = os.getenv("token")  # personal token for snipe API
         self.limit1 = os.getenv("limit1")  # limit for snipe API GET {int} -- None = All
         self.offset1 = os.getenv("offset1")  # offset {int} -- default: {0}
@@ -66,6 +67,21 @@ class Snipe:
         self.export_raw_results_path = (root_path + os.getenv("export_raw_results_path"))
         self.export_pretty_results_path = (root_path + os.getenv("export_pretty_results_path"))
         self.dict_from_snipe_data = {}  # dict wih needed data from snipe-it
+
+        self.total_users = ""
+        self.list_of_ids = []
+        self.list_of_usernames = []
+        self.list_of_names = []
+        self.list_of_assets_count = []
+        self.user_dict = {}
+
+        self.list_of_asset_tags = []
+        self.list_of_asset_categories = []
+        self.list_of_asset_models = []
+        self.list_of_asset_serials = []
+        self.list_of_card_numbers = []
+        self.list_of_asset_ids = []
+        self.asset_dict = {}
 
         headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
         response = requests.get(self.server+"/api/v1/hardware", headers=headers)
@@ -153,6 +169,64 @@ class Snipe:
         with open(self.export_pretty_results_path + 'dict_from_snipe_data ' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as write_file:
             json.dump(self.dict_from_snipe_data, write_file)
         logger.info("Created pretty Json :)")
+
+    def statement_user_data(self):
+        url = self.server + "/api/v1/users?limit=300&offset=0&sort=created_at&order=desc&deleted=false&all=false"
+        response = requests.get(url, headers=self.headers)
+        keys_for_user_dict = ["id", "username", "name", "assets_count"]
+        # print(response.text)
+        json_object_snipe = json.loads(response.text)
+        self.total_users = json_object_snipe["total"]
+
+        for i in range(len(json_object_snipe["rows"])):
+            # print(json_object_snipe["rows"][i]["id"])
+            self.list_of_ids.append(json_object_snipe["rows"][i]["id"])
+            self.list_of_usernames.append(json_object_snipe["rows"][i]["username"])
+            self.list_of_names.append(json_object_snipe["rows"][i]["name"])
+            self.list_of_assets_count.append(json_object_snipe["rows"][i]["assets_count"])
+
+        self.user_dict = dict.fromkeys(self.list_of_ids)
+
+        for key in self.user_dict:
+            key_index = self.list_of_ids.index(key)
+            self.user_dict[key] = dict.fromkeys(keys_for_user_dict)
+            self.user_dict[key]["id"] = self.list_of_ids[key_index]
+            self.user_dict[key]["username"] = self.list_of_usernames[key_index]
+            self.user_dict[key]["name"] = self.list_of_names[key_index]
+            self.user_dict[key]["assets_count"] = self.list_of_assets_count[key_index]
+
+        return self.user_dict
+
+    def get_checked_out_assets_by_id(self, user_id):
+        url = self.server + "/api/v1/users/" + user_id + "/assets"
+        response = requests.get(url, headers=self.headers)
+        checked_out_assets = snipeit.Users().getCheckedOutAssets(self.server, self.token, user_id)
+        # print(checked_out_assets)
+        # print(response.text)
+        json_object = json.loads(response.text)
+        for i in range(len(json_object["rows"])):
+            self.list_of_asset_tags.append(json_object["rows"][i]["asset_tag"])
+            self.list_of_asset_ids.append(json_object["rows"][i]["id"])
+            self.list_of_asset_categories.append((json_object["rows"][i]["category"]["name"]))
+            self.list_of_asset_models.append(json_object["rows"][i]["model"]["name"])
+            self.list_of_asset_serials.append(json_object["rows"][i]["serial"])
+            if "Broj kartice" in (json_object["rows"][i]["custom_fields"]):
+                self.list_of_card_numbers.append(json_object["rows"][i]["custom_fields"]["Broj kartice"]["value"])
+            else:
+                self.list_of_card_numbers.append('')
+
+        keys_for_asset_dict = ["asset_tag", "category", "model", "serial", "card_number"]
+        self.asset_dict = dict.fromkeys(self.list_of_asset_ids)
+        for key in self.asset_dict:
+            key_index = self.list_of_asset_ids.index(key)
+            self.asset_dict[key] = dict.fromkeys(keys_for_asset_dict)
+            self.asset_dict[key]["asset_tag"] = self.list_of_asset_tags[key_index]
+            self.asset_dict[key]["category"] = self.list_of_asset_categories[key_index]
+            self.asset_dict[key]["model"] = self.list_of_asset_models[key_index]
+            self.asset_dict[key]["serial"] = self.list_of_asset_serials[key_index]
+            self.asset_dict[key]["card_number"] = self.list_of_card_numbers[key_index]
+        #print(self.asset_dict)
+        return self.asset_dict
 
     def get(self):
         self.get_merged_raw_data_from_snipe()
@@ -382,6 +456,10 @@ def main():
     # my_report.generate_matching_xlsx(my_check)
     # my_report.generate_non_matching_xlsx(my_check)
     # my_report.generate_rest_xlsx(my_check)
+def get_users():
+    my_snipe = Snipe()
+    my_snipe.get_checked_out_assets_by_id("4")
+
 
 
 def my_diff():
@@ -390,7 +468,8 @@ def my_diff():
 
 if __name__ == "__main__":
     # my_diff()
-    main()
+    # main()
+    get_users()
     # test()
     # Reports().matching_snipe_and_os_report()
     # Reports().non_matching_snipe_and_os_report()

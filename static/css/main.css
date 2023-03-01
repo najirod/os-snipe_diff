@@ -1,64 +1,128 @@
-body{
-	margin: 0;
-	background-color: #dcdbdc;
-  
+body {
+    margin: 0;
+    background-color: #dcdbdc;
 }
 
 .form-select {
-  width:200px;
-  }
+    width: 200px;
+}
 
 .line-vertical {
-  width: 1px;
-  height: 6px;
-  float: left;
-  background-color: blue;
-  margin: 0px;
+    width: 1px;
+    height: 6px;
+    float: left;
+    background-color: blue;
+    margin: 0px;
+}
+
+.login_h1 {
+    margin-top: 150px;
+}
+
+.login_h2 {
+
+    text-align: center;
 }
 
 .container-fluid {
-   margin-left: 0px;
-   
+    margin-left: 0px;
+
+
+}
+
+.create_statement > * {
+    display: inline-block;
+}
+
+#refresh_page{
+    margin-left: 10px;
+}
+
+.containerstatments {
+    margin-left: 15%;
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.containerstatments select {
+    width: 500px;
 }
 
 .containerchanges {
-   margin-left: 15%;
-   max-width: 70% !important;
-   
+    margin-left: 15%;
+    max-width: 70% !important;
+
 }
+
 
 .containerreports {
 
-   margin-left: 15%;
-   max-width: 70% !important;
+    margin-left: 15%;
+    max-width: 70% !important;
 }
 
 .containertest {
-   margin-left: 1px;
-   /*  max-width: 200px !important;*/
-   width: 200px;
+    margin-left: 1px;
+    /*  max-width: 200px !important;*/
+    width: 200px;
 }
 
-.containera{
-  display: flex;
+.containera {
+    display: flex;
 
 }
 
-.sidebar{
-  margin-top: 10%;
-  position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+.logincont {
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    width: 20%;
+
+}
+
+.edit_user {
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    width: 20%;
+
+}
+
+.sidebar {
+    margin-top: 10%;
+    position: fixed;
+    /* Fixed Sidebar (stay in place on scroll) */
 
 }
 
 h1 {
-    text-align:center;
+    text-align: center;
 }
 
 img {
     max-width: 100%;
     max-height: 100%;
 }
+
 .list-group-item {
-  background-color: #e8e8e8;
-  
+    background-color: #e8e8e8;
+
+}
+
+#user-search{
+    width: 500px;
+}
+
+#loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }

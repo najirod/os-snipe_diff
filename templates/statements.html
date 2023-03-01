@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block head %}
+<script type="text/javascript" src="{{url_for('static', filename='javascript/statements.js')}}"></script>
+{% endblock %}
+{% block body %}
+<h1 class="login_h1">Statements</h1>
+<div class="containerstatments">
+    <div class="create_statement">
+        <h2> Izrada izjave </h2>
+        
+        <button id="refresh_page" class="btn btn-secondary btn-sm" onClick="window.location.reload();">Create new</button>
+    </div>
+    <br>
+    
+    <div class="form-group">
+        <form name="user_list" id="user_list1" method="POST">
+            <label for="user_list">Pick User:</label>
+            <input class="form-control form-control-sm" type="text" id="user-search" placeholder="Search for a user">
+
+            <select class="form-select " id="floatingSelect" aria-label="Floating label select example" name="user" id="user1">
+                {% for key, value in data.items() %}
+                <option name="user_option" value='{ "id": "{{ value.id }}" , "name": "{{value.name}}" } '>{{ value.name }}</option>
+                {% endfor %}
+            </select>
+            <button onclick="submitSelection(event)" type="submit" id="id_refresh" name="submit_button" value="submit_user" class="btn btn-primary btn-sm">Load Assets for picked user</button>
+            <br>
+            <br>
+        </form>
+        <form name="asset_list" id="asset_list" method="POST">
+            <label for="asset_list">Pick Assets:</label>
+            <select class="form-select" size="5" multiple id="floatingSelect1" name="asset" id="asset1">
+            </select>
+            <br>
+            <label > Type of Statement: </label>
+            <select class="form-select" id="floatingSelect2" aria-label="Floating label select example" name="statement_type" id="statement_type1">
+                {% for o in statment_type %}
+                <option name="statement_type_option" value="{{ o.type }}">{{ o.name }}</option>
+                {% endfor %}
+            </select>
+            <br>
+            <button onclick="createDocument(event)" type="submit" name="submit_button2" value="submit_asset_type" class="btn btn-primary btn-sm">Create and Download</button>
+        </form>
+        
+    </div>
+</div>
+<div id="loading-spinner" style="display: none;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
+
+
+{% endblock %}

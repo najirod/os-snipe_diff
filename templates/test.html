@@ -7,36 +7,42 @@
 
 {% block body %}
 
+<div class="container mt-5">
+        <h1 class="mb-4">Welcome to SnipeIT-Framework</h1>
+        <p class="mb-5">With SnipeIT-Framework, you can easily manage your assets and generate reports for your accounting software. Here are some of the features:</p>
 
-<div class="containera">
-
-    <div class="row">
-         <div class="col-md-auto">
-            <div class="containertest">
-                <br>
-                <div class="sidebar"  role="tabpanel">
-                    
-                    <div class="list-group text-center " id="myList" role="tablist">
-                        <a class="list-group-item list-group-item-action"  href="#_Toc117496559" >SnipeIT-Framework</a>
-                        <a class="list-group-item list-group-item-action"  href="#_Toc117496560" >SnipeIT Changes</a>
-                        <a class="list-group-item list-group-item-action"  href="#_Toc117496561" >Reports</a>
-                        <a class="list-group-item list-group-item-action"  href="#_Toc117496562" >SnipeIT</a>
-                        <a class="list-group-item list-group-item-action"  href="#_Toc117496563" >Docs</a>
-
-
-                    </div>
-                </div>
-
-            </div> 
-        </div> 
-        
-        <div class="col" >
-                {% include 'test_extend.html' %}
-
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <h2>View changes made in SnipeIT</h2>
+                <p>You can view the changes made in SnipeIT by navigating to the <strong>/changes</strong> route.</p>
+            </div>
+            <div class="col-md-6 mb-4">
+                <h2>Generate xlsx reports for assets in SnipeIT</h2>
+                <p>You can generate an xlsx report for assets in SnipeIT by navigating to the <strong>/xlsx_report</strong> route.</p>
+            </div>
+            <div class="col-md-6 mb-4">
+                <h2>Create reports for assets in SnipeIT that you have in your accounting software</h2>
+                <p>You can create a report for assets in SnipeIT that you have in your accounting software by navigating to the <strong>/asset_report</strong> route.</p>
+            </div>
+            <div class="col-md-6 mb-4">
+                <h2>Report missing files in accounting software</h2>
+                <p>You can report missing files in your accounting software that exist in SnipeIT by navigating to the <strong>/missing_files</strong> route.</p>
+            </div>
+            <div class="col-md-6 mb-4">
+                <h2>Match files in SnipeIT and accounting software</h2>
+                <p>You can match files in both SnipeIT and your accounting software by navigating to the <strong>/match_files</strong> route.</p>
+            </div>
+            <div class="col-md-6 mb-4">
+                <h2>Create document for in-person acceptance of asset</h2>
+                <p>You can create a document for in-person acceptance of an asset by navigating to the <strong>/acceptance_document</strong> route.</p>
+            </div>
         </div>
     </div>
 
-</div>
+    <!-- Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 
 {% endblock %}

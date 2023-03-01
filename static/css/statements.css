@@ -1,0 +1,131 @@
+:root {
+  --bleeding: 0.5cm;
+  --margin: 1cm;
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0 auto;
+  padding: 0;
+  background: rgb(204, 204, 204);
+  display: flex;
+  flex-direction: column;
+
+
+}
+
+h1{
+   font-size:20pt;
+   padding: 20px;
+   text-align: center;
+
+}
+
+.logo{
+   text-align: right;
+}
+
+place{
+   position: absolute;
+   bottom: 0;
+   margin-bottom: 300px;
+
+}
+potpis_korisnik{
+   position: absolute;
+   bottom: 0;
+   margin-bottom: 200px;
+}
+
+potpis_predao{
+   position: absolute;
+   bottom: 0;
+   margin-bottom: 100px;
+}
+
+fotter{
+   position: absolute;
+   bottom: 0;
+   margin-bottom: 10px;
+   margin-top: 0px;
+
+
+}
+
+.tr{
+   padding-top:100px;
+}
+
+table {
+   position: absolute;
+   bottom: 0;
+   margin-bottom: 0px;
+  border-collapse: separate;
+  border-spacing: 0 50px;
+}
+
+.full_name{
+   position: relative;
+   margin-top: 10px;
+   margin-bottom: 50px;
+}
+
+.n1{
+   position: relative;
+   margin-bottom: 20px;
+
+}
+
+.items{
+   position: relative;
+   margin-bottom: 50px;
+
+}
+.suglasnost{
+    position: relative;
+    margin-top: 100px;
+}
+.page {
+
+  display: inline-block;
+  position: relative;
+  height: 370mm;
+  /*width: 210mm;*/
+  font-size: 12pt;
+  /*margin: 2em auto;*/
+  /*padding: calc(var(--bleeding) + var(--margin));*/
+ /* box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5); */
+  background: white;
+
+}
+
+@media screen {
+  .page::after {
+    position: absolute;
+    content: '';
+    top: 0;
+    left: 0;
+    width: calc(100% - var(--bleeding) * 2);
+    height: calc(100% - var(--bleeding) * 2);
+    /*margin: var(--bleeding);*/
+    /*outline: thin dashed black;*/
+    pointer-events: none;
+    z-index: 9999;
+  }
+}
+
+@media print {
+  .page {
+    margin: 0;
+    overflow: hidden;
+  }
+}
+
+
