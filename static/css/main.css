@@ -84,6 +84,17 @@ body {
 
 }
 
+.edit_user {
+
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    width: 20%;
+
+}
+
 .sidebar {
     margin-top: 10%;
     position: fixed;

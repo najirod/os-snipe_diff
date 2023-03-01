@@ -21,6 +21,7 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import *
 from flask_admin.menu import MenuLink
 import urllib.parse
+from functools import wraps
 
 
 if "venv" in sys.path[0]:
@@ -87,13 +88,79 @@ class LoginForm(FlaskForm):
     submit = SubmitField("login")
 
 
+class UpdateUserForm(FlaskForm):
+    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
+    #email = StringField(validators=[InputRequired(), Length(min=4, max=50)], render_kw={"placeholder": "email"})
+    password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
+    submit = SubmitField("UpdatePass")
+
+    def validate_username(self, username):
+        existing_user_username = User.query.filter_by(username=username.data).first()
+        if existing_user_username:
+            pass
+        else:
+            raise ValidationError("veror")
+
+
+def level_5_admin_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.user_level < 5:
+            flash("no access", "warning")
+            return redirect(url_for("login"))
+        return func(*args, **kwargs)
+    return decorated_view
+
+
+def level_4_admin_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.user_level < 4:
+            flash("no access", "warning")
+            return redirect(url_for("login"))
+        return func(*args, **kwargs)
+    return decorated_view
+
+
+def level_3_admin_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.user_level < 3:
+            flash("no access", "warning")
+            return redirect(url_for("login"))
+        return func(*args, **kwargs)
+    return decorated_view
+
+
+def level_2_admin_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.user_level < 2:
+            flash("no access", "warning")
+            return redirect(url_for("login"))
+        return func(*args, **kwargs)
+    return decorated_view
+
+
+def level_1_admin_required(func):
+    @wraps(func)
+    def decorated_view(*args, **kwargs):
+        if not current_user.is_authenticated or current_user.user_level < 1:
+            flash("no access", "warning")
+            return redirect(url_for("login"))
+        return func(*args, **kwargs)
+    return decorated_view
+
+
 @app.route("/")
+
 def index():
     return render_template('index.html')
 
 
 @app.route("/snipe_changes", methods=["POST", "GET"])
 @login_required
+@level_2_admin_required
 def snipe_changes():
     if current_user.is_authenticated:
         print(current_user.username, current_user.user_level)
@@ -149,6 +216,7 @@ def snipe_changes():
 
 @app.route("/reports", methods=["POST", "GET"])
 @login_required
+@level_2_admin_required
 def reports():
     if request.method == "POST":
         if request.form['submit_button'] == 'proba':
@@ -168,6 +236,7 @@ def reports():
 
 @app.route("/test", methods=["POST", "GET"])
 @login_required
+@level_5_admin_required
 def test():
     flash("user" + current_user.username, "warning")
     if request.method == "POST":
@@ -236,8 +305,32 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 
+@app.route('/edit-user', methods=['GET', 'POST'])
+@login_required
+@level_5_admin_required
+def edit_user():
+    form = UpdateUserForm()
+    if form.validate_on_submit():
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = User.query.filter_by(username=form.username.data).first()
+        if user:
+            user_to_update = User.query.get_or_404(user.id)
+            user_to_update.password = hashed_password
+            # print(f"{user.id=}")
+            try:
+                db.session.commit()
+                flash("Successfully updated password", "success")
+            except:
+                flash("Error on updating password", "warning")
+        else:
+            return None
+
+    return render_template("user_edit.html",form=form)
+
 
 @app.route('/register', methods=['GET', 'POST'])
+@login_required
+@level_5_admin_required
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
@@ -262,6 +355,7 @@ def register():
 
 @app.route('/delete/<int:id>')
 @login_required
+@level_5_admin_required
 def delete(id):
     user_to_delete = User.query.get_or_404(id)
     try:
@@ -318,6 +412,7 @@ def handle_form_submission():
 
 @app.route('/statements', methods=["POST", "GET"])
 @login_required
+@level_3_admin_required
 def statements():
     temp = snipe_sofa_framework.Snipe().statement_user_data()
     temp2 = {}
