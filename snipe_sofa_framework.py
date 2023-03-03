@@ -466,8 +466,14 @@ def get_users():
 
 
 def test_write():
-    Update().os_number_list(asset_tag="",os_number="")
+    import cProfile
+    import pstats
+    with cProfile.Profile() as pr:
 
+        Update().os_number_list(asset_tag="",os_number="")
+    stats = pstats.Stats(pr)
+    stats.sort_stats(pstats.SortKey.TIME)
+    stats.print_stats()
 
 def my_diff():
     # diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data 11.10.2022", save_name="t", save_path="").pretty_diffs_xlsx()
