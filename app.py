@@ -435,8 +435,10 @@ def update_assets():
                 if value == '':
 
                     return f"Empty string found in {key} of {item}"
+            return str(snipe_sofa_framework.Update().os_number_list(asset_tag=item['asset_tag'],os_number=item['os_number']))
         print(data)
         print(type(data))
+
         return "Data received."
 
     return render_template("update_assets.html")

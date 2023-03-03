@@ -239,7 +239,7 @@ class Update:
     """TODO: write to Snipe"""
     def os_number_list(self, asset_tag, os_number):
         id = Snipe().id_from_asset_tag(asset_tag)
-        pass
+        return id
 
 class AccOsData:
     def __init__(self, snipe):
