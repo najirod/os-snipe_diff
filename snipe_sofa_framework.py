@@ -83,10 +83,10 @@ class Snipe:
         self.list_of_asset_ids = []
         self.asset_dict = {}
 
-        headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
-        response = requests.get(self.server+"/api/v1/hardware", headers=headers)
+        # headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
+        # response = requests.get(self.server+"/api/v1/hardware", headers=headers)
         # print(response)
-        logger.info(response)
+        # logger.info(response)
 
     # append list of all assets from snipe to "merged_data"(!!! MAX - 3000 !!!)
     def get_merged_raw_data_from_snipe(self):
@@ -238,7 +238,7 @@ class Snipe:
 class Update:
     """TODO: write to Snipe"""
     def os_number_list(self, asset_tag, os_number):
-        tag = Snipe().id_from_asset_tag(asset_tag)
+        id = Snipe().id_from_asset_tag(asset_tag)
         pass
 
 class AccOsData:
