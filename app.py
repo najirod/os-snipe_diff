@@ -424,6 +424,24 @@ def statements():
     return render_template("statements.html", data=temp, data2=temp2, statment_type=statement_type)
 
 
+@app.route('/update-assets', methods=["POST", "GET"])
+@login_required
+@level_5_admin_required
+def update_assets():
+    if request.method == "POST":
+        data = request.json
+        for item in data:
+            for key, value in item.items():
+                if value == '':
+
+                    return f"Empty string found in {key} of {item}"
+        print(data)
+        print(type(data))
+        return "Data received."
+
+    return render_template("update_assets.html")
+
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template("404.html"), 404

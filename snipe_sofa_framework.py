@@ -177,16 +177,13 @@ class Snipe:
         # print(response.text)
         json_object_snipe = json.loads(response.text)
         self.total_users = json_object_snipe["total"]
-
         for i in range(len(json_object_snipe["rows"])):
             # print(json_object_snipe["rows"][i]["id"])
             self.list_of_ids.append(json_object_snipe["rows"][i]["id"])
             self.list_of_usernames.append(json_object_snipe["rows"][i]["username"])
             self.list_of_names.append(json_object_snipe["rows"][i]["name"])
             self.list_of_assets_count.append(json_object_snipe["rows"][i]["assets_count"])
-
         self.user_dict = dict.fromkeys(self.list_of_ids)
-
         for key in self.user_dict:
             key_index = self.list_of_ids.index(key)
             self.user_dict[key] = dict.fromkeys(keys_for_user_dict)
@@ -194,8 +191,12 @@ class Snipe:
             self.user_dict[key]["username"] = self.list_of_usernames[key_index]
             self.user_dict[key]["name"] = self.list_of_names[key_index]
             self.user_dict[key]["assets_count"] = self.list_of_assets_count[key_index]
-
         return self.user_dict
+
+    def id_from_asset_tag(self, asset_tag):
+        json_object_details_from_tag = json.loads(self.all_assets.getDetailsByTag(server=self.server, token=self.token, AssetTag=asset_tag))
+        id_from_tag = str(json_object_details_from_tag["id"])
+        return str(id_from_tag)
 
     def get_checked_out_assets_by_id(self, user_id):
         url = self.server + "/api/v1/users/" + user_id + "/assets"
@@ -234,9 +235,11 @@ class Snipe:
         self.create_dict_from_snipe_data()
 
 
-class WriteTo:
+class Update:
     """TODO: write to Snipe"""
-
+    def os_number_list(self, asset_tag, os_number):
+        tag = Snipe().id_from_asset_tag(asset_tag)
+        pass
 
 class AccOsData:
     def __init__(self, snipe):
@@ -456,21 +459,27 @@ def main():
     # my_report.generate_matching_xlsx(my_check)
     # my_report.generate_non_matching_xlsx(my_check)
     # my_report.generate_rest_xlsx(my_check)
+
 def get_users():
     my_snipe = Snipe()
     my_snipe.get_checked_out_assets_by_id("4")
 
+
+def test_write():
+    Update().os_number_list(asset_tag="",os_number="")
 
 
 def my_diff():
     # diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data 11.10.2022", save_name="t", save_path="").pretty_diffs_xlsx()
     diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data_11.10.2022", save_name="g", save_path="results_cron/diff/").pretty_diffs_xlsx()
 
+
 if __name__ == "__main__":
     # my_diff()
     # main()
-    get_users()
+    # get_users()
     # test()
     # Reports().matching_snipe_and_os_report()
     # Reports().non_matching_snipe_and_os_report()
     # Reports().rest_in_snipe_report()
+    test_write()

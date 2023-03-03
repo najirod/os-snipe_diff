@@ -126,3 +126,35 @@ img {
     left: 50%;
     transform: translate(-50%, -50%);
 }
+
+
+
+
+.container-table table{
+    background-color: #7c818c;
+    border-collapse: collapse;
+    width: 100%;
+    border-color: red;
+}
+
+.container-table th {
+    background-color: #5d6271;
+}
+
+.container-table td, th {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.container-table td:hover {
+  
+}
+
+.container-table button {
+    display: block; /* make the button a block element */
+  margin: 0 auto; /* set left and right margins to auto */
+  
+}
+
+

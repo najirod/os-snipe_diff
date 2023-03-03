@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block head %}
-
+<script type="text/javascript" src="{{url_for('static', filename='javascript/update_assets.js')}}"></script>
 {% endblock %}
 
 
@@ -18,13 +18,13 @@
               <div class="col">
                 <div class="form-group">
                   <label for="inputData">Enter Data for Asset Tags (separated by line break):</label>
-                  <textarea class="form-control" id="inputData" name="inputData" rows="4" cols="50"></textarea>
+                  <textarea class="form-control" id="inputData" name="inputData" rows="4" cols="50" oninput="this.value = this.value.replace(/[^0-9\r\n]/g, '')"></textarea>
                 </div>
               </div>
               <div class="col">
                 <div class="form-group">
                   <label for="inputData2">Enter Data for OS Numbers (separated by line break):</label>
-                  <textarea class="form-control" id="inputData2" name="inputData2" rows="4" cols="50"></textarea>
+                  <textarea class="form-control" id="inputData2" name="inputData2" rows="4" cols="50" oninput="this.value = this.value.replace(/[^0-9\r\n]/g, '')"></textarea>
                 </div>
               </div>
             </div>
@@ -32,7 +32,7 @@
             <button type="button" class="btn btn-primary" onclick="createTable()">Create Table</button>
           </form>
           <br>
-          <table class="table">
+          <table class="table" id="myTable">
             <thead>
               <tr>
                 <th>Asset Tag</th>
@@ -41,6 +41,8 @@
             </thead>
             <tbody id="tableBody"></tbody>
           </table>
+          <button type="button" class="btn btn-primary" onclick="postData()">Post Data</button>
+
         </div>
       </div>
     </div>
