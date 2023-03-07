@@ -49,6 +49,10 @@ body {
     width: 500px;
 }
 
+.containerstatments input{
+    width: 500px;
+}
+
 .containerchanges {
     margin-left: 15%;
     max-width: 70% !important;
@@ -156,5 +160,7 @@ img {
   margin: 0 auto; /* set left and right margins to auto */
   
 }
+
+
 
 

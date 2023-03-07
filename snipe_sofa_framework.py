@@ -236,10 +236,26 @@ class Snipe:
 
 
 class Update:
-    """TODO: write to Snipe"""
-    def os_number_list(self, asset_tag, os_number):
-        id = Snipe().id_from_asset_tag(asset_tag)
+    def __init__(self, asset_tag):
+        self.asset_tag = asset_tag
+        self.snipe = Snipe()
+
+    def set_os_number(self, os_number):
+        logger.info(f"Starting to write OS number: {os_number} for asset: {self.asset_tag}")
+        device_id = self.snipe.id_from_asset_tag(self.asset_tag)
+        payload = f'{{"_snipeit_broj_osnovnog_sredstva_3":"{os_number}"}}'
+        self.snipe.all_assets.updateDevice(server=self.snipe.server, token=self.snipe.token, DeviceID=device_id, payload=payload)
+        logger.info(f"Successfully written OS number: {os_number} for asset: {self.asset_tag}")
         return id
+
+    def set_zopu(self):
+        logger.info(f"Starting to set ZOPU for asset: {self.asset_tag}")
+        device_id = self.snipe.id_from_asset_tag(asset_tag=self.asset_tag)
+        payload = '{"_snipeit_zopu_2":"ZOPU"}'
+        self.snipe.all_assets.updateDevice(server=self.snipe.server, token=self.snipe.token, DeviceID=device_id, payload=payload)
+        logger.info(f"successfully set ZOPU for asset: {self.asset_tag}")
+
+
 
 class AccOsData:
     def __init__(self, snipe):
@@ -306,7 +322,7 @@ class AccOsData:
 
 
 class Check:
-    def __init__(self, snipe_data, acc_os_data):
+    def __init__(self, snipe_data={}, acc_os_data={}):
         self.snipe_data = snipe_data
         self.acc_os_data = acc_os_data
         self.matching = []
@@ -358,6 +374,11 @@ class Check:
                 self.rest_tags.append(asset_tag)
                 self.rest_names.append(self.snipe_data.dict_from_snipe_data[asset_tag]['asset_name'])
 
+    def is_asset_tag_valid(self, asset_tag):
+        if len(asset_tag) == 4:
+            return False
+        else:
+            return True
 
 class Reports:
     def __init__(self):
@@ -470,7 +491,7 @@ def test_write():
     import pstats
     with cProfile.Profile() as pr:
 
-        Update().os_number_list(asset_tag="",os_number="")
+        Update().os_number_list(asset_tag="1",os_number="1001")
     stats = pstats.Stats(pr)
     stats.sort_stats(pstats.SortKey.TIME)
     stats.print_stats()

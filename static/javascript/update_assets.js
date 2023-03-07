@@ -22,72 +22,78 @@ function createTable() {
         // Create a new row
         const row = document.createElement("tr");
 
-        // Create two cells and add the values to them
+        // Create three cells and add the values and checkbox to them
         const cell1 = document.createElement("td");
         cell1.textContent = values[i] || "";
-        if (cell1.textContent === "") {
-        console.log("empty str");
-    }
 
         const cell2 = document.createElement("td");
         cell2.textContent = values2[i] || "";
-        if (cell2.textContent === "") {
-        console.log("empty str");
-    }
+
+        const cell3 = document.createElement("td");
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        cell3.appendChild(checkbox);
 
         // Add the cells to the row
         row.appendChild(cell1);
         row.appendChild(cell2);
+        row.appendChild(cell3);
 
         // Add the row to the table body
         tableBody.appendChild(row);
     }
 }
 
+
 function postData() {
-  // Get the table body
-  const tableBody = document.getElementById("tableBody");
+    $('#loading-spinner').show();
+    // Get the table body
+    const tableBody = document.getElementById("tableBody");
 
-  // Get the rows from the table body
-  const rows = tableBody.getElementsByTagName("tr");
+    // Get the rows from the table body
+    const rows = tableBody.getElementsByTagName("tr");
 
-  // Create an array to hold the data
-  const data = [];
+    // Create an array to hold the data
+    const data = [];
 
-  // Loop through the rows and add the data to the array
-  for (let i = 0; i < rows.length; i++) {
-    const cells = rows[i].getElementsByTagName("td");
-    data.push({
-      "asset_tag": cells[0].textContent.trim(),
-      "os_number": cells[1].textContent.trim()
-    });
-  }
+    // Loop through the rows and add the data to the array
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName("td");
+        data.push({
+            "asset_tag": cells[0].textContent.trim(),
+            "os_number": cells[1].textContent.trim(),
+            "ZOPU": cells[2].getElementsByTagName("input")[0].checked // Get the value of the checkbox input
 
-  // Create a new XMLHttpRequest object
-  const xhr = new XMLHttpRequest();
-
-  // Set the URL for the request
-  const url = "/update-assets";
-
-  // Set the HTTP method to POST
-  xhr.open("POST", url);
-
-  // Set the Content-Type header
-  xhr.setRequestHeader("Content-Type", "application/json");
-
-  // Define a callback function to handle the response
-  xhr.onload = function () {
-    if (xhr.status === 200) {
-      console.log(xhr.responseText);
-      alert(xhr.responseText)
-    } else {
-      alert("An error occurred while posting the data.");
+        });
     }
-  };
 
-  // Convert the data to JSON format
-  const json = JSON.stringify(data);
+    // Create a new XMLHttpRequest object
+    const xhr = new XMLHttpRequest();
 
-  // Send the request with the JSON data
-  xhr.send(json);
+    // Set the URL for the request
+    const url = "/update-assets";
+
+    // Set the HTTP method to POST
+    xhr.open("POST", url);
+
+    // Set the Content-Type header
+    xhr.setRequestHeader("Content-Type", "application/json");
+
+    // Define a callback function to handle the response
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            console.log(xhr.responseText);
+            // alert(xhr.responseText)
+            $('#loading-spinner').hide();
+        } else {
+            $('#loading-spinner').hide();
+            alert("An error occurred while posting the data.");
+        }
+    };
+
+    // Convert the data to JSON format
+    const json = JSON.stringify(data);
+
+    // Send the request with the JSON data
+    xhr.send(json);
 }
