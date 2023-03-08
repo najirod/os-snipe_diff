@@ -115,6 +115,7 @@ class Create:
         return statement.full_save_name
 
 
+
 def test():
     izjava = Create().zaduzenje(user="zdenko")
     print(izjava)
