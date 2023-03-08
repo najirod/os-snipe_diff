@@ -121,7 +121,7 @@ class PdfStatement:
 
 class Create:
     def zaduzenje(self, user="Ime i Prezime", date=today_date, items=[{'item': "fdscdtfd"}]):
-        logger.info(f"date is {date=}")
+        logger.info(f"date is {date=}{type(date)}")
         statement = PdfStatement(user=user, date=date, items=items)
         statement.zaduzenje()
         return statement.full_save_name
