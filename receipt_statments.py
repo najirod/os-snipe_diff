@@ -15,13 +15,13 @@ today_date = date.today().strftime("%d.%m.%Y")
 
 
 class PdfStatement:
-    def __init__(self, user="Ime i Prezime", date="", items=[{'item': "fdscdtfd"}]):
+    def __init__(self, user="Ime i Prezime", date= "", items=[{'item': "fdscdtfd"}]):
         dotenv_path = (root_path + ".env")
         load_dotenv(dotenv_path=dotenv_path)
         self.save_location = root_path + os.getenv("statement_save_location")
         self.user = user
         self.full_name = ""
-        if date == "":
+        if date == "" or date is None:
             self.date = today_date
         else:
             self.date = date
