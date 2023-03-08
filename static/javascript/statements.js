@@ -9,7 +9,7 @@ function submitSelection(event) {
         data: { "selected_user": selected_user },
         success: function(response) {
             // Do something with the server response
-            console.log(response);
+            // console.log(response);
             var asset_list = document.getElementById("floatingSelect1")
             asset_list.innerHTML = response;
             $('#floatingSelect').prop('disabled', 'disabled');
