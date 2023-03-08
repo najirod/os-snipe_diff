@@ -325,7 +325,7 @@ def edit_user():
         else:
             return None
 
-    return render_template("user_edit.html",form=form)
+    return render_template("user_edit.html", form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])
