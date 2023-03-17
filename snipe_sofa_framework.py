@@ -380,6 +380,7 @@ class Check:
         else:
             return True
 
+
 class Reports:
     def __init__(self):
         # root_path = (sys.path[0] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/

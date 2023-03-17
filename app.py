@@ -269,6 +269,7 @@ def download_statement(filename):
 
     return send_file(path, as_attachment=True, mimetype='application/pdf')
 
+
 @app.route('/snipeit')
 def snipeit():
     return redirect("http://10.10.1.54/")
@@ -304,6 +305,7 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("login"))
+
 
 @app.route('/edit-user', methods=['GET', 'POST'])
 @login_required
