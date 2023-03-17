@@ -83,10 +83,10 @@ class Snipe:
         self.list_of_asset_ids = []
         self.asset_dict = {}
 
-        headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
-        response = requests.get(self.server+"/api/v1/hardware", headers=headers)
+        # headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
+        # response = requests.get(self.server+"/api/v1/hardware", headers=headers)
         # print(response)
-        logger.info(response)
+        # logger.info(response)
 
     # append list of all assets from snipe to "merged_data"(!!! MAX - 3000 !!!)
     def get_merged_raw_data_from_snipe(self):
@@ -177,16 +177,13 @@ class Snipe:
         # print(response.text)
         json_object_snipe = json.loads(response.text)
         self.total_users = json_object_snipe["total"]
-
         for i in range(len(json_object_snipe["rows"])):
             # print(json_object_snipe["rows"][i]["id"])
             self.list_of_ids.append(json_object_snipe["rows"][i]["id"])
             self.list_of_usernames.append(json_object_snipe["rows"][i]["username"])
             self.list_of_names.append(json_object_snipe["rows"][i]["name"])
             self.list_of_assets_count.append(json_object_snipe["rows"][i]["assets_count"])
-
         self.user_dict = dict.fromkeys(self.list_of_ids)
-
         for key in self.user_dict:
             key_index = self.list_of_ids.index(key)
             self.user_dict[key] = dict.fromkeys(keys_for_user_dict)
@@ -194,8 +191,12 @@ class Snipe:
             self.user_dict[key]["username"] = self.list_of_usernames[key_index]
             self.user_dict[key]["name"] = self.list_of_names[key_index]
             self.user_dict[key]["assets_count"] = self.list_of_assets_count[key_index]
-
         return self.user_dict
+
+    def id_from_asset_tag(self, asset_tag):
+        json_object_details_from_tag = json.loads(self.all_assets.getDetailsByTag(server=self.server, token=self.token, AssetTag=asset_tag))
+        id_from_tag = str(json_object_details_from_tag["id"])
+        return str(id_from_tag)
 
     def get_checked_out_assets_by_id(self, user_id):
         url = self.server + "/api/v1/users/" + user_id + "/assets"
@@ -234,8 +235,26 @@ class Snipe:
         self.create_dict_from_snipe_data()
 
 
-class WriteTo:
-    """TODO: write to Snipe"""
+class Update:
+    def __init__(self, asset_tag):
+        self.asset_tag = asset_tag
+        self.snipe = Snipe()
+
+    def set_os_number(self, os_number):
+        logger.info(f"Starting to write OS number: {os_number} for asset: {self.asset_tag}")
+        device_id = self.snipe.id_from_asset_tag(self.asset_tag)
+        payload = f'{{"_snipeit_broj_osnovnog_sredstva_3":"{os_number}"}}'
+        self.snipe.all_assets.updateDevice(server=self.snipe.server, token=self.snipe.token, DeviceID=device_id, payload=payload)
+        logger.info(f"Successfully written OS number: {os_number} for asset: {self.asset_tag}")
+        return id
+
+    def set_zopu(self):
+        logger.info(f"Starting to set ZOPU for asset: {self.asset_tag}")
+        device_id = self.snipe.id_from_asset_tag(asset_tag=self.asset_tag)
+        payload = '{"_snipeit_zopu_2":"ZOPU"}'
+        self.snipe.all_assets.updateDevice(server=self.snipe.server, token=self.snipe.token, DeviceID=device_id, payload=payload)
+        logger.info(f"successfully set ZOPU for asset: {self.asset_tag}")
+
 
 
 class AccOsData:
@@ -303,7 +322,7 @@ class AccOsData:
 
 
 class Check:
-    def __init__(self, snipe_data, acc_os_data):
+    def __init__(self, snipe_data={}, acc_os_data={}):
         self.snipe_data = snipe_data
         self.acc_os_data = acc_os_data
         self.matching = []
@@ -354,6 +373,12 @@ class Check:
             if (self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] is None) or (self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] == ""):
                 self.rest_tags.append(asset_tag)
                 self.rest_names.append(self.snipe_data.dict_from_snipe_data[asset_tag]['asset_name'])
+
+    def is_asset_tag_valid(self, asset_tag):
+        if len(asset_tag) == 4:
+            return False
+        else:
+            return True
 
 
 class Reports:
@@ -456,21 +481,33 @@ def main():
     # my_report.generate_matching_xlsx(my_check)
     # my_report.generate_non_matching_xlsx(my_check)
     # my_report.generate_rest_xlsx(my_check)
+
 def get_users():
     my_snipe = Snipe()
     my_snipe.get_checked_out_assets_by_id("4")
 
 
+def test_write():
+    import cProfile
+    import pstats
+    with cProfile.Profile() as pr:
+
+        Update().os_number_list(asset_tag="1",os_number="1001")
+    stats = pstats.Stats(pr)
+    stats.sort_stats(pstats.SortKey.TIME)
+    stats.print_stats()
 
 def my_diff():
     # diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data 11.10.2022", save_name="t", save_path="").pretty_diffs_xlsx()
     diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data_11.10.2022", save_name="g", save_path="results_cron/diff/").pretty_diffs_xlsx()
 
+
 if __name__ == "__main__":
     # my_diff()
     # main()
-    get_users()
+    # get_users()
     # test()
     # Reports().matching_snipe_and_os_report()
     # Reports().non_matching_snipe_and_os_report()
     # Reports().rest_in_snipe_report()
+    test_write()

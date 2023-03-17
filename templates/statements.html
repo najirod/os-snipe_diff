@@ -34,9 +34,19 @@
             <label > Type of Statement: </label>
             <select class="form-select" id="floatingSelect2" aria-label="Floating label select example" name="statement_type" id="statement_type1">
                 {% for o in statment_type %}
-                <option name="statement_type_option" value="{{ o.type }}">{{ o.name }}</option>
+                    {% if o.type == "mob" %}
+                    <option name="statement_type_option" value="{{ o.type }}" disabled>{{ o.name }}</option>
+                    {% else %}
+                    <option name="statement_type_option" value="{{ o.type }}">{{ o.name }}</option>
+                    {% endif %}
+                
                 {% endfor %}
             </select>
+            <br>
+            <label for="date" >Date of statement:</label>
+            <input type="text" class="form-control" id="date" placeholder="If you want today's date, leave this field empty.">
+
+
             <br>
             <button onclick="createDocument(event)" type="submit" name="submit_button2" value="submit_asset_type" class="btn btn-primary btn-sm">Create and Download</button>
         </form>

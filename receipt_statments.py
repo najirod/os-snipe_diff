@@ -4,6 +4,7 @@ from datetime import date
 import sys
 from dotenv import load_dotenv
 import os
+import logging
 
 if "venv" in sys.path[0]:
     root_path = (sys.path[1] + "/")
@@ -13,15 +14,33 @@ else:
 today_date = date.today().strftime("%d.%m.%Y")
 #items = [{'item': "fdscdtfd"},{'item': "fdscdtfd"},{'item': "fdscdtfd"},]
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter('%(asctime)s:%(pathname)s:%(funcName)s:%(name)s:%(process)d:%(message)s')
+
+file_handler = logging.FileHandler(root_path + 'logs/log_py.log')
+file_handler.setFormatter(formatter)
+
+stream_handler = logging.StreamHandler()
+stream_handler.setFormatter(formatter)
+
+logger.addHandler(file_handler)
+logger.addHandler(stream_handler)
+
+
 
 class PdfStatement:
-    def __init__(self, user="Ime i Prezime", date="danas", items=[{'item': "fdscdtfd"}]):
+    def __init__(self, user="Ime i Prezime", date= "", items=[{'item': "fdscdtfd"}]):
         dotenv_path = (root_path + ".env")
         load_dotenv(dotenv_path=dotenv_path)
         self.save_location = root_path + os.getenv("statement_save_location")
         self.user = user
         self.full_name = ""
-        self.date = today_date
+        if date == "" or date is None:
+            self.date = today_date
+        else:
+            self.date = date
         self.items = items
         self.context = {}
         self.price = ""
@@ -69,6 +88,7 @@ class PdfStatement:
         pdfkit.from_string(output_text, self.save_location + self.full_save_name, css=root_path+'static/css/statements.css', options=self.options)
         return self.full_save_name
 
+    """TODO:"""
     def mobitel(self, user="Ime i Prezime", date=today_date, items="Zaduženja", budget="600", price="500", pdv=True):
         self.full_name = user
         self.date = date
@@ -101,6 +121,7 @@ class PdfStatement:
 
 class Create:
     def zaduzenje(self, user="Ime i Prezime", date=today_date, items=[{'item': "fdscdtfd"}]):
+        logger.info(f"date is {date=}{type(date)}")
         statement = PdfStatement(user=user, date=date, items=items)
         statement.zaduzenje()
         return statement.full_save_name
@@ -109,6 +130,7 @@ class Create:
         statement = PdfStatement(user=user, date=date, items=items)
         statement.razduzenje()
         return statement.full_save_name
+
 
 
 def test():

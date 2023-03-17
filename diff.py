@@ -144,7 +144,7 @@ class Diff:
                 self.new_value_misc.append(list(self.differences["values_changed"].values())[change]["new_value"])
 
     def pretty_diffs_xlsx(self):
-        if self.check_if_changed() == None:
+        if self.check_if_changed() is None:
             self.diff_slicer()
 
             logger.info("Start to create Excel Report")

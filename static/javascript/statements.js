@@ -9,7 +9,7 @@ function submitSelection(event) {
         data: { "selected_user": selected_user },
         success: function(response) {
             // Do something with the server response
-            console.log(response);
+            // console.log(response);
             var asset_list = document.getElementById("floatingSelect1")
             asset_list.innerHTML = response;
             $('#floatingSelect').prop('disabled', 'disabled');
@@ -25,7 +25,10 @@ function createDocument(event) {
     var selected_user = document.getElementById("floatingSelect").value;
     var selected_assets = $('#floatingSelect1').val();
     var statement_type_option = document.getElementById("floatingSelect2").value;
-    console.log(selected_assets)
+    var date_of_statement = document.getElementById("date").value;
+    // console.log(selected_assets)
+    // console.log(date)
+    // console.log(statement_type_option)
     $('#loading-spinner').show();
 
     $.ajax({
@@ -35,6 +38,7 @@ function createDocument(event) {
             "selected_user": selected_user,
             "selected_assets": selected_assets,
             "statement_type_option": statement_type_option,
+            "date_of_statement": date_of_statement
         },
         success: function(response) {
             // Create a temporary link to the PDF file
@@ -78,3 +82,6 @@ $(document).ready(function() {
         }
     });
 });
+
+
+

@@ -269,6 +269,7 @@ def download_statement(filename):
 
     return send_file(path, as_attachment=True, mimetype='application/pdf')
 
+
 @app.route('/snipeit')
 def snipeit():
     return redirect("http://10.10.1.54/")
@@ -305,6 +306,7 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 
+
 @app.route('/edit-user', methods=['GET', 'POST'])
 @login_required
 @level_5_admin_required
@@ -325,7 +327,7 @@ def edit_user():
         else:
             return None
 
-    return render_template("user_edit.html",form=form)
+    return render_template("user_edit.html", form=form)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -372,6 +374,8 @@ def asset_list():
     selected_user_full_name = json.loads(request.form.get("selected_user"))["name"]
     selected_assets = request.form.getlist("selected_assets[]")
     statement_type_option = request.form.getlist("statement_type_option")
+    date_of_statement = request.form.get("date_of_statement")
+    print(f"{date_of_statement=}")
     print(type(statement_type_option))
     list_of_dicts_of_assets = []
     for item in selected_assets:
@@ -379,7 +383,7 @@ def asset_list():
         list_of_dicts_of_assets.append(my_dict)
 
     if statement_type_option[0] == "zaduzenje":
-        name = receipt_statments.Create().zaduzenje(user=selected_user_full_name, items=list_of_dicts_of_assets)
+        name = receipt_statments.Create().zaduzenje(user=selected_user_full_name, items=list_of_dicts_of_assets, date=date_of_statement)
         print("name: ", name)
         return redirect(url_for("download_statement", filename=name))
 
@@ -422,6 +426,32 @@ def statements():
     # if request.method == "POST":
 
     return render_template("statements.html", data=temp, data2=temp2, statment_type=statement_type)
+
+
+@app.route('/update-assets', methods=["POST", "GET"])
+@login_required
+@level_5_admin_required
+def update_assets():
+    if request.method == "POST":
+        data = request.json
+        print(f"{data=}")
+        for item in data:
+            for key, value in item.items():
+                if value == '':
+                    return f"Empty string found in {key} of {item}"
+            if snipe_sofa_framework.Check().is_asset_tag_valid(item['asset_tag']):
+                snipe_sofa_framework.Update(asset_tag=item['asset_tag']).set_os_number(os_number=item['os_number'])
+            else:
+                snipe_sofa_framework.Update(asset_tag=f"0{item['asset_tag']}").set_os_number(os_number=item['os_number'])
+            if item["ZOPU"]:
+                snipe_sofa_framework.Update(asset_tag=item['asset_tag']).set_zopu()
+            else:
+                print("nije true")
+            #return "1"
+
+        return "Data received."
+
+    return render_template("update_assets.html")
 
 
 @app.errorhandler(404)
