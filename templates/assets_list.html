@@ -1,4 +1,5 @@
 {% for key, value in data2.items() %}
 
-<option name="asset_option" value="T: {{value.asset_tag}}{{ ', ' ~ value.category if value.category }}{{ ', ' ~ value.model if value.model }}{{ ', S/N: ' ~ value.serial if value.serial }}{{ ', ' ~ value.card_number if value.card_number }}">T: {{value.asset_tag}}{{ ', ' ~ value.category if value.category }}{{ ', ' ~ value.model if value.model }}{{ ', S/N: ' ~ value.serial if value.serial }}{{ ', ' ~ value.card_number if value.card_number }}</option>
+<option name="asset_option" value="T: {{value.asset_tag}}{{ ', ' ~ value.category if value.category }}{{ ', ' ~ value.manufacturers if value.manufacturers }}{{ ', ' ~ value.model if value.model }}{{ ', S/N: ' ~ value.serial if value.serial }}{{ ', ' ~ value.card_number if value.card_number }}">T: {{value.asset_tag}}{{ ', ' ~ value.category if value.category }}{{ ', ' ~ value.manufacturers if value.manufacturers }}{{ ', ' ~ value.model if value.model }}{{ ', S/N: ' ~ value.serial if value.serial }}{{ ', ' ~ value.card_number if value.card_number }}</option>
+
 {% endfor %}
