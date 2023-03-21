@@ -81,6 +81,7 @@ class Snipe:
         self.list_of_asset_serials = []
         self.list_of_card_numbers = []
         self.list_of_asset_ids = []
+        self.list_of_manufacturers = []
         self.asset_dict = {}
 
         # headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
@@ -215,8 +216,9 @@ class Snipe:
                 self.list_of_card_numbers.append(json_object["rows"][i]["custom_fields"]["Broj kartice"]["value"])
             else:
                 self.list_of_card_numbers.append('')
+            self.list_of_manufacturers.append(json_object["rows"][i]["manufacturer"]["name"])
 
-        keys_for_asset_dict = ["asset_tag", "category", "model", "serial", "card_number"]
+        keys_for_asset_dict = ["asset_tag", "category", "model", "serial", "card_number","manufacturers"]
         self.asset_dict = dict.fromkeys(self.list_of_asset_ids)
         for key in self.asset_dict:
             key_index = self.list_of_asset_ids.index(key)
@@ -226,7 +228,8 @@ class Snipe:
             self.asset_dict[key]["model"] = self.list_of_asset_models[key_index]
             self.asset_dict[key]["serial"] = self.list_of_asset_serials[key_index]
             self.asset_dict[key]["card_number"] = self.list_of_card_numbers[key_index]
-        #print(self.asset_dict)
+            self.asset_dict[key]["manufacturers"] = self.list_of_manufacturers[key_index]
+        print(self.asset_dict)
         return self.asset_dict
 
     def get(self):
@@ -505,9 +508,9 @@ def my_diff():
 if __name__ == "__main__":
     # my_diff()
     # main()
-    # get_users()
+    get_users()
     # test()
     # Reports().matching_snipe_and_os_report()
     # Reports().non_matching_snipe_and_os_report()
     # Reports().rest_in_snipe_report()
-    test_write()
+    # test_write()

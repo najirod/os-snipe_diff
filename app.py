@@ -152,6 +152,7 @@ def level_1_admin_required(func):
     return decorated_view
 
 
+
 @app.route("/")
 
 def index():
