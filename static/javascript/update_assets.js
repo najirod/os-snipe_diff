@@ -41,6 +41,8 @@ function createTable() {
 
         // Add the row to the table body
         tableBody.appendChild(row);
+    // Enable post button if disabled
+    $('#post_button').prop('disabled', false);
     }
 }
 
@@ -85,6 +87,7 @@ function postData() {
             console.log(xhr.responseText);
             // alert(xhr.responseText)
             $('#loading-spinner').hide();
+            alert("Successfully posted data :)");
         } else {
             $('#loading-spinner').hide();
             alert("An error occurred while posting the data.");
@@ -96,4 +99,5 @@ function postData() {
 
     // Send the request with the JSON data
     xhr.send(json);
+    $('#post_button').prop('disabled', 'disabled');
 }
