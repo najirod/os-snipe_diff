@@ -44,6 +44,7 @@ class Snipe:
         load_dotenv(dotenv_path=dotenv_path)
         self.all_assets = snipeit.Assets()
         self.server = os.getenv("server")  # snipe-it server IP
+        # self.server = "http://192.168.5.120"
         self.headers = {"accept": "application/json", "Authorization": "Bearer " + os.getenv("token")}
         # print(self.server)
         self.token = os.getenv("token")  # personal token for snipe API
@@ -383,6 +384,17 @@ class Check:
         else:
             return True
 
+    def is_rtd(self, os_numbers):
+        for asset_tag in self.snipe_data.dict_from_snipe_data:
+            if self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] != "":
+                if self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] in os_numbers:
+                    if self.snipe_data.dict_from_snipe_data[asset_tag]['person'] != "rtd":
+                        print(asset_tag)
+                        print(self.snipe_data.dict_from_snipe_data[asset_tag]['person'])
+                        print(self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'])
+
+
+
 
 class Reports:
     def __init__(self):
@@ -433,6 +445,9 @@ class Reports:
         report.write_list_to_excel(save_name="rest_in_snipe_report", start_column="B", col_name="Snipeit name", lst1=self.my_check.rest_names)
         print("ending excel report")
         logger.info("Generated rest in snipe Excel report")
+
+    def is_rtd(self, os_numbers):
+        self.my_check.is_rtd(os_numbers=os_numbers)
 
 
 def test():
@@ -504,11 +519,16 @@ def my_diff():
     # diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data 11.10.2022", save_name="t", save_path="").pretty_diffs_xlsx()
     diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data_11.10.2022", save_name="g", save_path="results_cron/diff/").pretty_diffs_xlsx()
 
+def test_is_rtd():
+    my_report = Reports()
+    my_report.is_rtd(os_numbers=["1212112","518"])
+
 
 if __name__ == "__main__":
+    test_is_rtd()
     # my_diff()
     # main()
-    get_users()
+    # get_users()
     # test()
     # Reports().matching_snipe_and_os_report()
     # Reports().non_matching_snipe_and_os_report()
