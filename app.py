@@ -399,20 +399,25 @@ def asset_list():
 
 @app.route('/submit-user', methods=['POST'])
 def handle_form_submission():
-    if request.form["selected_user"]:
+    if request.form["selected_user"] and request.form.get("for_cards") == "True":
+        user_id = json.loads(request.form.get("selected_user"))["id"]
+        print(request.form.get("for_cards"))
+        assets = snipe_sofa_framework.Snipe().get_checked_out_assets_by_id(user_id)
+        for asset_tag in assets:
+            if assets[asset_tag]["model"] == "Kartica za ulazak u firmu":
+                print(assets[asset_tag])
+                temp2 = dict.fromkeys("0")
+                temp2["0"] = assets[asset_tag]
+        return render_template("card_list.html", data2=temp2)
+    if request.form["selected_user"] and request.form.get("for_cards") == "False":
         user_id = json.loads(request.form.get("selected_user"))["id"]
 
         temp2 = snipe_sofa_framework.Snipe().get_checked_out_assets_by_id(user_id)
+        return render_template("assets_list.html", data2=temp2)
     else:
         pass
-    # temp2 = {1: {"id": 3}, 2: {"id": 30}, 3: {"id": 35}}
-    # temp2 = {1313: {'category': 'Laptop', 'model': 'ZenBook Flip UX362FA', 'serial': 'L1N0CV07Z087030', 'card_number': None}, 2002: {'category': 'Mobile phone', 'model': 'Galaxy S20', 'serial': '354460118257235/22', 'card_number': None}}
-    # Do something with the submitted data
 
-    # response_data = {'message': 'OK'}
-    # return jsonify(response_data)
 
-    return render_template("assets_list.html", data2=temp2)
 
 
 @app.route('/statements', methods=["POST", "GET"])
@@ -427,6 +432,16 @@ def statements():
     # if request.method == "POST":
 
     return render_template("statements.html", data=temp, data2=temp2, statment_type=statement_type)
+
+
+@app.route('/update-card', methods=['POST', "GET"])
+@login_required
+@level_3_admin_required
+def update_card():
+    temp = snipe_sofa_framework.Snipe().statement_user_data()
+    temp = dict(sorted(temp.items(), key=lambda x: x[1]['name']))
+
+    return render_template("update_card.html", data=temp)
 
 
 @app.route('/update-assets', methods=["POST", "GET"])

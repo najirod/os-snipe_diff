@@ -1,0 +1,5 @@
+{% for key, value in data2.items() %}
+
+<option name="asset_option" value="T: {{value.asset_tag}}{{ ', ' ~ value.category if value.category }}{{ ', ' ~ value.card_number if value.card_number}}{{ ', ' ~ value.card_dec if value.card_dec }}{{ ', ' ~ value.card_hex if value.card_hex }}">T: {{value.asset_tag}}{{ ', ' ~ value.category if value.category }}{{ ', ' ~ value.card_number if value.card_number }}{{ ', ' ~ value.card_dec if value.card_dec }}{{ ', ' ~ value.card_hex if value.card_hex }}</option>
+
+{% endfor %}
