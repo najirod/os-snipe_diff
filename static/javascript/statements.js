@@ -6,7 +6,8 @@ function submitSelection(event) {
     $.ajax({
         url: "/submit-user",
         type: "POST",
-        data: { "selected_user": selected_user },
+        data: { "selected_user": selected_user,
+                "for_cards": "False" },
         success: function(response) {
             // Do something with the server response
             // console.log(response);
