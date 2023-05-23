@@ -44,7 +44,9 @@ class Snipe:
         load_dotenv(dotenv_path=dotenv_path)
         self.all_assets = snipeit.Assets()
         self.server = os.getenv("server")  # snipe-it server IP
+        # self.server = "http://192.168.5.120"
         self.headers = {"accept": "application/json", "Authorization": "Bearer " + os.getenv("token")}
+        self.headers_put = {"accept": "application/json", "Authorization": "Bearer " + os.getenv("token"), "content-type": "application/json"}
         # print(self.server)
         self.token = os.getenv("token")  # personal token for snipe API
         self.limit1 = os.getenv("limit1")  # limit for snipe API GET {int} -- None = All
@@ -80,6 +82,8 @@ class Snipe:
         self.list_of_asset_models = []
         self.list_of_asset_serials = []
         self.list_of_card_numbers = []
+        self.list_of_card_hex_codes = []
+        self.list_of_card_dec_codes = []
         self.list_of_asset_ids = []
         self.list_of_manufacturers = []
         self.asset_dict = {}
@@ -172,7 +176,17 @@ class Snipe:
         logger.info("Created pretty Json :)")
 
     def statement_user_data(self):
-        url = self.server + "/api/v1/users?limit=300&offset=0&sort=created_at&order=desc&deleted=false&all=false"
+        url = f"{self.server}/api/v1/users?limit=300&offset=0&sort=created_at&order=desc&deleted=false&all=false"
+        response = requests.get(url, headers=self.headers)
+        json_object_snipe = response.json()
+        self.total_users = json_object_snipe["total"]
+        self.user_dict = {}
+        for row in json_object_snipe["rows"]:
+            user_data = {k: row[k] for k in ["id", "username", "name", "assets_count"]}
+            self.user_dict[row["id"]] = user_data
+        return self.user_dict
+    """def statement_user_data(self):
+        url = f"{self.server}/api/v1/users?limit=300&offset=0&sort=created_at&order=desc&deleted=false&all=false"
         response = requests.get(url, headers=self.headers)
         keys_for_user_dict = ["id", "username", "name", "assets_count"]
         # print(response.text)
@@ -192,7 +206,7 @@ class Snipe:
             self.user_dict[key]["username"] = self.list_of_usernames[key_index]
             self.user_dict[key]["name"] = self.list_of_names[key_index]
             self.user_dict[key]["assets_count"] = self.list_of_assets_count[key_index]
-        return self.user_dict
+        return self.user_dict"""
 
     def id_from_asset_tag(self, asset_tag):
         json_object_details_from_tag = json.loads(self.all_assets.getDetailsByTag(server=self.server, token=self.token, AssetTag=asset_tag))
@@ -200,7 +214,7 @@ class Snipe:
         return str(id_from_tag)
 
     def get_checked_out_assets_by_id(self, user_id):
-        url = self.server + "/api/v1/users/" + user_id + "/assets"
+        url = f"{self.server}/api/v1/users/{user_id}/assets"
         response = requests.get(url, headers=self.headers)
         checked_out_assets = snipeit.Users().getCheckedOutAssets(self.server, self.token, user_id)
         # print(checked_out_assets)
@@ -214,11 +228,15 @@ class Snipe:
             self.list_of_asset_serials.append(json_object["rows"][i]["serial"])
             if "Broj kartice" in (json_object["rows"][i]["custom_fields"]):
                 self.list_of_card_numbers.append(json_object["rows"][i]["custom_fields"]["Broj kartice"]["value"])
+                self.list_of_card_dec_codes.append(json_object["rows"][i]["custom_fields"]["kartica_decimal - Jantar"]["value"])
+                self.list_of_card_hex_codes.append(json_object["rows"][i]["custom_fields"]["kartica_hex- SofaBar"]["value"])
             else:
                 self.list_of_card_numbers.append('')
+                self.list_of_card_dec_codes.append('')
+                self.list_of_card_hex_codes.append('')
             self.list_of_manufacturers.append(json_object["rows"][i]["manufacturer"]["name"])
 
-        keys_for_asset_dict = ["asset_tag", "category", "model", "serial", "card_number","manufacturers"]
+        keys_for_asset_dict = ["asset_tag", "category", "model", "serial", "card_number", "card_dec", "card_hex", "manufacturers"]
         self.asset_dict = dict.fromkeys(self.list_of_asset_ids)
         for key in self.asset_dict:
             key_index = self.list_of_asset_ids.index(key)
@@ -228,9 +246,37 @@ class Snipe:
             self.asset_dict[key]["model"] = self.list_of_asset_models[key_index]
             self.asset_dict[key]["serial"] = self.list_of_asset_serials[key_index]
             self.asset_dict[key]["card_number"] = self.list_of_card_numbers[key_index]
+            self.asset_dict[key]["card_dec"] = self.list_of_card_dec_codes[key_index]
+            self.asset_dict[key]["card_hex"] = self.list_of_card_hex_codes[key_index]
             self.asset_dict[key]["manufacturers"] = self.list_of_manufacturers[key_index]
-        print(self.asset_dict)
+        # print(self.asset_dict)
         return self.asset_dict
+
+    def update_asset_model_data(self, asset_id, payload):
+        url = self.server + "/api/v1/hardware/"+str(asset_id)
+
+        """
+        payload = {
+            "notes": "null",
+            "assigned_to": None,
+            "company_id": None,
+            "serial": "null",
+            "order_number": "null",
+            "warranty_months": None,
+            "purchase_cost": None,
+            "purchase_date": "null",
+            "requestable": False,
+            "archived": False,
+            "rtd_location_id": None,
+            "name": "null",
+            "location_id": "null"
+        }
+        """
+
+        response = requests.patch(url, json=payload, headers=self.headers_put)
+
+        print(response.text)
+
 
     def get(self):
         self.get_merged_raw_data_from_snipe()
@@ -256,9 +302,21 @@ class Update:
         device_id = self.snipe.id_from_asset_tag(asset_tag=self.asset_tag)
         payload = '{"_snipeit_zopu_2":"ZOPU"}'
         self.snipe.all_assets.updateDevice(server=self.snipe.server, token=self.snipe.token, DeviceID=device_id, payload=payload)
-        logger.info(f"successfully set ZOPU for asset: {self.asset_tag}")
+        logger.info(f"Successfully set ZOPU for asset: {self.asset_tag}")
 
+    def set_card_dec(self, card_dec):
+        logger.info(f"Starting to set card_dec on asset: {self.asset_tag}")
+        device_id = self.snipe.id_from_asset_tag(asset_tag=self.asset_tag)
+        payload = f'{{"_snipeit_kartica_decimal_jantar_6":"{card_dec}"}}'
+        self.snipe.all_assets.updateDevice(server=self.snipe.server, token=self.snipe.token, DeviceID=device_id, payload=payload)
+        logger.info(f"Successfully updated card_dec on asset: {self.asset_tag}")
 
+    def set_card_hex(self, card_hex):
+        logger.info(f"Starting to set card_hex on asset: {self.asset_tag}")
+        device_id = self.snipe.id_from_asset_tag(asset_tag=self.asset_tag)
+        payload = f'{{"_snipeit_kartica_hex_sofabar_5":"{card_hex}"}}'
+        self.snipe.all_assets.updateDevice(server=self.snipe.server, token=self.snipe.token, DeviceID=device_id, payload=payload)
+        logger.info(f"Successfully updated card_hex on asset: {self.asset_tag}")
 
 class AccOsData:
     def __init__(self, snipe):
@@ -383,6 +441,17 @@ class Check:
         else:
             return True
 
+    def is_rtd(self, os_numbers):
+        for asset_tag in self.snipe_data.dict_from_snipe_data:
+            if self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] != "":
+                if self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] in os_numbers:
+                    if self.snipe_data.dict_from_snipe_data[asset_tag]['person'] != "rtd":
+                        print(asset_tag)
+                        print(self.snipe_data.dict_from_snipe_data[asset_tag]['person'])
+                        print(self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'])
+
+
+
 
 class Reports:
     def __init__(self):
@@ -434,7 +503,12 @@ class Reports:
         print("ending excel report")
         logger.info("Generated rest in snipe Excel report")
 
+    def is_rtd(self, os_numbers):
+        self.my_check.is_rtd(os_numbers=os_numbers)
 
+########################################################################################################################
+##########################################################TEST##########################################################
+########################################################################################################################
 def test():
     my_snipe = Snipe()
     my_snipe.get()
@@ -504,11 +578,16 @@ def my_diff():
     # diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data 11.10.2022", save_name="t", save_path="").pretty_diffs_xlsx()
     diff.Diff("dict_from_snipe_data_10.10.2022", "dict_from_snipe_data_11.10.2022", save_name="g", save_path="results_cron/diff/").pretty_diffs_xlsx()
 
+def test_is_rtd():
+    my_report = Reports()
+    my_report.is_rtd(os_numbers=["1212112","518"])
+
 
 if __name__ == "__main__":
+    test_is_rtd()
     # my_diff()
     # main()
-    get_users()
+    # get_users()
     # test()
     # Reports().matching_snipe_and_os_report()
     # Reports().non_matching_snipe_and_os_report()
