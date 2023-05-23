@@ -176,7 +176,17 @@ class Snipe:
         logger.info("Created pretty Json :)")
 
     def statement_user_data(self):
-        url = self.server + "/api/v1/users?limit=300&offset=0&sort=created_at&order=desc&deleted=false&all=false"
+        url = f"{self.server}/api/v1/users?limit=300&offset=0&sort=created_at&order=desc&deleted=false&all=false"
+        response = requests.get(url, headers=self.headers)
+        json_object_snipe = response.json()
+        self.total_users = json_object_snipe["total"]
+        self.user_dict = {}
+        for row in json_object_snipe["rows"]:
+            user_data = {k: row[k] for k in ["id", "username", "name", "assets_count"]}
+            self.user_dict[row["id"]] = user_data
+        return self.user_dict
+    """def statement_user_data(self):
+        url = f"{self.server}/api/v1/users?limit=300&offset=0&sort=created_at&order=desc&deleted=false&all=false"
         response = requests.get(url, headers=self.headers)
         keys_for_user_dict = ["id", "username", "name", "assets_count"]
         # print(response.text)
@@ -196,7 +206,7 @@ class Snipe:
             self.user_dict[key]["username"] = self.list_of_usernames[key_index]
             self.user_dict[key]["name"] = self.list_of_names[key_index]
             self.user_dict[key]["assets_count"] = self.list_of_assets_count[key_index]
-        return self.user_dict
+        return self.user_dict"""
 
     def id_from_asset_tag(self, asset_tag):
         json_object_details_from_tag = json.loads(self.all_assets.getDetailsByTag(server=self.server, token=self.token, AssetTag=asset_tag))
@@ -204,7 +214,7 @@ class Snipe:
         return str(id_from_tag)
 
     def get_checked_out_assets_by_id(self, user_id):
-        url = self.server + "/api/v1/users/" + user_id + "/assets"
+        url = f"{self.server}/api/v1/users/{user_id}/assets"
         response = requests.get(url, headers=self.headers)
         checked_out_assets = snipeit.Users().getCheckedOutAssets(self.server, self.token, user_id)
         # print(checked_out_assets)
@@ -496,7 +506,9 @@ class Reports:
     def is_rtd(self, os_numbers):
         self.my_check.is_rtd(os_numbers=os_numbers)
 
-
+########################################################################################################################
+##########################################################TEST##########################################################
+########################################################################################################################
 def test():
     my_snipe = Snipe()
     my_snipe.get()

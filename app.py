@@ -154,7 +154,6 @@ def level_1_admin_required(func):
 
 
 @app.route("/")
-
 def index():
     return render_template('index.html')
 
@@ -163,56 +162,46 @@ def index():
 @login_required
 @level_2_admin_required
 def snipe_changes():
-    if current_user.is_authenticated:
-        print(current_user.username, current_user.user_level)
-        if current_user.user_level > 3:
-            # root_path = (sys.path[0] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
-            dotenv_path = (root_path + ".env")
-            print(dotenv_path)
-            load_dotenv(dotenv_path=dotenv_path)
-            file_name1 = ""
-            file_name2 = ""
-            save_file_name = "file"
-            path = (root_path + ("results_cron/pretty/"))
-            print(path)
-            dirs = os.listdir(path)
-            temp = []
+    # root_path = (sys.path[0] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
+    dotenv_path = (root_path + ".env")
+    print(dotenv_path)
+    load_dotenv(dotenv_path=dotenv_path)
+    file_name1 = ""
+    file_name2 = ""
+    save_file_name = "file"
+    path = (root_path + ("results_cron/pretty/"))
+    print(path)
+    dirs = os.listdir(path)
+    temp = []
 
-            for file in dirs:
-                if ".json" in file:
-                    file_date = file[:-5]
-                    file_date = file_date[-10:]
-                    temp.append({'date': file_date, 'name': file})
-            # temp = sorted(temp, key=itemgetter('date'), reverse=True) # OLD sort
-            temp.sort(key=lambda x: datetime.strptime(x['date'], '%d.%m.%Y'), reverse=True)  # NEW sort
+    for file in dirs:
+        if ".json" in file:
+            file_date = file[:-5]
+            file_date = file_date[-10:]
+            temp.append({'date': file_date, 'name': file})
+    # temp = sorted(temp, key=itemgetter('date'), reverse=True) # OLD sort
+    temp.sort(key=lambda x: datetime.strptime(x['date'], '%d.%m.%Y'), reverse=True)  # NEW sort
 
-            if request.method == "POST":
-                file_name1 = (request.form.get("date1"))[:-5]
-                file_name2 = (request.form.get("date2"))[:-5]
+    if request.method == "POST":
+        file_name1 = (request.form.get("date1"))[:-5]
+        file_name2 = (request.form.get("date2"))[:-5]
 
-                if file_name1 == file_name2:
-                    flash("Nije moguće izabrati dva ista datuma!", "warning")
-                else:
-                    print(os.getpid())
-                    diff.Diff(file_name1, file_name2, save_name=save_file_name,
-                              save_path="results_cron/diff/excel/").pretty_diffs_xlsx()
-                    print(diff.Diff(file_name1, file_name2, save_name=save_file_name,
-                                    save_path="results_cron/diff/excel/"))
-                    if diff.Diff(file_name1, file_name2, save_name=save_file_name,
-                                 save_path="results_cron/diff/excel/").check_if_changed() == "0":
-                        flash("Nema Promjena između zadanih datuma!", "success")
-                    else:
-                        print(file_name1, file_name2)
-                        return redirect(url_for("download", filename=save_file_name + ".xlsx"))
-
-            return render_template('snipe_changes.html', data=temp)
+        if file_name1 == file_name2:
+            flash("Nije moguće izabrati dva ista datuma!", "warning")
         else:
-            flash("no access", "warning")
-            return redirect(url_for("login"))
+            print(os.getpid())
+            diff.Diff(file_name1, file_name2, save_name=save_file_name,
+                      save_path="results_cron/diff/excel/").pretty_diffs_xlsx()
+            print(diff.Diff(file_name1, file_name2, save_name=save_file_name,
+                            save_path="results_cron/diff/excel/"))
+            if diff.Diff(file_name1, file_name2, save_name=save_file_name,
+                         save_path="results_cron/diff/excel/").check_if_changed() == "0":
+                flash("Nema Promjena između zadanih datuma!", "success")
+            else:
+                print(file_name1, file_name2)
+                return redirect(url_for("download", filename=save_file_name + ".xlsx"))
 
-    else:
-        flash("no access", "warning")
-        return redirect(url_for("login"))
+    return render_template('snipe_changes.html', data=temp)
 
 
 @app.route("/reports", methods=["POST", "GET"])
@@ -220,15 +209,15 @@ def snipe_changes():
 @level_2_admin_required
 def reports():
     if request.method == "POST":
-        if request.form['submit_button'] == 'proba':
+        if request.form['submit_button'] == 'in_snipe':
             snipe_sofa_framework.Reports().matching_snipe_and_os_report()
             return redirect(url_for("download", filename=("matching_snipe_and_os_report"+".xlsx")))
 
-        elif request.form['submit_button'] == 'proba2':
+        elif request.form['submit_button'] == 'not_in_snipe':
             snipe_sofa_framework.Reports().non_matching_snipe_and_os_report()
             return redirect(url_for("download", filename=("non_matching_snipe_and_os_report"+".xlsx")))
 
-        elif request.form['submit_button'] == 'proba3':
+        elif request.form['submit_button'] == 'not_in_os':
             snipe_sofa_framework.Reports().rest_in_snipe_report()
             return redirect(url_for("download", filename=("rest_in_snipe_report"+".xlsx")))
 

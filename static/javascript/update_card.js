@@ -43,3 +43,19 @@ function submitSelection(event) {
         }
     });
 }
+
+
+function select_card(){
+    var selected_card = $('#floatingSelect1').val();
+    var selected_hex = selected_card[0].split(',')[0];
+    var selected_dec = selected_card[0].split(',')[1];
+    
+    console.log(selected_card);
+    console.log(selected_hex);
+    console.log(selected_dec)
+    hex_input.value = selected_hex;
+    dec_input.value = selected_dec;
+
+
+
+}
