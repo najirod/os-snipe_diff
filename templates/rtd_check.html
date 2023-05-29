@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<script type="text/javascript" src="{{url_for('static', filename='javascript/rtd_check.js')}}"></script>
+{% endblock %}
+
+
+{% block body %}
+
+<!DOCTYPE html>
+    <br>
+    <br>
+    <div class="container-table">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <form>
+            <div class="d-flex justify-content-between">
+              <div class="col">
+                <div class="form-group">
+                  <label for="inputData">Enter Data for OS Numbers (separated by line break):</label>
+                  <textarea class="form-control" id="inputData" name="inputData" rows="4" cols="50" oninput="this.value = this.value.replace(/[^0-9\r\n]/g, '')"></textarea>
+                </div>
+              </div>
+           
+            </div>
+
+          </form>
+          <br>
+          <button type="button" class="btn btn-primary" id="post_button" onclick="post_data()">Post Data & Download Report</button>
+
+        </div>
+      </div>
+      <div id="loading-spinner" style="display: none;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    </div>
+
+    
+
+
+
+{% endblock %}
