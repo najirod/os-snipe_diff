@@ -441,16 +441,26 @@ class Check:
         else:
             return True
 
-    def is_rtd(self, os_numbers):
+    def is_rtd(self, os_number):
         for asset_tag in self.snipe_data.dict_from_snipe_data:
             if self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] != "":
-                if self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] in os_numbers:
+                if self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] == os_number:
                     if self.snipe_data.dict_from_snipe_data[asset_tag]['person'] != "rtd":
-                        print(asset_tag)
-                        print(self.snipe_data.dict_from_snipe_data[asset_tag]['person'])
-                        print(self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'])
+                        return False
+                    else:
+                        return True
+                        # person = (self.snipe_data.dict_from_snipe_data[asset_tag]['person'])
+                        # print(self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'])
+                        # asset = {"asset_tag": asset_tag, "person": person, "os_number": os_number}
+                        # print(asset)
+                        # print(type(asset))
+                        # return asset
 
-
+    def asset_tag_from_os(self, os_number):
+        for asset_tag in self.snipe_data.dict_from_snipe_data:
+            if self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] != "":
+                if self.snipe_data.dict_from_snipe_data[asset_tag]['os_number'] == os_number:
+                    return asset_tag
 
 
 class Reports:
@@ -503,8 +513,25 @@ class Reports:
         print("ending excel report")
         logger.info("Generated rest in snipe Excel report")
 
-    def is_rtd(self, os_numbers):
-        self.my_check.is_rtd(os_numbers=os_numbers)
+    def non_rtd_assets(self, os_numbers):
+        asset_list = []
+        for os_number in os_numbers:
+            if not self.my_check.is_rtd(os_number=os_number):
+                asset_tag = self.my_check.asset_tag_from_os(os_number=os_number)
+                asset_json = (json.loads(self.my_snipe.all_assets.getDetailsByTag(server=self.my_snipe.server,token=self.my_snipe.token,AssetTag=asset_tag)))
+                person = asset_json["assigned_to"]["name"]
+                asset = {"asset_tag": asset_tag, "person":person, "os_number": os_number}
+                asset_list.append(asset)
+
+        report = Report(save_path=self.save_path_rest)
+        logger.info("Starting to generate non RTD assets Excel report")
+        report.write_list_to_excel_prefix(save_name="non_rtd_assets",start_column="A",col_name="Asset Tag",prefix_for_tag=True,lst1=[item['asset_tag'] for item in asset_list])
+        report.write_list_to_excel(save_name="non_rtd_assets",start_column="B",col_name="OS Broj", lst1=[item['os_number'] for item in asset_list])
+        report.write_list_to_excel(save_name="non_rtd_assets", start_column="C", col_name="Odgovorna osoba",lst1=[item['person'] for item in asset_list])
+        logger.info("Generated non RTD asset Excel report")
+        return asset_list
+
+
 
 ########################################################################################################################
 ##########################################################TEST##########################################################
@@ -580,8 +607,8 @@ def my_diff():
 
 def test_is_rtd():
     my_report = Reports()
-    my_report.is_rtd(os_numbers=["1212112","518"])
-
+    list = my_report.non_rtd_assets(os_numbers=["129", "508", "1222"])
+    print(list)
 
 if __name__ == "__main__":
     test_is_rtd()

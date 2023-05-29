@@ -1,4 +1,6 @@
 import json
+from crypt import methods
+
 from flask import Flask, render_template, url_for, request, send_file, redirect, flash, jsonify
 import os
 from operator import itemgetter
@@ -223,6 +225,25 @@ def reports():
 
     return render_template("reports.html")
 
+@app.route("/rtd_check", methods=["POST", "GET"])
+@login_required
+@level_2_admin_required
+def rtd_check():
+    if request.method == "POST":
+        data = json.loads(request.data)  # Parse the JSON data
+        print(f"{data:}")
+        if data["os_numbers"] != [""]:
+            os_numbers = data.get('os_numbers')
+            print(os_numbers)
+            my_report = snipe_sofa_framework.Reports()
+            my_report.non_rtd_assets(os_numbers=os_numbers)
+            # return redirect(url_for("download", filename=("non_rtd_assets"+".xlsx")))
+            return redirect(url_for("download_report", filename="non_rtd_assets.xlsx"))
+        else:
+            flash("Nema unosa", "warning")
+    return render_template("rtd_check.html")
+
+
 
 @app.route("/test", methods=["POST", "GET"])
 @login_required
@@ -247,6 +268,15 @@ def download(filename):
         path = ((root_path + ('results/non_matching/')) + filename)
     elif filename == "rest_in_snipe_report.xlsx":
         path = ((root_path + ('results/rest/')) + filename)
+    return send_file(path, as_attachment=True)
+
+
+@app.route('/download/report/<filename>')
+@login_required
+def download_report(filename):
+    non_rtd_save_location = os.getenv("export_report_path_rest")
+    path = f"{root_path}{non_rtd_save_location}{urllib.parse.unquote(filename)}"
+    print(path)
     return send_file(path, as_attachment=True)
 
 
