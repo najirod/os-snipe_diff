@@ -37,4 +37,4 @@ echo "Restarting Apache2 server..."
 sudo service apache2 restart
 echo "Apache2 server restarted."
 
-echo -e "${GREEN}UPDATED :).${NC}"
+echo -e "${GREEN}UPDATED :)${NC}"
