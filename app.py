@@ -25,7 +25,6 @@ from flask_admin.menu import MenuLink
 import urllib.parse
 from functools import wraps
 
-
 if "venv" in sys.path[0]:
     root_path = (sys.path[1] + "/")
 else:
@@ -34,7 +33,7 @@ else:
 app = Flask(__name__)
 app.secret_key = 'kljuc'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////'+root_path+'database/database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////' + root_path + 'database/database.db'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
@@ -71,8 +70,8 @@ admin.add_view(ModelView(User, db.session))
 
 
 class RegisterForm(FlaskForm):
-    username = StringField(validators=[InputRequired(),Length(min=4,max=20)], render_kw={"placeholder": "Username"})
-    email = StringField(validators=[InputRequired(),Length(min=4,max=50)], render_kw={"placeholder": "email"})
+    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
+    email = StringField(validators=[InputRequired(), Length(min=4, max=50)], render_kw={"placeholder": "email"})
     password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
     submit = SubmitField("Register")
 
@@ -81,7 +80,7 @@ class RegisterForm(FlaskForm):
         if existing_user_username:
             # flash("User Already Exists", "warning")
             pass
-            #raise ValidationError("user postoji")
+            # raise ValidationError("user postoji")
 
 
 class LoginForm(FlaskForm):
@@ -92,7 +91,7 @@ class LoginForm(FlaskForm):
 
 class UpdateUserForm(FlaskForm):
     username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
-    #email = StringField(validators=[InputRequired(), Length(min=4, max=50)], render_kw={"placeholder": "email"})
+    # email = StringField(validators=[InputRequired(), Length(min=4, max=50)], render_kw={"placeholder": "email"})
     password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
     submit = SubmitField("UpdatePass")
 
@@ -111,6 +110,7 @@ def level_5_admin_required(func):
             flash("no access", "warning")
             return redirect(url_for("login"))
         return func(*args, **kwargs)
+
     return decorated_view
 
 
@@ -121,6 +121,7 @@ def level_4_admin_required(func):
             flash("no access", "warning")
             return redirect(url_for("login"))
         return func(*args, **kwargs)
+
     return decorated_view
 
 
@@ -131,6 +132,7 @@ def level_3_admin_required(func):
             flash("no access", "warning")
             return redirect(url_for("login"))
         return func(*args, **kwargs)
+
     return decorated_view
 
 
@@ -141,6 +143,7 @@ def level_2_admin_required(func):
             flash("no access", "warning")
             return redirect(url_for("login"))
         return func(*args, **kwargs)
+
     return decorated_view
 
 
@@ -151,8 +154,8 @@ def level_1_admin_required(func):
             flash("no access", "warning")
             return redirect(url_for("login"))
         return func(*args, **kwargs)
-    return decorated_view
 
+    return decorated_view
 
 
 @app.route("/")
@@ -213,17 +216,18 @@ def reports():
     if request.method == "POST":
         if request.form['submit_button'] == 'in_snipe':
             snipe_sofa_framework.Reports().matching_snipe_and_os_report()
-            return redirect(url_for("download", filename=("matching_snipe_and_os_report"+".xlsx")))
+            return redirect(url_for("download", filename=("matching_snipe_and_os_report" + ".xlsx")))
 
         elif request.form['submit_button'] == 'not_in_snipe':
             snipe_sofa_framework.Reports().non_matching_snipe_and_os_report()
-            return redirect(url_for("download", filename=("non_matching_snipe_and_os_report"+".xlsx")))
+            return redirect(url_for("download", filename=("non_matching_snipe_and_os_report" + ".xlsx")))
 
         elif request.form['submit_button'] == 'not_in_os':
             snipe_sofa_framework.Reports().rest_in_snipe_report()
-            return redirect(url_for("download", filename=("rest_in_snipe_report"+".xlsx")))
+            return redirect(url_for("download", filename=("rest_in_snipe_report" + ".xlsx")))
 
     return render_template("reports.html")
+
 
 @app.route("/rtd_check", methods=["POST", "GET"])
 @login_required
@@ -242,7 +246,6 @@ def rtd_check():
         else:
             flash("Nema unosa", "warning")
     return render_template("rtd_check.html")
-
 
 
 @app.route("/test", methods=["POST", "GET"])
@@ -315,7 +318,7 @@ def login():
                 return redirect(url_for("login"))
         else:
             flash("Korisnik ne postoji", "warning")
-            #return redirect(url_for(""))
+            # return redirect(url_for(""))
 
     return render_template("login.html", form=form)
 
@@ -356,7 +359,7 @@ def edit_user():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        #user = User.query.filter_by(username=form.username.data).first()
+        # user = User.query.filter_by(username=form.username.data).first()
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         new_user = User(username=form.username.data, password=hashed_password, email=form.email.data, user_level=0)
         if form.validate_on_submit():
@@ -403,7 +406,8 @@ def asset_list():
         list_of_dicts_of_assets.append(my_dict)
 
     if statement_type_option[0] == "zaduzenje":
-        name = receipt_statments.Create().zaduzenje(user=selected_user_full_name, items=list_of_dicts_of_assets, date=date_of_statement)
+        name = receipt_statments.Create().zaduzenje(user=selected_user_full_name, items=list_of_dicts_of_assets,
+                                                    date=date_of_statement)
         print("name: ", name)
         return redirect(url_for("download_statement", filename=name))
 
@@ -437,15 +441,15 @@ def handle_form_submission():
         pass
 
 
-
-
 @app.route('/statements', methods=["POST", "GET"])
 @login_required
 @level_3_admin_required
 def statements():
     temp = snipe_sofa_framework.Snipe().statement_user_data()
     temp2 = {}
-    statement_type = [{'type': "mob", 'name': "Izjava o zaduženju mobitela"},{'type': "zaduzenje", 'name': "Izjava o zaduženju opreme"}, {'type': "razduzenje", 'name': "Izjava o razduženju opreme"}]
+    statement_type = [{'type': "mob", 'name': "Izjava o zaduženju mobitela"},
+                      {'type': "zaduzenje", 'name': "Izjava o zaduženju opreme"},
+                      {'type': "razduzenje", 'name': "Izjava o razduženju opreme"}]
     temp = dict(sorted(temp.items(), key=lambda x: x[1]['name']))
     # temp = {245: {'id': 245, 'username': 'ihrzina', 'name': 'Ivana Hržina', 'assets_count': 4}, 244: {'id': 244, 'username': 'edabo', 'name': 'Elizabeta Dabo', 'assets_count': 4}, 243: {'id': 243, 'username': 'nmehes', 'name': 'Nikola Meheš', 'assets_count': 5}, 242: {'id': 242, 'username': 'mgerm', 'name': 'Mario Germ', 'assets_count': 5}, 241: {'id': 241, 'username': 'tharamustek', 'name': 'Tomislav Haramustek', 'assets_count': 4}}
     # if request.method == "POST":
@@ -490,12 +494,13 @@ def update_assets():
             if snipe_sofa_framework.Check().is_asset_tag_valid(item['asset_tag']):
                 snipe_sofa_framework.Update(asset_tag=item['asset_tag']).set_os_number(os_number=item['os_number'])
             else:
-                snipe_sofa_framework.Update(asset_tag=f"0{item['asset_tag']}").set_os_number(os_number=item['os_number'])
+                snipe_sofa_framework.Update(asset_tag=f"0{item['asset_tag']}").set_os_number(
+                    os_number=item['os_number'])
             if item["ZOPU"]:
                 snipe_sofa_framework.Update(asset_tag=item['asset_tag']).set_zopu()
             else:
                 print("nije true")
-            #return "1"
+            # return "1"
 
         return "Data received."
 
