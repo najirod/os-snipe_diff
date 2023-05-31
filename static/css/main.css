@@ -53,6 +53,25 @@ body {
     width: 500px;
 }
 
+
+
+
+.containercards {
+    margin-left: 15%;
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+.containercards select {
+    width: 500px;
+}
+
+.containercards input{
+    width: 500px;
+}
+
+
 .containerchanges {
     margin-left: 15%;
     max-width: 70% !important;
