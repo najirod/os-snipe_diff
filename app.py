@@ -459,7 +459,20 @@ def statements():
 def update_card():
     temp = snipe_sofa_framework.Snipe().statement_user_data()
     temp = dict(sorted(temp.items(), key=lambda x: x[1]['name']))
-
+    if request.is_json:
+        card_data = request.json.get("card_data")
+        if card_data:
+            card_asset_tag = card_data.get("asset_tag")
+            card_hex = card_data.get("hex")
+            card_dec = card_data.get("dec")
+            if card_asset_tag and card_hex and card_dec:
+                print(f"{card_asset_tag=}{card_dec=}{card_hex=}")
+                snipe_sofa_framework.Update(asset_tag=card_asset_tag).set_card_dec(card_dec=card_dec)
+                snipe_sofa_framework.Update(asset_tag=card_asset_tag).set_card_hex(card_hex=card_hex)
+                # Process the card data as needed
+                return jsonify({"message": "Card data received successfully and updated Snipe-IT"})
+            else:
+                return jsonify({"message": "ERROR: MISSING DATA "})
     return render_template("update_card.html", data=temp)
 
 

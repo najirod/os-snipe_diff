@@ -8,5 +8,4 @@ for asset_tag in assets:
         print(assets[asset_tag])
 
 # snipe_sofa_framework.Update("01696").set_card_hex("92164cd6")
-
 print(snipe_sofa_framework.Snipe().statement_user_data())

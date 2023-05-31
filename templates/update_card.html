@@ -1,34 +1,58 @@
 {% extends 'base.html' %}
 {% block head %}
+
 <script type="text/javascript" src="{{url_for('static', filename='javascript/update_card.js')}}"></script>
 {% endblock %}
 {% block body %}
+<h1 class="login_h1">Card Update</h1>
+<div class="containercards">
+<div class="create_statement">
+        <h2> Update card in Snipe-IT </h2>
+        
+        <button id="refresh_page" class="btn btn-secondary btn-sm" onClick="window.location.reload();">Update new</button>
+    </div>
+    <br>
 <div class="form-group">
     <form name="user_list" id="user_list1" method="POST">
         <label for="user_list">Pick User:</label>
+        
         <input class="form-control form-control-sm" type="text" id="user-search" placeholder="Search for a user">
         <select class="form-select " id="floatingSelect" aria-label="Floating label select example" name="user" id="user1">
             {% for key, value in data.items() %}
             <option name="user_option" value='{ "id": "{{ value.id }}" , "name": "{{value.name}}" } '>{{ value.name }}</option>
             {% endfor %}
         </select>
-
-<button onclick="submitSelection(event)" type="submit" id="id_refresh" name="submit_button" value="submit_user" class="btn btn-primary btn-sm">Load Assets for picked user</button>
+    </form>
+<button onclick="submitSelection(event)" type="submit" id="id_refresh" name="submit_button" value="submit_user" class="btn btn-primary btn-sm">Load Cards for picked user</button>
 
         <form name="asset_list" id="asset_list" method="POST">
-            <label for="asset_list">Pick Assets:</label>
+            <br>
+            <label for="asset_list">Pick Card:</label>
             <select class="form-select" size="2" multiple id="floatingSelect1" name="asset" id="asset1">
             </select>
+            <button class="btn btn-primary btn-sm" onclick="select_card() ">Select Card</button>
             <br>
             
             <br>
-            <label for="hex">hex:</label>
-            <input type="text" class="form-control" id="hex_input" placeholder="hex">
-            <label for="dec">dec:</label>
-            <input type="text" class="form-control" id="dec_input" placeholder="dec">
+            <label for="asset_tag">Asset Tag:</label>
+            <input type="text" class="form-control" id="asset_tag" placeholder="Asset Tag" oninput="checkInputs()">
+            <label for="hex">Hex:</label>
+            <input type="text"  onkeydown="disableEnterKey(event)" class="form-control" id="hex_input" placeholder="hex" oninput="checkInputs()">
+            <button class="btn btn-primary btn-sm" onclick="calculate_dec(event) " >Convert Hex to Dec</button>
             <br>
-            <button onclick="createDocument(event)" type="submit" name="submit_button2" value="submit_asset_type" class="btn btn-primary btn-sm">Create and Download</button>
+            <label for="dec">Dec(Jantar):</label>
+            
+            <input type="text" oninput="this.value = this.value.replace(/[^0-9]/g, '')" class="form-control" id="dec_input" placeholder="dec" oninput="checkInputs()">
+
+            <br>
+            <button onclick="createDocument(event)" id = "submit_button" type="submit" name="submit_button2" value="submit_asset_type" class="btn btn-primary btn-sm" disabled >Update card in Snipe-IT</button>
         </form>
-        <button onclick="select_card()">select</button>
+</div>        
+</div>
+
+<div id="loading-spinner" style="display: none;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
 </div>
 {% endblock %}
