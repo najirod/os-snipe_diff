@@ -1,5 +1,13 @@
 #!/bin/bash
 
+#!/bin/sh
+
+# Define color codes using tput
+GREEN=$(tput setaf 2)
+RED=$(tput setaf 1)
+NC=$(tput sgr0) # No Color
+
+
 # Exit immediately if any command fails
 set -e
 
