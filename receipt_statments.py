@@ -76,6 +76,17 @@ class PdfStatement:
         pdfkit.from_string(output_text, self.save_location + self.full_save_name, css=root_path + 'static/css/statements.css', options=self.options)
         return self.full_save_name
 
+    def zaduzenje_remote(self):
+        self.full_name = self.user
+        # self.items = [{'item': "fdscdtfd"}, {'item': "fdscdtfd"}, {'item': "fdscdtfd"}, ]
+        self.context = {'full_name': self.full_name, 'date': self.date, 'items': self.items}
+        html_template = 'izjava_zaduzenje_remote.html'
+        template = self.template_env.get_template(html_template)
+        output_text = template.render(self.context)
+        self.full_save_name = f"Izjava o zaduzenju {self.full_name} {self.date}.pdf"
+        pdfkit.from_string(output_text, self.save_location + self.full_save_name, css=root_path + 'static/css/statements.css', options=self.options)
+        return self.full_save_name
+
     def razduzenje(self):
         self.full_name = self.user
         # self.items = [{'item': "fdscdtfd"}, {'item': "fdscdtfd"}, {'item': "fdscdtfd"}, ]
@@ -124,6 +135,12 @@ class Create:
         logger.info(f"date is {date=}{type(date)}")
         statement = PdfStatement(user=user, date=date, items=items)
         statement.zaduzenje()
+        return statement.full_save_name
+
+    def zaduzenje_remote(self, user="Ime i Prezime", date=today_date, items=[{'item': "fdscdtfd"}]):
+        logger.info(f"date is {date=}{type(date)}")
+        statement = PdfStatement(user=user, date=date, items=items)
+        statement.zaduzenje_remote()
         return statement.full_save_name
 
     def razduzenje(self, user="Ime i Prezime", date=today_date, items=[{'item': "fdscdtfd"}]):
