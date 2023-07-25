@@ -35,6 +35,12 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('update_assets')}}">Edit Assets</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('rtd_check')}}">RTD Check</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('update_card')}}">Update Card</a>
+                </li>
                 {% endif %}
                 {% if current_user.is_authenticated %}
                 <li class="nav-item">

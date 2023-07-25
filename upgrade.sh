@@ -1,5 +1,13 @@
 #!/bin/bash
 
+#!/bin/sh
+
+# Define color codes using tput
+GREEN=$(tput setaf 2)
+RED=$(tput setaf 1)
+NC=$(tput sgr0) # No Color
+
+
 # Exit immediately if any command fails
 set -e
 
@@ -28,3 +36,5 @@ echo "Permissions set."
 echo "Restarting Apache2 server..."
 sudo service apache2 restart
 echo "Apache2 server restarted."
+
+echo -e "${GREEN}UPDATED :)${NC}"

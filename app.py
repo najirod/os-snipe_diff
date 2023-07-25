@@ -1,4 +1,6 @@
 import json
+from crypt import methods
+
 from flask import Flask, render_template, url_for, request, send_file, redirect, flash, jsonify
 import os
 from operator import itemgetter
@@ -23,7 +25,6 @@ from flask_admin.menu import MenuLink
 import urllib.parse
 from functools import wraps
 
-
 if "venv" in sys.path[0]:
     root_path = (sys.path[1] + "/")
 else:
@@ -32,7 +33,7 @@ else:
 app = Flask(__name__)
 app.secret_key = 'kljuc'
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////'+root_path+'database/database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////' + root_path + 'database/database.db'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
@@ -69,8 +70,8 @@ admin.add_view(ModelView(User, db.session))
 
 
 class RegisterForm(FlaskForm):
-    username = StringField(validators=[InputRequired(),Length(min=4,max=20)], render_kw={"placeholder": "Username"})
-    email = StringField(validators=[InputRequired(),Length(min=4,max=50)], render_kw={"placeholder": "email"})
+    username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
+    email = StringField(validators=[InputRequired(), Length(min=4, max=50)], render_kw={"placeholder": "email"})
     password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
     submit = SubmitField("Register")
 
@@ -79,7 +80,7 @@ class RegisterForm(FlaskForm):
         if existing_user_username:
             # flash("User Already Exists", "warning")
             pass
-            #raise ValidationError("user postoji")
+            # raise ValidationError("user postoji")
 
 
 class LoginForm(FlaskForm):
@@ -90,7 +91,7 @@ class LoginForm(FlaskForm):
 
 class UpdateUserForm(FlaskForm):
     username = StringField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Username"})
-    #email = StringField(validators=[InputRequired(), Length(min=4, max=50)], render_kw={"placeholder": "email"})
+    # email = StringField(validators=[InputRequired(), Length(min=4, max=50)], render_kw={"placeholder": "email"})
     password = PasswordField(validators=[InputRequired(), Length(min=4, max=20)], render_kw={"placeholder": "Password"})
     submit = SubmitField("UpdatePass")
 
@@ -109,6 +110,7 @@ def level_5_admin_required(func):
             flash("no access", "warning")
             return redirect(url_for("login"))
         return func(*args, **kwargs)
+
     return decorated_view
 
 
@@ -119,6 +121,7 @@ def level_4_admin_required(func):
             flash("no access", "warning")
             return redirect(url_for("login"))
         return func(*args, **kwargs)
+
     return decorated_view
 
 
@@ -129,6 +132,7 @@ def level_3_admin_required(func):
             flash("no access", "warning")
             return redirect(url_for("login"))
         return func(*args, **kwargs)
+
     return decorated_view
 
 
@@ -139,6 +143,7 @@ def level_2_admin_required(func):
             flash("no access", "warning")
             return redirect(url_for("login"))
         return func(*args, **kwargs)
+
     return decorated_view
 
 
@@ -149,12 +154,11 @@ def level_1_admin_required(func):
             flash("no access", "warning")
             return redirect(url_for("login"))
         return func(*args, **kwargs)
+
     return decorated_view
 
 
-
 @app.route("/")
-
 def index():
     return render_template('index.html')
 
@@ -163,56 +167,46 @@ def index():
 @login_required
 @level_2_admin_required
 def snipe_changes():
-    if current_user.is_authenticated:
-        print(current_user.username, current_user.user_level)
-        if current_user.user_level > 3:
-            # root_path = (sys.path[0] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
-            dotenv_path = (root_path + ".env")
-            print(dotenv_path)
-            load_dotenv(dotenv_path=dotenv_path)
-            file_name1 = ""
-            file_name2 = ""
-            save_file_name = "file"
-            path = (root_path + ("results_cron/pretty/"))
-            print(path)
-            dirs = os.listdir(path)
-            temp = []
+    # root_path = (sys.path[0] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
+    dotenv_path = (root_path + ".env")
+    print(dotenv_path)
+    load_dotenv(dotenv_path=dotenv_path)
+    file_name1 = ""
+    file_name2 = ""
+    save_file_name = "file"
+    path = (root_path + ("results_cron/pretty/"))
+    print(path)
+    dirs = os.listdir(path)
+    temp = []
 
-            for file in dirs:
-                if ".json" in file:
-                    file_date = file[:-5]
-                    file_date = file_date[-10:]
-                    temp.append({'date': file_date, 'name': file})
-            # temp = sorted(temp, key=itemgetter('date'), reverse=True) # OLD sort
-            temp.sort(key=lambda x: datetime.strptime(x['date'], '%d.%m.%Y'), reverse=True)  # NEW sort
+    for file in dirs:
+        if ".json" in file:
+            file_date = file[:-5]
+            file_date = file_date[-10:]
+            temp.append({'date': file_date, 'name': file})
+    # temp = sorted(temp, key=itemgetter('date'), reverse=True) # OLD sort
+    temp.sort(key=lambda x: datetime.strptime(x['date'], '%d.%m.%Y'), reverse=True)  # NEW sort
 
-            if request.method == "POST":
-                file_name1 = (request.form.get("date1"))[:-5]
-                file_name2 = (request.form.get("date2"))[:-5]
+    if request.method == "POST":
+        file_name1 = (request.form.get("date1"))[:-5]
+        file_name2 = (request.form.get("date2"))[:-5]
 
-                if file_name1 == file_name2:
-                    flash("Nije moguće izabrati dva ista datuma!", "warning")
-                else:
-                    print(os.getpid())
-                    diff.Diff(file_name1, file_name2, save_name=save_file_name,
-                              save_path="results_cron/diff/excel/").pretty_diffs_xlsx()
-                    print(diff.Diff(file_name1, file_name2, save_name=save_file_name,
-                                    save_path="results_cron/diff/excel/"))
-                    if diff.Diff(file_name1, file_name2, save_name=save_file_name,
-                                 save_path="results_cron/diff/excel/").check_if_changed() == "0":
-                        flash("Nema Promjena između zadanih datuma!", "success")
-                    else:
-                        print(file_name1, file_name2)
-                        return redirect(url_for("download", filename=save_file_name + ".xlsx"))
-
-            return render_template('snipe_changes.html', data=temp)
+        if file_name1 == file_name2:
+            flash("Nije moguće izabrati dva ista datuma!", "warning")
         else:
-            flash("no access", "warning")
-            return redirect(url_for("login"))
+            print(os.getpid())
+            diff.Diff(file_name1, file_name2, save_name=save_file_name,
+                      save_path="results_cron/diff/excel/").pretty_diffs_xlsx()
+            print(diff.Diff(file_name1, file_name2, save_name=save_file_name,
+                            save_path="results_cron/diff/excel/"))
+            if diff.Diff(file_name1, file_name2, save_name=save_file_name,
+                         save_path="results_cron/diff/excel/").check_if_changed() == "0":
+                flash("Nema Promjena između zadanih datuma!", "success")
+            else:
+                print(file_name1, file_name2)
+                return redirect(url_for("download", filename=save_file_name + ".xlsx"))
 
-    else:
-        flash("no access", "warning")
-        return redirect(url_for("login"))
+    return render_template('snipe_changes.html', data=temp)
 
 
 @app.route("/reports", methods=["POST", "GET"])
@@ -220,19 +214,38 @@ def snipe_changes():
 @level_2_admin_required
 def reports():
     if request.method == "POST":
-        if request.form['submit_button'] == 'proba':
+        if request.form['submit_button'] == 'in_snipe':
             snipe_sofa_framework.Reports().matching_snipe_and_os_report()
-            return redirect(url_for("download", filename=("matching_snipe_and_os_report"+".xlsx")))
+            return redirect(url_for("download", filename=("matching_snipe_and_os_report" + ".xlsx")))
 
-        elif request.form['submit_button'] == 'proba2':
+        elif request.form['submit_button'] == 'not_in_snipe':
             snipe_sofa_framework.Reports().non_matching_snipe_and_os_report()
-            return redirect(url_for("download", filename=("non_matching_snipe_and_os_report"+".xlsx")))
+            return redirect(url_for("download", filename=("non_matching_snipe_and_os_report" + ".xlsx")))
 
-        elif request.form['submit_button'] == 'proba3':
+        elif request.form['submit_button'] == 'not_in_os':
             snipe_sofa_framework.Reports().rest_in_snipe_report()
-            return redirect(url_for("download", filename=("rest_in_snipe_report"+".xlsx")))
+            return redirect(url_for("download", filename=("rest_in_snipe_report" + ".xlsx")))
 
     return render_template("reports.html")
+
+
+@app.route("/rtd_check", methods=["POST", "GET"])
+@login_required
+@level_2_admin_required
+def rtd_check():
+    if request.method == "POST":
+        data = json.loads(request.data)  # Parse the JSON data
+        print(f"{data:}")
+        if data["os_numbers"] != [""]:
+            os_numbers = data.get('os_numbers')
+            print(os_numbers)
+            my_report = snipe_sofa_framework.Reports()
+            my_report.non_rtd_assets(os_numbers=os_numbers)
+            # return redirect(url_for("download", filename=("non_rtd_assets"+".xlsx")))
+            return redirect(url_for("download_report", filename="non_rtd_assets.xlsx"))
+        else:
+            flash("Nema unosa", "warning")
+    return render_template("rtd_check.html")
 
 
 @app.route("/test", methods=["POST", "GET"])
@@ -258,6 +271,15 @@ def download(filename):
         path = ((root_path + ('results/non_matching/')) + filename)
     elif filename == "rest_in_snipe_report.xlsx":
         path = ((root_path + ('results/rest/')) + filename)
+    return send_file(path, as_attachment=True)
+
+
+@app.route('/download/report/<filename>')
+@login_required
+def download_report(filename):
+    non_rtd_save_location = os.getenv("export_report_path_rest")
+    path = f"{root_path}{non_rtd_save_location}{urllib.parse.unquote(filename)}"
+    print(path)
     return send_file(path, as_attachment=True)
 
 
@@ -296,7 +318,7 @@ def login():
                 return redirect(url_for("login"))
         else:
             flash("Korisnik ne postoji", "warning")
-            #return redirect(url_for(""))
+            # return redirect(url_for(""))
 
     return render_template("login.html", form=form)
 
@@ -337,7 +359,7 @@ def edit_user():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        #user = User.query.filter_by(username=form.username.data).first()
+        # user = User.query.filter_by(username=form.username.data).first()
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         new_user = User(username=form.username.data, password=hashed_password, email=form.email.data, user_level=0)
         if form.validate_on_submit():
@@ -384,7 +406,8 @@ def asset_list():
         list_of_dicts_of_assets.append(my_dict)
 
     if statement_type_option[0] == "zaduzenje":
-        name = receipt_statments.Create().zaduzenje(user=selected_user_full_name, items=list_of_dicts_of_assets, date=date_of_statement)
+        name = receipt_statments.Create().zaduzenje(user=selected_user_full_name, items=list_of_dicts_of_assets,
+                                                    date=date_of_statement)
         print("name: ", name)
         return redirect(url_for("download_statement", filename=name))
 
@@ -394,25 +417,33 @@ def asset_list():
 
     if statement_type_option[0] == "mob":
         pass
+
+    if statement_type_option[0] == "remote":
+        name = receipt_statments.Create().zaduzenje_remote(user=selected_user_full_name, items=list_of_dicts_of_assets)
+        return redirect(url_for("download_statement",filename=name))
+
     return {'message': selected_assets}
 
 
 @app.route('/submit-user', methods=['POST'])
 def handle_form_submission():
-    if request.form["selected_user"]:
+    if request.form["selected_user"] and request.form.get("for_cards") == "True":
+        user_id = json.loads(request.form.get("selected_user"))["id"]
+        print(request.form.get("for_cards"))
+        assets = snipe_sofa_framework.Snipe().get_checked_out_assets_by_id(user_id)
+        for asset_tag in assets:
+            if assets[asset_tag]["model"] == "Kartica za ulazak u firmu":
+                print(assets[asset_tag])
+                temp2 = dict.fromkeys("0")
+                temp2["0"] = assets[asset_tag]
+        return render_template("card_list.html", data2=temp2)
+    if request.form["selected_user"] and request.form.get("for_cards") == "False":
         user_id = json.loads(request.form.get("selected_user"))["id"]
 
         temp2 = snipe_sofa_framework.Snipe().get_checked_out_assets_by_id(user_id)
+        return render_template("assets_list.html", data2=temp2)
     else:
         pass
-    # temp2 = {1: {"id": 3}, 2: {"id": 30}, 3: {"id": 35}}
-    # temp2 = {1313: {'category': 'Laptop', 'model': 'ZenBook Flip UX362FA', 'serial': 'L1N0CV07Z087030', 'card_number': None}, 2002: {'category': 'Mobile phone', 'model': 'Galaxy S20', 'serial': '354460118257235/22', 'card_number': None}}
-    # Do something with the submitted data
-
-    # response_data = {'message': 'OK'}
-    # return jsonify(response_data)
-
-    return render_template("assets_list.html", data2=temp2)
 
 
 @app.route('/statements', methods=["POST", "GET"])
@@ -421,12 +452,38 @@ def handle_form_submission():
 def statements():
     temp = snipe_sofa_framework.Snipe().statement_user_data()
     temp2 = {}
-    statement_type = [{'type': "mob", 'name': "Izjava o zaduženju mobitela"},{'type': "zaduzenje", 'name': "Izjava o zaduženju opreme"}, {'type': "razduzenje", 'name': "Izjava o razduženju opreme"}]
+    statement_type = [{'type': "mob", 'name': "Izjava o zaduženju mobitela"},
+                      {'type': "zaduzenje", 'name': "Izjava o zaduženju opreme"},
+                      {'type': "razduzenje", 'name': "Izjava o razduženju opreme"},
+                      {'type':"remote", 'name': "Izjava o zaduženju opreme remote"}]
     temp = dict(sorted(temp.items(), key=lambda x: x[1]['name']))
     # temp = {245: {'id': 245, 'username': 'ihrzina', 'name': 'Ivana Hržina', 'assets_count': 4}, 244: {'id': 244, 'username': 'edabo', 'name': 'Elizabeta Dabo', 'assets_count': 4}, 243: {'id': 243, 'username': 'nmehes', 'name': 'Nikola Meheš', 'assets_count': 5}, 242: {'id': 242, 'username': 'mgerm', 'name': 'Mario Germ', 'assets_count': 5}, 241: {'id': 241, 'username': 'tharamustek', 'name': 'Tomislav Haramustek', 'assets_count': 4}}
     # if request.method == "POST":
 
     return render_template("statements.html", data=temp, data2=temp2, statment_type=statement_type)
+
+
+@app.route('/update-card', methods=['POST', "GET"])
+@login_required
+@level_3_admin_required
+def update_card():
+    temp = snipe_sofa_framework.Snipe().statement_user_data()
+    temp = dict(sorted(temp.items(), key=lambda x: x[1]['name']))
+    if request.is_json:
+        card_data = request.json.get("card_data")
+        if card_data:
+            card_asset_tag = card_data.get("asset_tag")
+            card_hex = card_data.get("hex")
+            card_dec = card_data.get("dec")
+            if card_asset_tag and card_hex and card_dec:
+                print(f"{card_asset_tag=}{card_dec=}{card_hex=}")
+                snipe_sofa_framework.Update(asset_tag=card_asset_tag).set_card_dec(card_dec=card_dec)
+                snipe_sofa_framework.Update(asset_tag=card_asset_tag).set_card_hex(card_hex=card_hex)
+                # Process the card data as needed
+                return jsonify({"message": "Card data received successfully and updated Snipe-IT"})
+            else:
+                return jsonify({"message": "ERROR: MISSING DATA "})
+    return render_template("update_card.html", data=temp)
 
 
 @app.route('/update-assets', methods=["POST", "GET"])
@@ -443,12 +500,13 @@ def update_assets():
             if snipe_sofa_framework.Check().is_asset_tag_valid(item['asset_tag']):
                 snipe_sofa_framework.Update(asset_tag=item['asset_tag']).set_os_number(os_number=item['os_number'])
             else:
-                snipe_sofa_framework.Update(asset_tag=f"0{item['asset_tag']}").set_os_number(os_number=item['os_number'])
+                snipe_sofa_framework.Update(asset_tag=f"0{item['asset_tag']}").set_os_number(
+                    os_number=item['os_number'])
             if item["ZOPU"]:
                 snipe_sofa_framework.Update(asset_tag=item['asset_tag']).set_zopu()
             else:
                 print("nije true")
-            #return "1"
+            # return "1"
 
         return "Data received."
 
