@@ -103,59 +103,17 @@ class UpdateUserForm(FlaskForm):
             raise ValidationError("veror")
 
 
-def level_5_admin_required(func):
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.user_level < 5:
-            flash("no access", "warning")
-            return redirect(url_for("login"))
-        return func(*args, **kwargs)
+def admin_required_level(min_level):
+    def decorator(func):
+        @wraps(func)
+        def decorated_view(*args, **kwargs):
+            if not current_user.is_authenticated or current_user.user_level < min_level:
+                flash("no access", "warning")
+                return redirect(url_for("login"))
+            return func(*args, **kwargs)
 
-    return decorated_view
-
-
-def level_4_admin_required(func):
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.user_level < 4:
-            flash("no access", "warning")
-            return redirect(url_for("login"))
-        return func(*args, **kwargs)
-
-    return decorated_view
-
-
-def level_3_admin_required(func):
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.user_level < 3:
-            flash("no access", "warning")
-            return redirect(url_for("login"))
-        return func(*args, **kwargs)
-
-    return decorated_view
-
-
-def level_2_admin_required(func):
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.user_level < 2:
-            flash("no access", "warning")
-            return redirect(url_for("login"))
-        return func(*args, **kwargs)
-
-    return decorated_view
-
-
-def level_1_admin_required(func):
-    @wraps(func)
-    def decorated_view(*args, **kwargs):
-        if not current_user.is_authenticated or current_user.user_level < 1:
-            flash("no access", "warning")
-            return redirect(url_for("login"))
-        return func(*args, **kwargs)
-
-    return decorated_view
+        return decorated_view
+    return decorator
 
 
 @app.route("/")
@@ -165,7 +123,7 @@ def index():
 
 @app.route("/snipe_changes", methods=["POST", "GET"])
 @login_required
-@level_2_admin_required
+@admin_required_level(2)
 def snipe_changes():
     # root_path = (sys.path[0] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
     dotenv_path = (root_path + ".env")
@@ -211,7 +169,7 @@ def snipe_changes():
 
 @app.route("/reports", methods=["POST", "GET"])
 @login_required
-@level_2_admin_required
+@admin_required_level(2)
 def reports():
     if request.method == "POST":
         if request.form['submit_button'] == 'in_snipe':
@@ -231,7 +189,7 @@ def reports():
 
 @app.route("/rtd_check", methods=["POST", "GET"])
 @login_required
-@level_2_admin_required
+@admin_required_level(2)
 def rtd_check():
     if request.method == "POST":
         data = json.loads(request.data)  # Parse the JSON data
@@ -250,7 +208,7 @@ def rtd_check():
 
 @app.route("/test", methods=["POST", "GET"])
 @login_required
-@level_5_admin_required
+@admin_required_level(5)
 def test():
     flash("user" + current_user.username, "warning")
     if request.method == "POST":
@@ -332,7 +290,7 @@ def logout():
 
 @app.route('/edit-user', methods=['GET', 'POST'])
 @login_required
-@level_5_admin_required
+@admin_required_level(5)
 def edit_user():
     form = UpdateUserForm()
     if form.validate_on_submit():
@@ -355,7 +313,7 @@ def edit_user():
 
 @app.route('/register', methods=['GET', 'POST'])
 @login_required
-@level_5_admin_required
+@admin_required_level(5)
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
@@ -380,7 +338,7 @@ def register():
 
 @app.route('/delete/<int:id>')
 @login_required
-@level_5_admin_required
+@admin_required_level(5)
 def delete(id):
     user_to_delete = User.query.get_or_404(id)
     try:
@@ -448,7 +406,7 @@ def handle_form_submission():
 
 @app.route('/statements', methods=["POST", "GET"])
 @login_required
-@level_3_admin_required
+@admin_required_level(3)
 def statements():
     temp = snipe_sofa_framework.Snipe().statement_user_data()
     temp2 = {}
@@ -465,7 +423,7 @@ def statements():
 
 @app.route('/update-card', methods=['POST', "GET"])
 @login_required
-@level_3_admin_required
+@admin_required_level(3)
 def update_card():
     temp = snipe_sofa_framework.Snipe().statement_user_data()
     temp = dict(sorted(temp.items(), key=lambda x: x[1]['name']))
@@ -488,7 +446,7 @@ def update_card():
 
 @app.route('/update-assets', methods=["POST", "GET"])
 @login_required
-@level_5_admin_required
+@admin_required_level(5)
 def update_assets():
     if request.method == "POST":
         data = request.json
