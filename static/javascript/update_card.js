@@ -27,7 +27,7 @@ function disableEnterKey(event) {
         return false;
       }
 
-      const inputChar = event.key.toLowerCase();
+      const inputChar = (event.key || '').toLowerCase();
       const keyCode = event.keyCode || event.which; // For cross-browser compatibility
       const regex = /^[0-9a-f]$/;
 
@@ -45,8 +45,10 @@ function checkInputs() {
 
     if (assetTagValue.trim() !== "" && hexInputValue.trim() !== "" && decInputValue.trim() !== "") {
       submitButton.disabled = false; // Enable the button
+      console.log("enabled")
     } else {
       submitButton.disabled = true; // Disable the button
+      console.log("disabled")
     }
   }
 
@@ -149,5 +151,6 @@ function calculate_dec(event) {
 
     let dec = parseInt(short_hex, 16);
     dec_input.value = dec; 
+    checkInputs();
     $('#loading-spinner').hide();
 }
