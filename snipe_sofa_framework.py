@@ -89,10 +89,6 @@ class Snipe:
         self.list_of_manufacturers = []
         self.asset_dict = {}
 
-        self.accessories_list_of_ids = []
-        self.accessories_list_of_names = []
-        self.accessories_list_of_manufacturers = []
-        self.accessories_list_of_category_names = []
         self.accessories_dict = {}
         # headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
         # response = requests.get(self.server+"/api/v1/hardware", headers=headers)
@@ -198,29 +194,6 @@ class Snipe:
             self.user_dict[row["id"]] = user_data
         return self.user_dict
 
-    """def statement_user_data(self):
-        url = f"{self.server}/api/v1/users?limit=300&offset=0&sort=created_at&order=desc&deleted=false&all=false"
-        response = requests.get(url, headers=self.headers)
-        keys_for_user_dict = ["id", "username", "name", "assets_count"]
-        # print(response.text)
-        json_object_snipe = json.loads(response.text)
-        self.total_users = json_object_snipe["total"]
-        for i in range(len(json_object_snipe["rows"])):
-            # print(json_object_snipe["rows"][i]["id"])
-            self.list_of_ids.append(json_object_snipe["rows"][i]["id"])
-            self.list_of_usernames.append(json_object_snipe["rows"][i]["username"])
-            self.list_of_names.append(json_object_snipe["rows"][i]["name"])
-            self.list_of_assets_count.append(json_object_snipe["rows"][i]["assets_count"])
-        self.user_dict = dict.fromkeys(self.list_of_ids)
-        for key in self.user_dict:
-            key_index = self.list_of_ids.index(key)
-            self.user_dict[key] = dict.fromkeys(keys_for_user_dict)
-            self.user_dict[key]["id"] = self.list_of_ids[key_index]
-            self.user_dict[key]["username"] = self.list_of_usernames[key_index]
-            self.user_dict[key]["name"] = self.list_of_names[key_index]
-            self.user_dict[key]["assets_count"] = self.list_of_assets_count[key_index]
-        return self.user_dict"""
-
     def id_from_asset_tag(self, asset_tag):
         json_object_details_from_tag = json.loads(
             self.all_assets.getDetailsByTag(server=self.server, token=self.token, AssetTag=asset_tag))
@@ -231,65 +204,41 @@ class Snipe:
         url = f"{self.server}/api/v1/users/{user_id}/assets"
         response = requests.get(url, headers=self.headers)
         checked_out_assets = snipeit.Users().getCheckedOutAssets(self.server, self.token, user_id)
-        # print(checked_out_assets)
-        # print(response.text)
-        json_object = json.loads(response.text)
-        for i in range(len(json_object["rows"])):
-            self.list_of_asset_tags.append(json_object["rows"][i]["asset_tag"])
-            self.list_of_asset_ids.append(json_object["rows"][i]["id"])
-            self.list_of_asset_categories.append((json_object["rows"][i]["category"]["name"]))
-            self.list_of_asset_models.append(json_object["rows"][i]["model"]["name"])
-            self.list_of_asset_serials.append(json_object["rows"][i]["serial"])
-            if "Broj kartice" in (json_object["rows"][i]["custom_fields"]):
-                self.list_of_card_numbers.append(json_object["rows"][i]["custom_fields"]["Broj kartice"]["value"])
-                self.list_of_card_dec_codes.append(
-                    json_object["rows"][i]["custom_fields"]["kartica_decimal - Jantar"]["value"])
-                self.list_of_card_hex_codes.append(
-                    json_object["rows"][i]["custom_fields"]["kartica_hex- SofaBar"]["value"])
-            else:
-                self.list_of_card_numbers.append('')
-                self.list_of_card_dec_codes.append('')
-                self.list_of_card_hex_codes.append('')
-            self.list_of_manufacturers.append(json_object["rows"][i]["manufacturer"]["name"])
+        json_data = json.loads(response.text)
 
-        keys_for_asset_dict = ["asset_tag", "category", "model", "serial", "card_number", "card_dec", "card_hex",
-                               "manufacturers"]
-        self.asset_dict = dict.fromkeys(self.list_of_asset_ids)
-        for key in self.asset_dict:
-            key_index = self.list_of_asset_ids.index(key)
-            self.asset_dict[key] = dict.fromkeys(keys_for_asset_dict)
-            self.asset_dict[key]["asset_tag"] = self.list_of_asset_tags[key_index]
-            self.asset_dict[key]["category"] = self.list_of_asset_categories[key_index]
-            self.asset_dict[key]["model"] = self.list_of_asset_models[key_index]
-            self.asset_dict[key]["serial"] = self.list_of_asset_serials[key_index]
-            self.asset_dict[key]["card_number"] = self.list_of_card_numbers[key_index]
-            self.asset_dict[key]["card_dec"] = self.list_of_card_dec_codes[key_index]
-            self.asset_dict[key]["card_hex"] = self.list_of_card_hex_codes[key_index]
-            self.asset_dict[key]["manufacturers"] = self.list_of_manufacturers[key_index]
-        # print(self.asset_dict)
+        for asset in json_data.get("rows", []):
+            asset_id = asset["id"]
+            self.asset_dict[asset_id] = {
+                "asset_tag": asset["asset_tag"],
+                "category": asset["category"]["name"],
+                "model": asset["model"]["name"],
+                "serial": asset["serial"],
+                "card_number": asset["custom_fields"].get("Broj kartice", {}).get("value", ""),
+                "card_dec": asset["custom_fields"].get("kartica_decimal - Jantar", {}).get("value", ""),
+                "card_hex": asset["custom_fields"].get("kartica_hex- SofaBar", {}).get("value", ""),
+                "manufacturer": asset["manufacturer"]["name"]
+            }
+
         return self.asset_dict
 
     def get_checked_out_accessories_by_id(self, user_id):
         url = f"{self.server}/api/v1/users/{user_id}/accessories"
         response = requests.get(url, headers=self.headers)
-        json_object = json.loads(response.text)
-        # print(json_object)
-        for i in range(len(json_object["rows"])):
-            self.accessories_list_of_ids.append(json_object["rows"][i]["id"])
-            self.accessories_list_of_category_names.append(json_object["rows"][i]["category"]["name"])
-            self.accessories_list_of_manufacturers.append(json_object["rows"][i]["manufacturer"]["name"])
-            self.accessories_list_of_names.append(json_object["rows"][i]["name"])
-        keys_for_accessories_dict = ["category_name", "manufacturer_name", "accessories_name"]
-        self.accessories_dict = dict.fromkeys(self.accessories_list_of_ids)
-        for key in self.accessories_dict:
-            key_index = self.accessories_list_of_ids.index(key)
-            self.accessories_dict[key] = dict.fromkeys(keys_for_accessories_dict)
-            self.accessories_dict[key]["category_name"] = self.accessories_list_of_category_names[key_index]
-            self.accessories_dict[key]["manufacturer_name"] = self.accessories_list_of_manufacturers[key_index]
-            self.accessories_dict[key]["accessories_name"] = self.accessories_list_of_names[key_index]
+        json_data = json.loads(response.text)
+
+        for item in json_data.get("rows", []):
+            accessory_id = item["id"]
+            category_name = item["category"]["name"]
+            manufacturer_name = item["manufacturer"]["name"]
+            accessory_name = item["name"]
+
+            self.accessories_dict[accessory_id] = {
+                "category_name": category_name,
+                "manufacturer_name": manufacturer_name,
+                "accessories_name": accessory_name
+            }
+
         return self.accessories_dict
-
-
 
     def update_asset_model_data(self, asset_id, payload):
         url = self.server + "/api/v1/hardware/" + str(asset_id)
