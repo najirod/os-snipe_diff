@@ -89,6 +89,11 @@ class Snipe:
         self.list_of_manufacturers = []
         self.asset_dict = {}
 
+        self.accessories_list_of_ids = []
+        self.accessories_list_of_names = []
+        self.accessories_list_of_manufacturers = []
+        self.accessories_list_of_category_names = []
+        self.accessories_dict = {}
         # headers = {"Accept": "application/json", "Authorization": ("Bearer " + self.token)}
         # response = requests.get(self.server+"/api/v1/hardware", headers=headers)
         # print(response)
@@ -263,6 +268,28 @@ class Snipe:
             self.asset_dict[key]["manufacturers"] = self.list_of_manufacturers[key_index]
         # print(self.asset_dict)
         return self.asset_dict
+
+    def get_checked_out_accessories_by_id(self, user_id):
+        url = f"{self.server}/api/v1/users/{user_id}/accessories"
+        response = requests.get(url, headers=self.headers)
+        json_object = json.loads(response.text)
+        # print(json_object)
+        for i in range(len(json_object["rows"])):
+            self.accessories_list_of_ids.append(json_object["rows"][i]["id"])
+            self.accessories_list_of_category_names.append(json_object["rows"][i]["category"]["name"])
+            self.accessories_list_of_manufacturers.append(json_object["rows"][i]["manufacturer"]["name"])
+            self.accessories_list_of_names.append(json_object["rows"][i]["name"])
+        keys_for_accessories_dict = ["category_name", "manufacturer_name", "accessories_name"]
+        self.accessories_dict = dict.fromkeys(self.accessories_list_of_ids)
+        for key in self.accessories_dict:
+            key_index = self.accessories_list_of_ids.index(key)
+            self.accessories_dict[key] = dict.fromkeys(keys_for_accessories_dict)
+            self.accessories_dict[key]["category_name"] = self.accessories_list_of_category_names[key_index]
+            self.accessories_dict[key]["manufacturer_name"] = self.accessories_list_of_manufacturers[key_index]
+            self.accessories_dict[key]["accessories_name"] = self.accessories_list_of_names[key_index]
+        return self.accessories_dict
+
+
 
     def update_asset_model_data(self, asset_id, payload):
         url = self.server + "/api/v1/hardware/" + str(asset_id)
@@ -626,8 +653,8 @@ def main():
 
 def get_users():
     my_snipe = Snipe()
-    my_snipe.get_checked_out_assets_by_id("4")
-
+    # my_snipe.get_checked_out_assets_by_id("4")
+    print(my_snipe.get_checked_out_accessories_by_id("155"))
 
 def test_write():
     import cProfile
@@ -652,10 +679,10 @@ def test_is_rtd():
 
 
 if __name__ == "__main__":
-    test_is_rtd()
+    # test_is_rtd()
     # my_diff()
     # main()
-    # get_users()
+    get_users()
     # test()
     # Reports().matching_snipe_and_os_report()
     # Reports().non_matching_snipe_and_os_report()

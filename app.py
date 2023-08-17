@@ -378,7 +378,7 @@ def asset_list():
 
     if statement_type_option[0] == "remote":
         name = receipt_statments.Create().zaduzenje_remote(user=selected_user_full_name, items=list_of_dicts_of_assets)
-        return redirect(url_for("download_statement",filename=name))
+        return redirect(url_for("download_statement", filename=name))
 
     return {'message': selected_assets}
 
@@ -399,7 +399,8 @@ def handle_form_submission():
         user_id = json.loads(request.form.get("selected_user"))["id"]
 
         temp2 = snipe_sofa_framework.Snipe().get_checked_out_assets_by_id(user_id)
-        return render_template("assets_list.html", data2=temp2)
+        temp3 = snipe_sofa_framework.Snipe().get_checked_out_accessories_by_id(user_id)
+        return render_template("assets_list.html", data2=temp2, data3=temp3)
     else:
         pass
 
@@ -413,7 +414,7 @@ def statements():
     statement_type = [{'type': "mob", 'name': "Izjava o zaduženju mobitela"},
                       {'type': "zaduzenje", 'name': "Izjava o zaduženju opreme"},
                       {'type': "razduzenje", 'name': "Izjava o razduženju opreme"},
-                      {'type':"remote", 'name': "Izjava o zaduženju opreme remote"}]
+                      {'type': "remote", 'name': "Izjava o zaduženju opreme remote"}]
     temp = dict(sorted(temp.items(), key=lambda x: x[1]['name']))
     # temp = {245: {'id': 245, 'username': 'ihrzina', 'name': 'Ivana Hržina', 'assets_count': 4}, 244: {'id': 244, 'username': 'edabo', 'name': 'Elizabeta Dabo', 'assets_count': 4}, 243: {'id': 243, 'username': 'nmehes', 'name': 'Nikola Meheš', 'assets_count': 5}, 242: {'id': 242, 'username': 'mgerm', 'name': 'Mario Germ', 'assets_count': 5}, 241: {'id': 241, 'username': 'tharamustek', 'name': 'Tomislav Haramustek', 'assets_count': 4}}
     # if request.method == "POST":
