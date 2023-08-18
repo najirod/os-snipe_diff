@@ -385,24 +385,24 @@ def asset_list():
 
 @app.route('/submit-user', methods=['POST'])
 def handle_form_submission():
-    if request.form["selected_user"] and request.form.get("for_cards") == "True":
-        user_id = json.loads(request.form.get("selected_user"))["id"]
-        print(request.form.get("for_cards"))
-        assets = snipe_sofa_framework.Snipe().get_checked_out_assets_by_id(user_id)
-        for asset_tag in assets:
-            if assets[asset_tag]["model"] == "Kartica za ulazak u firmu":
-                print(assets[asset_tag])
-                temp2 = dict.fromkeys("0")
-                temp2["0"] = assets[asset_tag]
-        return render_template("card_list.html", data2=temp2)
-    if request.form["selected_user"] and request.form.get("for_cards") == "False":
-        user_id = json.loads(request.form.get("selected_user"))["id"]
+    selected_user = json.loads(request.form.get("selected_user"))
+    user_id = selected_user["id"]
+    for_cards = request.form.get("for_cards") == "True"
 
-        temp2 = snipe_sofa_framework.Snipe().get_checked_out_assets_by_id(user_id)
-        temp3 = snipe_sofa_framework.Snipe().get_checked_out_accessories_by_id(user_id)
-        return render_template("assets_list.html", data2=temp2, data3=temp3)
-    else:
-        pass
+    if selected_user:
+        if for_cards:
+            assets = snipe_sofa_framework.Snipe().get_checked_out_assets_by_id(user_id)
+            card_assets = {
+                asset_tag: asset for asset_tag, asset in assets.items()
+                if asset["model"] == "Kartica za ulazak u firmu"
+            }
+            return render_template("card_list.html", data2=card_assets)
+        else:
+            temp2 = snipe_sofa_framework.Snipe().get_checked_out_assets_by_id(user_id)
+            temp3 = snipe_sofa_framework.Snipe().get_checked_out_accessories_by_id(user_id)
+            return render_template("assets_list.html", data2=temp2, data3=temp3)
+
+    return render_template("index.html")  # Render a default template if none of the conditions are met
 
 
 @app.route('/statements', methods=["POST", "GET"])

@@ -72,21 +72,8 @@ class Snipe:
         self.dict_from_snipe_data = {}  # dict wih needed data from snipe-it
 
         self.total_users = ""
-        self.list_of_ids = []
-        self.list_of_usernames = []
-        self.list_of_names = []
-        self.list_of_assets_count = []
         self.user_dict = {}
 
-        self.list_of_asset_tags = []
-        self.list_of_asset_categories = []
-        self.list_of_asset_models = []
-        self.list_of_asset_serials = []
-        self.list_of_card_numbers = []
-        self.list_of_card_hex_codes = []
-        self.list_of_card_dec_codes = []
-        self.list_of_asset_ids = []
-        self.list_of_manufacturers = []
         self.asset_dict = {}
 
         self.accessories_dict = {}
