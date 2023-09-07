@@ -14,6 +14,7 @@ from ExcelReport import Report
 import sys
 import logging
 
+
 ###############################
 reload(snipeit)
 
@@ -46,7 +47,7 @@ class Snipe:
         self.server = os.getenv("server")  # snipe-it server IP
         # self.server = "http://192.168.5.120"
         self.headers = {"accept": "application/json", "Authorization": "Bearer " + os.getenv("token")}
-        self.headers_put = {"accept": "application/json", "Authorization": "Bearer " + os.getenv("token"),
+        self.headers_patch = {"accept": "application/json", "Authorization": "Bearer " + os.getenv("token"),
                             "content-type": "application/json"}
         # print(self.server)
         self.token = os.getenv("token")  # personal token for snipe API
@@ -81,6 +82,93 @@ class Snipe:
         # response = requests.get(self.server+"/api/v1/hardware", headers=headers)
         # print(response)
         # logger.info(response)
+
+        self.limit = 1500  # maximum limit per request
+        self.offset = 0
+        self.request_counter = 0
+        self.all_raw_data_from_snipe = []
+
+    def get_all_raw_data_form_snipe(self):
+        logger.info("Starting to fetch data from snipeit")
+        while True:
+            request_params = {"offset": self.offset, "limit": self.limit, "order": "asc"}
+            # Make the request with headers and parameters
+            response = requests.get(f"{self.server}/api/v1/hardware", headers=self.headers, params=request_params)
+            self.request_counter += 1
+            if response.status_code != 200:
+                logger.info(f"Request failed with status code: {response.status_code}")
+                break
+            data = response.json()
+            # Extend the all_data list with the rows
+            self.all_raw_data_from_snipe.extend(data.get("rows"))
+            # Update the offset based on the current data count
+            self.offset += len(data.get("rows"))
+            # Stop the loop when all data has been fetched
+            if self.offset >= data.get("total"):
+                break
+        logger.info("Fetched raw data")
+        logger.info(f"Total requests made while fetching data: {self.request_counter}")
+        with open(self.export_raw_results_path + '.raw_data.json', 'w') as outfile:
+            json.dump(self.all_raw_data_from_snipe, outfile)
+        with open(self.export_raw_results_path + 'raw_data ' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as write_file:
+            json.dump(self.all_raw_data_from_snipe, write_file)
+        return self.all_raw_data_from_snipe
+
+    def create_pretty_dict_from_snipe_data(self, raw_data):
+        logger.info("Starting to create pretty Json")
+        keys_for_l2_dict = ["person", "asset_name", "serial", "supplier", "os_number", "last_audit_date",
+                            "next_audit_date"]
+        self.dict_from_snipe_data = {}
+
+        for item in raw_data:
+            asset_tag = item.get('asset_tag', "")
+            serial = item.get('serial', "")
+
+            supplier_info = item.get('supplier', {})
+            supplier_name = supplier_info.get('name') if supplier_info else None
+
+            custom_fields = item.get('custom_fields', {})
+            os_number_info = None
+            for key, value in custom_fields.items():
+                if key == 'Broj osnovnog sredstva':
+                    os_number_info = value
+                    break
+
+            os_number = os_number_info.get('value') if os_number_info else None
+
+            assigned_to = item.get('assigned_to', {})
+            if assigned_to:
+                assigned_to_name = assigned_to.get('name') or assigned_to.get('username') or "rtd"
+            else:
+                assigned_to_name = "rtd"
+
+            model_info = item.get('model', {})
+            model_name = model_info.get('name', "no name")
+
+            last_audit_date_info = item.get('last_audit_date', {})
+            last_audit_date = last_audit_date_info.get("formatted") if last_audit_date_info else None
+
+            next_audit_date_info = item.get('next_audit_date', {})
+            next_audit_date = next_audit_date_info.get("formatted") if next_audit_date_info else None
+
+            data_item = {
+                "person": assigned_to_name,
+                "asset_name": model_name,
+                "serial": serial,
+                "supplier": supplier_name,
+                "os_number": os_number,
+                "last_audit_date": last_audit_date,
+                "next_audit_date": next_audit_date,
+            }
+
+            self.dict_from_snipe_data[asset_tag] = data_item
+
+        file_path = (
+            f"{self.export_pretty_results_path}dict_from_snipe_data_{date.today().strftime('%d.%m.%Y')}.json"
+        )
+        with open(file_path, 'w') as write_file:
+            json.dump(self.dict_from_snipe_data, write_file)
+        logger.info("Created pretty Json :)")
 
     # append list of all assets from snipe to "merged_data"(!!! MAX - 3000 !!!)
     def get_merged_raw_data_from_snipe(self):
@@ -171,21 +259,82 @@ class Snipe:
         logger.info("Created pretty Json :)")
 
     def statement_user_data(self):
+        """
+        Retrieves user data from a Snipe-IT API endpoint and stores it in a dictionary.
+
+        Returns:
+            dict: A dictionary where user IDs are keys and user data dictionaries are values.
+        """
+        # Construct the URL for the API endpoint that retrieves user data
         url = f"{self.server}/api/v1/users?limit=300&offset=0&sort=created_at&order=desc&deleted=false&all=false"
+
+        # Send a GET request to the API endpoint with appropriate headers
         response = requests.get(url, headers=self.headers)
+
+        # Parse the JSON response into a Python object
         json_object_snipe = response.json()
+
+        # Extract the total number of users from the JSON response
         self.total_users = json_object_snipe["total"]
+
+        # Create an empty dictionary to store user data where the keys are user IDs
         self.user_dict = {}
+
+        # Iterate over each user data row in the JSON response
         for row in json_object_snipe["rows"]:
+            # Extract specific fields (id, username, name, assets_count) from each user row
             user_data = {k: row[k] for k in ["id", "username", "name", "assets_count"]}
+
+            # Store the user data in the user_dict dictionary with the user's ID as the key
             self.user_dict[row["id"]] = user_data
+
+        # Return the user_dict dictionary containing user data
         return self.user_dict
 
     def id_from_asset_tag(self, asset_tag):
-        json_object_details_from_tag = json.loads(
-            self.all_assets.getDetailsByTag(server=self.server, token=self.token, AssetTag=asset_tag))
-        id_from_tag = str(json_object_details_from_tag["id"])
+        # Initialize id_from_tag variable as None
+        id_from_tag = None
+
+        # Construct the URL for the API endpoint that retrieves asset details by tag
+        url = f"{self.server}/api/v1/hardware/bytag/{asset_tag}"
+
+        # Send a GET request to the API endpoint with appropriate headers
+        response = requests.get(url, headers=self.headers)
+
+        # Parse the JSON response into a Python object
+        json_object_details_from_tag = response.json()
+
+        try:
+            # Try to extract the 'id' field from the JSON response
+            id_from_tag = str(json_object_details_from_tag["id"])
+        except (requests.exceptions.RequestException, ValueError, KeyError) as e:
+            # Handle exceptions that might occur, such as network issues or missing keys in the response
+            logger.info(f"Failed to fetch ID for asset tag: {asset_tag}. -- Error: {json_object_details_from_tag}")
+
+        # Convert the ID to a string (or leave it as None if it wasn't found)
         return str(id_from_tag)
+
+    def asset_tag_from_id(self, asset_id):
+        # Initialize tag_from_id variable as None
+        tag_from_id = None
+
+        # Construct the URL for the API endpoint that retrieves asset details by id
+        url = f"{self.server}/api/v1/hardware/{asset_id}"
+
+        # Send a GET request to the API endpoint with appropriate headers
+        response = requests.get(url, headers=self.headers)
+
+        # Parse the JSON response into a Python object
+        json_object_details_from_id = response.json()
+        try:
+            # Try to extract the 'asset_tag' field from the JSON response
+            tag_from_id = str(json_object_details_from_id["asset_tag"])
+        except (requests.exceptions.RequestException, ValueError, KeyError) as e:
+            # Handle exceptions that might occur, such as network issues or missing keys in the response
+            logger.info(f"Failed to fetch asset tag for id: {asset_id}. -- Error: {json_object_details_from_id}")
+
+        # Convert the asset_tag to a string (or leave it as None if it wasn't found)
+        return str(tag_from_id)
 
     def get_checked_out_assets_by_id(self, user_id):
         url = f"{self.server}/api/v1/users/{user_id}/assets"
@@ -248,9 +397,11 @@ class Snipe:
         }
         """
 
-        response = requests.patch(url, json=payload, headers=self.headers_put)
+        response = requests.patch(url, json=payload, headers=self.headers_patch)
 
         print(response.text)
+
+
 
     def get(self):
         self.get_merged_raw_data_from_snipe()
@@ -259,42 +410,143 @@ class Snipe:
 
 
 class Update:
-    def __init__(self, asset_tag):
-        self.asset_tag = asset_tag
+    def __init__(self, asset_tag=None, asset_id=None):
+        # Check if both asset_tag and device_id are provided
+        if asset_tag is not None and asset_id is not None:
+            logger.info("Cannot provide both 'asset_tag' and 'device_id'.")
+            raise ValueError("Cannot provide both 'asset_tag' and 'device_id'.")
+
         self.snipe = Snipe()
+        self.asset_tag = asset_tag
+        self.device_id = asset_id
+
+        if asset_tag is not None:
+            self.device_id = self.snipe.id_from_asset_tag(asset_tag=self.asset_tag)
+        elif asset_id is not None:
+            self.asset_tag = self.snipe.asset_tag_from_id(asset_id=asset_id)
+        else:
+            logger.info("Either 'asset_tag' or 'device_id' must be provided.")
+            raise ValueError("Either 'asset_tag' or 'device_id' must be provided.")
+
+        # Load environment variables from a .env file
+        dotenv_path = (root_path + ".env")
+        load_dotenv(dotenv_path=dotenv_path)
+
+        # Set API-related attributes from environment variables
+        self.server = os.getenv("server")  # Snipe-IT server IP
+        self.headers_patch = {
+            "accept": "application/json",
+            "Authorization": "Bearer " + os.getenv("token"),
+            "content-type": "application/json"
+        }
+        self.token = os.getenv("token")  # Personal token for Snipe API
+
+        # Construct the URL to fetch asset details.
+        self.url = f"{self.snipe.server}/api/v1/hardware/{str(self.device_id)}"
+
+    def __is_card(self):
+        """
+        Check if the asset associated with the given asset tag is a card asset.
+
+        This method queries the Snipe API to determine if the asset's model ID matches the ID for card assets (ID 526).
+
+        Returns:
+            bool: True if the asset is a card asset, False otherwise.
+        """
+        # Send a GET request to the API to retrieve asset information.
+        response = requests.get(self.url, headers=self.snipe.headers_patch)
+
+        # Parse the JSON response into a Python dictionary.
+        json_object = response.json()
+        if "status" in json_object and json_object["status"] == "error":
+            logger.info(json_object)
+            return False
+        else:
+            # Check if the 'model' ID in the JSON matches the card model ID (526) and return True if it does.
+            return json_object["model"]["id"] == 526
 
     def set_os_number(self, os_number):
+        """
+        Set the OS number for the asset.
+
+        Args:
+            os_number (str): The OS number to set.
+
+        Returns:
+            str: The status of the update operation.
+        """
         logger.info(f"Starting to write OS number: {os_number} for asset: {self.asset_tag}")
-        device_id = self.snipe.id_from_asset_tag(self.asset_tag)
         payload = f'{{"_snipeit_broj_osnovnog_sredstva_3":"{os_number}"}}'
-        self.snipe.all_assets.updateDevice(server=self.snipe.server, token=self.snipe.token, DeviceID=device_id,
-                                           payload=payload)
-        logger.info(f"Successfully written OS number: {os_number} for asset: {self.asset_tag}")
-        return id
+        response = requests.patch(self.url, headers=self.headers_patch, data=payload)
+        json_object = response.json()
+        if json_object["status"] == "error":
+            logger.info(json_object)
+        else:
+            logger.info(f"Successfully written OS number: {os_number} for asset: {self.asset_tag}")
+        return json_object["status"]
 
     def set_zopu(self):
+        """
+        Set ZOPU tag for the asset.
+
+        Returns:
+            str: The status of the update operation.
+        """
         logger.info(f"Starting to set ZOPU for asset: {self.asset_tag}")
-        device_id = self.snipe.id_from_asset_tag(asset_tag=self.asset_tag)
         payload = '{"_snipeit_zopu_2":"ZOPU"}'
-        self.snipe.all_assets.updateDevice(server=self.snipe.server, token=self.snipe.token, DeviceID=device_id,
-                                           payload=payload)
-        logger.info(f"Successfully set ZOPU for asset: {self.asset_tag}")
+        response = requests.patch(self.url, headers=self.headers_patch, data=payload)
+        json_object = response.json()
+        if json_object["status"] == "error":
+            logger.info(json_object)
+        else:
+            logger.info(f"Successfully set ZOPU for asset: {self.asset_tag}")
+        return json_object["status"]
 
     def set_card_dec(self, card_dec):
+        """
+        Set the card decimal value for the asset if it is  a card.
+
+        Args:
+            card_dec (str): The card decimal value to set.
+
+        Returns:
+            str: The status of the update operation.
+        """
+        if not self.__is_card():
+            logger.info(f"Error setting card dec: {card_dec} to asset: {self.asset_tag}! -- {self.asset_tag} is not card!")
+            return
         logger.info(f"Starting to set card_dec on asset: {self.asset_tag}")
-        device_id = self.snipe.id_from_asset_tag(asset_tag=self.asset_tag)
         payload = f'{{"_snipeit_kartica_decimal_jantar_6":"{card_dec}"}}'
-        self.snipe.all_assets.updateDevice(server=self.snipe.server, token=self.snipe.token, DeviceID=device_id,
-                                           payload=payload)
-        logger.info(f"Successfully updated card_dec on asset: {self.asset_tag}")
+        response = requests.patch(self.url, headers=self.headers_patch, data=payload)
+        json_object = response.json()
+        if json_object["status"] == "error":
+            logger.info(json_object)
+        else:
+            logger.info(f"Successfully updated card_dec on asset: {self.asset_tag}")
+        return json_object["status"]
 
     def set_card_hex(self, card_hex):
+        """
+        Set the card hexadecimal value for the asset if it is  a card.
+
+        Args:
+            card_hex (str): The card hexadecimal value to set.
+
+        Returns:
+            str: The status of the update operation.
+        """
+        if not self.__is_card():
+            logger.info(f"Error setting card hex: {card_hex} to asset: {self.asset_tag}! -- {self.asset_tag} is not card!")
+            return
         logger.info(f"Starting to set card_hex on asset: {self.asset_tag}")
-        device_id = self.snipe.id_from_asset_tag(asset_tag=self.asset_tag)
         payload = f'{{"_snipeit_kartica_hex_sofabar_5":"{card_hex}"}}'
-        self.snipe.all_assets.updateDevice(server=self.snipe.server, token=self.snipe.token, DeviceID=device_id,
-                                           payload=payload)
-        logger.info(f"Successfully updated card_hex on asset: {self.asset_tag}")
+        response = requests.patch(self.url, headers=self.headers_patch, data=payload)
+        json_object = response.json()
+        if json_object["status"] == "error":
+            logger.info(json_object)
+        else:
+            logger.info(f"Successfully updated card_hex on asset: {self.asset_tag}")
+        return json_object["status"]
 
 
 class AccOsData:
@@ -592,14 +844,6 @@ def get_users():
     # my_snipe.get_checked_out_assets_by_id("4")
     print(my_snipe.get_checked_out_accessories_by_id("155"))
 
-def test_write():
-    import cProfile
-    import pstats
-    with cProfile.Profile() as pr:
-        Update().os_number_list(asset_tag="1", os_number="1001")
-    stats = pstats.Stats(pr)
-    stats.sort_stats(pstats.SortKey.TIME)
-    stats.print_stats()
 
 
 def my_diff():
@@ -613,14 +857,33 @@ def test_is_rtd():
     list = my_report.non_rtd_assets(os_numbers=["129", "508", "1222"])
     print(list)
 
+def test_id_from_atag():
+    my_snipe = Snipe()
+    print(my_snipe.id_from_asset_tag(asset_tag="10400"))
+
+def test_new_get():
+    my_snipe = Snipe()
+    my_snipe.create_pretty_dict_from_snipe_data(raw_data=my_snipe.get_all_raw_data_form_snipe())
+    #print(len(my_snipe.get_all_raw_data_form_snipe()))
+
+def test_new_update():
+    print(Update(asset_id="2944").set_os_number("65656"))
+
+def test_tag_fom_id():
+    my_snipe = Snipe()
+    print(my_snipe.asset_tag_from_id(asset_id="2944436"))
 
 if __name__ == "__main__":
     # test_is_rtd()
     # my_diff()
     # main()
-    get_users()
+    # get_users()
     # test()
     # Reports().matching_snipe_and_os_report()
     # Reports().non_matching_snipe_and_os_report()
     # Reports().rest_in_snipe_report()
     # test_write()
+    # test_new_get()
+    # test_id_from_atag()
+    test_new_update()
+    # test_tag_fom_id()
