@@ -19,21 +19,43 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
-from flask_admin import Admin
+from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import *
 from flask_admin.menu import MenuLink
 import urllib.parse
 from functools import wraps
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine
+from sqlalchemy.exc import NoSuchTableError, ProgrammingError, SQLAlchemyError
+
 
 if "venv" in sys.path[0]:
     root_path = (sys.path[1] + "/")
 else:
     root_path = (sys.path[0] + "/")
 
+
+dotenv_path = (root_path + ".env")
+print(dotenv_path)
+load_dotenv(dotenv_path=dotenv_path)
+
 app = Flask(__name__)
 app.secret_key = 'kljuc'
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////' + root_path + 'database/database.db'
+
+radius_db_name = os.getenv("radius_db_name")
+radius_db_user = os.getenv("radius_db_user")
+radius_db_password = os.getenv("radius_db_password")
+radius_db_ipaddress = os.getenv("radius_db_ipaddress")
+
+
+engine_radius = create_engine(f"mysql+mysqlconnector://{radius_db_user}:{radius_db_password}@{radius_db_ipaddress}/{radius_db_name}")
+radius_session = Session(engine_radius)
+Base = automap_base()
+Base.prepare(autoload_with=engine_radius)
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 bcrypt = Bcrypt(app)
@@ -41,8 +63,6 @@ bcrypt = Bcrypt(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
-
-admin = Admin(app, template_mode='bootstrap3')
 
 
 @login_manager.user_loader
@@ -66,7 +86,115 @@ class Rights(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
 
-admin.add_view(ModelView(User, db.session))
+class MyModelView(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for("login"))
+
+    def get_query(self):
+        try:
+            self.session.close()
+            self.session = radius_session
+            return super(MyModelView, self).get_query()
+        except (NoSuchTableError, ProgrammingError) as e:
+            # Handle the case where the table does not exist or other database-related errors
+            # You can log the error or take other appropriate action
+            # For example, you can return an empty query to prevent an application crash
+            print(f"Database error: {e}")
+            return None  # Or return an empty query, depending on your requirements
+
+
+class MyModelView2(ModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for("login"))
+
+    def get_query(self):
+        try:
+            self.session.close()
+            self.session = db.session
+            return super(MyModelView2, self).get_query()
+        except (NoSuchTableError, ProgrammingError) as e:
+            # Handle the case where the table does not exist or other database-related errors
+            # You can log the error or take other appropriate action
+            # For example, you can return an empty query to prevent an application crash
+            print(f"Database error: {e}")
+            return None  # Or return an empty query, depending on your requirements
+
+
+class MyAdminIndexView(AdminIndexView):
+    def is_accessible(self):
+        return current_user.is_authenticated
+
+    def inaccessible_callback(self, name, **kwargs):
+        return redirect(url_for("login"))
+
+
+class UserModelView(MyModelView2):
+    column_searchable_list = [column.name for column in User.__table__.columns]
+
+
+admin = Admin(app, index_view=MyAdminIndexView(), name="Admin", template_mode='bootstrap3')
+admin.add_view(UserModelView(User, db.session))
+
+Nas = Base.classes.nas
+Radcheck = Base.classes.radcheck
+Radacct = Base.classes.radacct
+Radgroupcheck = Base.classes.radgroupcheck
+Radgroupreply = Base.classes.radgroupreply
+Radpostauth = Base.classes.radpostauth
+Radreply = Base.classes.radreply
+Radusergroup = Base.classes.radusergroup
+
+
+class NasModelView(MyModelView):
+    column_searchable_list = [column.name for column in Nas.__table__.columns]
+
+
+class RadcheckModelView(MyModelView):
+    column_searchable_list = [column.name for column in Radcheck.__table__.columns]
+
+
+class RadacctModelView(MyModelView):
+    column_searchable_list = [column.name for column in Radacct.__table__.columns]
+
+
+class RadgroupcheckModelView(MyModelView):
+    column_searchable_list = [column.name for column in Radgroupcheck.__table__.columns]
+
+
+class RadgroupreplyModelView(MyModelView):
+    column_searchable_list = [column.name for column in Radgroupreply.__table__.columns]
+
+
+class RadpostauthModelView(MyModelView):
+    column_searchable_list = [column.name for column in Radpostauth.__table__.columns]
+
+
+class RadreplyModelView(MyModelView):
+    column_searchable_list = [column.name for column in Radreply.__table__.columns]
+
+
+class RadusergroupModelView(MyModelView):
+    column_searchable_list = [column.name for column in Radusergroup.__table__.columns]
+
+
+admin.add_view(NasModelView(Nas, radius_session))
+admin.add_view(RadcheckModelView(Radcheck, radius_session))
+admin.add_view(RadacctModelView(Radacct, radius_session))
+admin.add_view(RadgroupcheckModelView(Radgroupcheck, radius_session))
+admin.add_view(RadgroupreplyModelView(Radgroupreply, radius_session))
+admin.add_view(RadpostauthModelView(Radpostauth, radius_session))
+admin.add_view(RadreplyModelView(Radreply, radius_session))
+admin.add_view(RadusergroupModelView(Radusergroup, radius_session))
+
+
+admin.add_link(MenuLink(name='SnipeIT-Framework', category='', url='/'))
+admin.add_link(MenuLink(name='Logout', category='', url='/logout'))
 
 
 class RegisterForm(FlaskForm):
@@ -116,6 +244,11 @@ def admin_required_level(min_level):
     return decorator
 
 
+@app.route('/radius')
+def radius():
+    return render_template("radius.html")
+
+
 @app.route("/")
 def index():
     return render_template('index.html')
@@ -126,9 +259,9 @@ def index():
 @admin_required_level(2)
 def snipe_changes():
     # root_path = (sys.path[0] + "/")  # /Users/dpustahija1/PycharmProjects/os-snipe_diff/
-    dotenv_path = (root_path + ".env")
+    """dotenv_path = (root_path + ".env")
     print(dotenv_path)
-    load_dotenv(dotenv_path=dotenv_path)
+    load_dotenv(dotenv_path=dotenv_path)"""
     file_name1 = ""
     file_name2 = ""
     save_file_name = "file"
@@ -269,10 +402,11 @@ def login():
         if user:
             if bcrypt.check_password_hash(user.password, form.password.data):
                 login_user(user)
-                flash("uspješno ulogiran " + user.username, "success")
-                return redirect(url_for("index"))
+                flash("Uspješno ulogiran " + user.username, "success")
+                print(f"Referrer: {request.referrer}")
+                return redirect( url_for("index"))
             else:
-                flash("kriva lozinka", "warning")
+                flash("Kriva lozinka", "warning")
                 return redirect(url_for("login"))
         else:
             flash("Korisnik ne postoji", "warning")
@@ -478,4 +612,5 @@ def page_not_found(e):
 
 
 if __name__ == "__main__":
+    # load_freenas_db()
     app.run(debug=True)

@@ -13,28 +13,13 @@ import diff
 from ExcelReport import Report
 import sys
 import logging
+from framework_utils import config
 
 ###############################
 reload(snipeit)
 
-if "venv" in sys.path[0]:
-    root_path = (sys.path[1] + "/")
-else:
-    root_path = (sys.path[0] + "/")
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter('%(asctime)s:%(pathname)s:%(funcName)s:%(name)s:%(process)d:%(message)s')
-
-file_handler = logging.FileHandler(root_path + 'logs/log_py.log')
-file_handler.setFormatter(formatter)
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(formatter)
-
-logger.addHandler(file_handler)
-logger.addHandler(stream_handler)
+root_path = config.get_root_path()
+logger = config.configure_logging(log_file_name="log_py.log", logger_name=__name__)
 
 
 class Snipe:
@@ -510,12 +495,15 @@ class Reports:
         for os_number in os_numbers:
             if os_number in self.my_snipe.os_number:
                 if not self.my_check.is_rtd(os_number=os_number):
+                    print(os_number)
                     asset_tag = self.my_check.asset_tag_from_os(os_number=os_number)
+                    print(asset_tag)
                     asset_json = (json.loads(
                         self.my_snipe.all_assets.getDetailsByTag(server=self.my_snipe.server, token=self.my_snipe.token,
                                                                  AssetTag=asset_tag)))
                     person = asset_json["assigned_to"]["name"]
-                    asset = {"asset_tag": asset_tag, "person": person, "os_number": os_number}
+                    last_checkout = asset_json["last_checkout"].get("formatted", "") if asset_json["last_checkout"] is not None else "Unknown date"
+                    asset = {"asset_tag": asset_tag, "person": person, "os_number": os_number, "last_checkout": last_checkout}
                     asset_list.append(asset)
             else:
                 os_numbers_not_in_snipe.append(os_number)
@@ -529,6 +517,8 @@ class Reports:
                                    lst1=[item['os_number'] for item in asset_list])
         report.write_list_to_excel(save_name="non_rtd_assets", start_column="C", col_name="Odgovorna osoba",
                                    lst1=[item['person'] for item in asset_list])
+        report.write_list_to_excel(save_name="non_rtd_assets", start_column="D", col_name="Datum zadnjeg checkout-a",
+                                   lst1=[item['last_checkout'] for item in asset_list])
         logger.info("Generated non RTD asset Excel report")
         return asset_list
 

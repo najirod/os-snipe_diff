@@ -3,11 +3,9 @@ from openpyxl import load_workbook
 from openpyxl import Workbook
 from datetime import date
 import sys
+from framework_utils import config
 
-if "venv" in sys.path[0]:
-    root_path = (sys.path[1] + "/")
-else:
-    root_path = (sys.path[0] + "/")
+root_path = config.get_root_path()
 
 
 class Report:
@@ -45,7 +43,7 @@ class Report:
                 pass
             else:
                 if prefix_for_tag is True:
-                    item_temp = "http://10.10.1.54/hardware/bytag?assetTag=" + item
+                    item_temp = "http://snipeit.sofascore.com/hardware/bytag?assetTag=" + item
                     full_item = '=HYPERLINK("{}", "{}")'.format(item_temp, item)
                     sheet_ranges_result[start_column + "1"] = col_name
                     sheet_ranges_result[start_column + str(cell_n)] = full_item

@@ -5,33 +5,15 @@ import sys
 from dotenv import load_dotenv
 import os
 import logging
+from framework_utils import config
 
-if "venv" in sys.path[0]:
-    root_path = (sys.path[1] + "/")
-else:
-    root_path = (sys.path[0] + "/")
-
+root_path = config.get_root_path()
+logger = config.configure_logging("log_py.log", logger_name=__name__)
 today_date = date.today().strftime("%d.%m.%Y")
-#items = [{'item': "fdscdtfd"},{'item': "fdscdtfd"},{'item': "fdscdtfd"},]
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter('%(asctime)s:%(pathname)s:%(funcName)s:%(name)s:%(process)d:%(message)s')
-
-file_handler = logging.FileHandler(root_path + 'logs/log_py.log')
-file_handler.setFormatter(formatter)
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(formatter)
-
-logger.addHandler(file_handler)
-logger.addHandler(stream_handler)
-
 
 
 class PdfStatement:
-    def __init__(self, user="Ime i Prezime", date= "", items=[{'item': "fdscdtfd"}]):
+    def __init__(self, user="Ime i Prezime", date="", items=[{'item': "fdscdtfd"}]):
         dotenv_path = (root_path + ".env")
         load_dotenv(dotenv_path=dotenv_path)
         self.save_location = root_path + os.getenv("statement_save_location")
@@ -99,7 +81,16 @@ class PdfStatement:
         pdfkit.from_string(output_text, self.save_location + self.full_save_name, css=root_path+'static/css/statements.css', options=self.options)
         return self.full_save_name
 
-    """TODO:"""
+    def wifi_credentials(self, username, password):
+        html_template = "izjava_wifi.html"
+        template = self.template_env.get_template(html_template)
+        self.context = {'username': username, 'password': password, 'date': self.date}
+        output_text = template.render(self.context)
+        pdf_bytes = pdfkit.from_string(output_text, False, css=os.path.join(root_path, 'static/css/statements.css'),
+                                       options=self.options)
+        return pdf_bytes
+
+    # TODO:
     def mobitel(self, user="Ime i Prezime", date=today_date, items="Zaduženja", budget="600", price="500", pdv=True):
         self.full_name = user
         self.date = date
@@ -148,6 +139,11 @@ class Create:
         statement.razduzenje()
         return statement.full_save_name
 
+    def wifi_credentials(self):
+        statement = PdfStatement()
+        pdf = statement.wifi_credentials(username="Pero Perić", password="Password")
+        with open("test_files/test.pdf", "wb") as pdf_file:
+            pdf_file.write(pdf)
 
 
 def test():
@@ -156,4 +152,5 @@ def test():
 
 
 if __name__ == "__main__":
-    test()
+    # test()
+    Create().wifi_credentials()

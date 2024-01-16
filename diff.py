@@ -7,24 +7,10 @@ from ExcelReport import Report
 from dotenv import load_dotenv
 import logging
 
-if "venv" in sys.path[0]:
-    root_path = (sys.path[1] + "/")
-else:
-    root_path = (sys.path[0] + "/")
+from framework_utils import config
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter('%(asctime)s:%(pathname)s:%(funcName)s:%(name)s:%(process)d:%(message)s')
-
-file_handler = logging.FileHandler(root_path + 'logs/log_py.log')
-file_handler.setFormatter(formatter)
-
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(formatter)
-
-logger.addHandler(file_handler)
-logger.addHandler(stream_handler)
+root_path = config.get_root_path()
+logger = config.configure_logging("log_py.log", logger_name=__name__)
 
 
 class Diff:
