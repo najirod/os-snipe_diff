@@ -54,6 +54,8 @@ class Snipe:
         self.offset1 = os.getenv("offset1")  # offset {int} -- default: {0}
         self.limit2 = os.getenv("limit2")  # limit for snipe API GET {int} -- None = All
         self.offset2 = os.getenv("offset2")  # offset {int} -- default: {0}
+        self.limit3 = os.getenv("limit3")  # limit for snipe API GET {int} -- None = All
+        self.offset3 = os.getenv("offset3")  # offset {int} -- default: {0}
         self.total = ""  # number of items assets in snipe {str}
 
         self.asset_tags = []  # list of all asset tags in snipe-it in order
@@ -89,16 +91,19 @@ class Snipe:
                                                   offset=self.offset1)
         raw_data_from_snipe_2 = self.all_assets.get(server=self.server, token=self.token, limit=self.limit2,
                                                     offset=self.offset2)
+        raw_data_from_snipe_3 = self.all_assets.get(server=self.server, token=self.token, limit=self.limit3,
+                                                    offset=self.offset3)
         json_object_snipe = json.loads(raw_data_from_snipe)
         json_object_snipe_2 = json.loads(raw_data_from_snipe_2)
+        json_object_snipe_3 = json.loads(raw_data_from_snipe_3)
 
         self.total = json_object_snipe["total"]
-        l1_l2 = (json_object_snipe['rows'] + json_object_snipe_2['rows'])
+        l1_l2_l3 = (json_object_snipe['rows'] + json_object_snipe_2['rows'] + json_object_snipe_3['rows'])
         with open(self.export_raw_results_path + '.raw_data.json', 'w') as outfile:
-            json.dump(l1_l2, outfile)
+            json.dump(l1_l2_l3, outfile)
         with open(self.export_raw_results_path + 'raw_data ' + date.today().strftime("%d.%m.%Y") + '.json',
                   'w') as outfile:
-            json.dump(l1_l2, outfile)
+            json.dump(l1_l2_l3, outfile)
         with open(self.export_raw_results_path + '.raw_data.json') as j_full:
             self.merged_data = json.load(j_full)
         # return merged_data
