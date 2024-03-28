@@ -517,12 +517,14 @@ class Reports:
                     person = asset_json["assigned_to"]["name"]
                     asset = {"asset_tag": asset_tag, "person": person, "os_number": os_number}
                     asset_list.append(asset)
+                    print(asset)
             else:
                 os_numbers_not_in_snipe.append(os_number)
 
         logger.info(f"{os_numbers_not_in_snipe} not in Snipe")
         report = Report(save_path=self.save_path_rest)
         logger.info("Starting to generate non RTD assets Excel report")
+        print(asset_list)
         report.write_list_to_excel_prefix(save_name="non_rtd_assets", start_column="A", col_name="Asset Tag",
                                           prefix_for_tag=True, lst1=[item['asset_tag'] for item in asset_list])
         report.write_list_to_excel(save_name="non_rtd_assets", start_column="B", col_name="OS Broj",
