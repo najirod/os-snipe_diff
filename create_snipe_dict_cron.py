@@ -51,6 +51,8 @@ class Snipe:
         self.offset1 = os.getenv("offset1")  # offset {int} -- default: {0}
         self.limit2 = os.getenv("limit2")  # limit for snipe API GET {int} -- None = All
         self.offset2 = os.getenv("offset2")  # offset {int} -- default: {0}
+        self.limit3 = os.getenv("limit3")  # limit for snipe API GET {int} -- None = All
+        self.offset3 = os.getenv("offset3")  # offset {int} -- default: {0}
         self.total = ""  # number of items assets in snipe {str}
 
         self.asset_tags = []  # list of all asset tags in snipe-it in order
