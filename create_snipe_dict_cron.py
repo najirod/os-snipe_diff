@@ -74,20 +74,26 @@ class Snipe:
         logger.info(response)
 
 
-    # append list of all assets from snipe to "merged_data"(!!! MAX - 3000 !!!)
+    # append list of all assets from snipe to "merged_data"(!!! MAX - 4500 !!!)
     def get_merged_raw_data_from_snipe(self):
         logger.info("Starting to fetch data from snipeit")
-        raw_data_from_snipe = self.all_assets.get(server=self.server, token=self.token, limit=self.limit1, offset=self.offset1)
-        raw_data_from_snipe_2 = self.all_assets.get(server=self.server, token=self.token, limit=self.limit2, offset=self.offset2)
+        raw_data_from_snipe = self.all_assets.get(server=self.server, token=self.token, limit=self.limit1,
+                                                  offset=self.offset1)
+        raw_data_from_snipe_2 = self.all_assets.get(server=self.server, token=self.token, limit=self.limit2,
+                                                    offset=self.offset2)
+        raw_data_from_snipe_3 = self.all_assets.get(server=self.server, token=self.token, limit=self.limit3,
+                                                    offset=self.offset3)
         json_object_snipe = json.loads(raw_data_from_snipe)
         json_object_snipe_2 = json.loads(raw_data_from_snipe_2)
+        json_object_snipe_3 = json.loads(raw_data_from_snipe_3)
 
         self.total = json_object_snipe["total"]
-        l1_l2 = (json_object_snipe['rows'] + json_object_snipe_2['rows'])
+        l1_l2_l3 = (json_object_snipe['rows'] + json_object_snipe_2['rows'] + json_object_snipe_3['rows'])
         with open(self.export_raw_results_path + '.raw_data.json', 'w') as outfile:
-            json.dump(l1_l2, outfile)
-        with open(self.export_raw_results_path + 'raw_data_' + date.today().strftime("%d.%m.%Y") + '.json', 'w') as outfile:
-            json.dump(l1_l2, outfile)
+            json.dump(l1_l2_l3, outfile)
+        with open(self.export_raw_results_path + 'raw_data ' + date.today().strftime("%d.%m.%Y") + '.json',
+                  'w') as outfile:
+            json.dump(l1_l2_l3, outfile)
         with open(self.export_raw_results_path + '.raw_data.json') as j_full:
             self.merged_data = json.load(j_full)
         # return merged_data
