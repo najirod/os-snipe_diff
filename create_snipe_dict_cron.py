@@ -117,7 +117,7 @@ class Snipe:
                     self.os_number.append(None)
                 else:
                     self.os_number.append(self.merged_data[i]['custom_fields']['Broj osnovnog sredstva']['value'])
-            elif list(self.merged_data[i]['custom_fields'].keys())[0] == 'Broj kartice':
+            elif list(self.merged_data[i]['custom_fields'].keys())[0] == 'Ponistena kartica?':
                 # print("kartica")
                 self.os_number.append(None)
             if self.merged_data[i]["assigned_to"] is None:
