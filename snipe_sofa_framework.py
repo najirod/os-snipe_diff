@@ -66,6 +66,7 @@ class Snipe:
         self.asset_name = []  # list of asset names from snipe-it in order
         self.last_audit_date = []  # list of last audit dates
         self.next_audit_date = []  # list of next audit dates
+        self.jupiter_sync = []  # list of jupiter sync values
 
         self.merged_data = []
 
@@ -112,52 +113,52 @@ class Snipe:
     # appends list of all: asset_tags, serials, suppliers, os_numbers - if None = None
     def get_all_data_from_snipe(self):
         logger.info("Starting to process data")
-        for i in range(int(self.total)):
-            self.asset_tags.append(self.merged_data[i]['asset_tag'])
-            self.serial.append(self.merged_data[i]['serial'])
 
-            if self.merged_data[i]['supplier'] is None:
-                self.supplier.append(None)
-            else:
-                self.supplier.append(self.merged_data[i]['supplier']['name'])
-            if list(self.merged_data[i]['custom_fields'].keys())[0] == 'ZOPU':
-                if self.merged_data[i]['custom_fields']['Broj osnovnog sredstva']['value'] is None:
-                    self.os_number.append(None)
-                else:
-                    self.os_number.append(self.merged_data[i]['custom_fields']['Broj osnovnog sredstva']['value'])
-            elif list(self.merged_data[i]['custom_fields'].keys())[0] == 'Broj kartice':
-                # print("kartica")
-                self.os_number.append(None)
-            if self.merged_data[i]["assigned_to"] is None:
+        for item in self.merged_data[:int(self.total)]:
+            # Asset tag and serial
+            self.asset_tags.append(item.get('asset_tag'))
+            self.serial.append(item.get('serial'))
+
+            # Supplier name or None
+            supplier = item.get('supplier')
+            self.supplier.append(supplier.get('name') if supplier else None)
+
+            # Custom field: OS number
+            custom_fields = item.get('custom_fields', {})
+            os_number = None
+            if 'Broj osnovnog sredstva' in custom_fields:
+                os_number = custom_fields['Broj osnovnog sredstva'].get('value')
+            self.os_number.append(os_number)
+
+            # Assigned person
+            assigned = item.get("assigned_to")
+            if not assigned:
                 self.person.append("rtd")
             else:
-                if self.merged_data[i]["assigned_to"]["name"] is None:
-                    self.person.append(self.merged_data[i]["assigned_to"]["username"])
-                else:
-                    self.person.append(self.merged_data[i]["assigned_to"]["name"])
+                self.person.append(assigned.get("name") or assigned.get("username"))
 
-            if self.merged_data[i]['model']['name'] is None:
-                self.asset_name.append("no name")
+            # Asset name
+            model = item.get('model', {})
+            self.asset_name.append(model.get('name') or "no name")
 
-            else:
-                self.asset_name.append(self.merged_data[i]["model"]["name"])
+            # Audit dates
+            last_audit = item.get('last_audit_date')
+            self.last_audit_date.append(last_audit.get('formatted') if last_audit else None)
 
-            if self.merged_data[i]['last_audit_date'] is None:
-                self.last_audit_date.append(None)
-            else:
-                self.last_audit_date.append(self.merged_data[i]['last_audit_date']["formatted"])
+            next_audit = item.get('next_audit_date')
+            self.next_audit_date.append(next_audit.get('formatted') if next_audit else None)
 
-            if self.merged_data[i]['next_audit_date'] is None:
-                self.next_audit_date.append(None)
-            else:
-                self.next_audit_date.append(self.merged_data[i]['next_audit_date']['formatted'])
+            # Jupiter Sync
+            jupiter_sync = custom_fields.get('Jupiter Sync')
+            self.jupiter_sync.append(jupiter_sync.get('value') == 'Yes' if jupiter_sync else None)
+
         logger.info("Data processing is done")
 
     # creates dict of needed data from snipe
     def create_dict_from_snipe_data(self):
         logger.info("Starting to create pretty Json")
         keys_for_l2_dict = ["person", "asset_name", "serial", "supplier", "os_number", "last_audit_date",
-                            "next_audit_date"]
+                            "next_audit_date", "jupiter_sync"]
         self.dict_from_snipe_data = dict.fromkeys(self.asset_tags)
         for key in self.dict_from_snipe_data:
             key_index = self.asset_tags.index(key)
@@ -169,6 +170,7 @@ class Snipe:
             self.dict_from_snipe_data[key]["os_number"] = self.os_number[key_index]
             self.dict_from_snipe_data[key]["last_audit_date"] = self.last_audit_date[key_index]
             self.dict_from_snipe_data[key]["next_audit_date"] = self.next_audit_date[key_index]
+            self.dict_from_snipe_data[key]["jupiter_sync"] = self.jupiter_sync[key_index]
         with open(
                 self.export_pretty_results_path + 'dict_from_snipe_data ' + date.today().strftime("%d.%m.%Y") + '.json',
                 'w') as write_file:
@@ -624,8 +626,8 @@ def test_is_rtd():
 if __name__ == "__main__":
     # test_is_rtd()
     # my_diff()
-    # main()
-    get_users()
+    main()
+    # get_users()
     # test()
     # Reports().matching_snipe_and_os_report()
     # Reports().non_matching_snipe_and_os_report()
