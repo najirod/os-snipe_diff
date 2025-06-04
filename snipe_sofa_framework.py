@@ -178,7 +178,7 @@ class Snipe:
         logger.info("Created pretty Json :)")
 
     def statement_user_data(self):
-        url = f"{self.server}/api/v1/users?limit=300&offset=0&sort=created_at&order=desc&deleted=false&all=false"
+        url = f"{self.server}/api/v1/users?limit=500&offset=0&sort=created_at&order=desc&deleted=false&all=false"
         response = requests.get(url, headers=self.headers)
         json_object_snipe = response.json()
         self.total_users = json_object_snipe["total"]
